@@ -2,25 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class handles controlling the camera
+/// </summary>
 public class CameraControls : MonoBehaviour {
 
+    GameMaster master;
     Transform swivel, stick;
 
+    //Zoom parameters
     float zoom = 1f;
     public float zoomMax, zoomMin;
     public float minZoomAngle, maxZoomAngle;
-
     public float moveSpeedMinZoom, moveSpeedMaxZoom;
 
+    //Rotation parameters
     public float rotationSpeed;
-    float rotationAngle;
 
+    /// <summary>
+    /// Initializes camera.
+    /// </summary>
     void Awake()
     {
         swivel = transform.GetChild(0);
         stick = swivel.GetChild(0);
+        master = GetComponentInParent<GameMaster>();
     }
 
+    /// <summary>
+    /// Checking for input.
+    /// </summary>
     void Update()
     {
         float zoomDelta = Input.GetAxis("Mouse ScrollWheel");
@@ -40,36 +51,54 @@ public class CameraControls : MonoBehaviour {
         if(deltaTurn != 0)
         {
             AdjustRotation(deltaTurn);
-        }
-        
+        }        
     }
 
+    /// <summary>
+    /// This method asjusts camera zoom by said delta
+    /// </summary>
     void AdjustZoom(float delta)
     {
+        //Making sure zoom stays within 0-1 range
         zoom = Mathf.Clamp01(zoom + delta);
 
+        //Linearly interpolating camera's Z coordinate
         float distance = Mathf.Lerp(zoomMax, zoomMin, zoom);
         stick.localPosition = new Vector3(0, 0, distance);
 
+        //Changing camera's angle from sideview to top down
         float angle = Mathf.Lerp(maxZoomAngle, minZoomAngle, zoom);
         swivel.localRotation = Quaternion.Euler(angle, 0f, 0f);
     }
 
+    /// <summary>
+    /// This method adjusts camere position by said deltaX and deltaZ
+    /// </summary>
     void AdjustPosition(float deltaX, float deltaZ)
     {
+        //Direction of moving camera is based on where it's looking multiplied with delta
+        //Vector with deltaX and Z is normalized to prevent double speed when moving camera diagonally
         Vector3 direction = transform.localRotation * new Vector3(deltaX, 0, deltaZ).normalized;
+
+        //This allows correct smooth moving of camera and basicaly ensures that we use 
+        //largest delta co calculate distance for camera to travel
         float damping = Mathf.Max(Mathf.Abs(deltaX), Mathf.Abs(deltaZ));
+
+        //Distance for camera to travel is based on it's damping, zoom modificator and time delta 
+        //(ensures it's framerate independent)
         float distance = Mathf.Lerp(moveSpeedMinZoom, moveSpeedMaxZoom, zoom) * damping * Time.deltaTime;
 
+        //Applying new camera position
         Vector3 position = transform.localPosition;
         position += direction * distance;
         transform.localPosition = ClampPosition(position);
     }
 
+    /// <summary>
+    /// This method is used to make sure that camera doesn't go out of bounds
+    /// </summary>
     Vector3 ClampPosition(Vector3 position)
-    {
-        GameMaster master = GetComponentInParent<GameMaster>();
-
+    {       
         float maxX = (master.mapWidth - 0.5f) * (HexMetrics.innerRadius * 2f);
         position.x = Mathf.Clamp(position.x, 0f, maxX);
 
@@ -79,17 +108,13 @@ public class CameraControls : MonoBehaviour {
         return position;
     }
 
+    /// <summary>
+    /// This method is used to rotate the camera by said delta
+    /// </summary>
+    /// <param name="delta"></param>
     void AdjustRotation(float delta)
     {
-        rotationAngle += delta * rotationSpeed * Time.deltaTime;
-        if (rotationAngle < 0f)
-        {
-            rotationAngle += 360f;
-        }
-        else if (rotationAngle >= 360f)
-        {
-            rotationAngle -= 360f;
-        }
-        transform.localRotation = Quaternion.Euler(0f, rotationAngle, 0f);
+        float rotation = transform.localRotation.eulerAngles.y + (delta * rotationSpeed * Time.deltaTime);
+        transform.localRotation = Quaternion.Euler(0f, rotation, 0f);
     }
 }
