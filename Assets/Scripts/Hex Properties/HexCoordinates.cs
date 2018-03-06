@@ -30,7 +30,7 @@ public struct HexCoordinates{
     /// Creates cube coordinates set from offset coordinates
     /// </summary>
     public static HexCoordinates fromOffsetCoordinates(int x, int z)
-    {
+	{
         return new HexCoordinates(x - z / 2, z);
     }
 

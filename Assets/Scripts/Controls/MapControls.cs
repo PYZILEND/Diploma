@@ -10,11 +10,15 @@ public class MapControls : MonoBehaviour {
 
     GameMaster master; //Needed to reference logical map
 
-    //Needed to refrernce itself 
+    //Needed to reference itself 
     //for switching between editor and game mode
-    MapControls controls; 
+    MapControls controls;
+
+    int distance;
 
     LogicalMapCell selectedCell; //Holds last clicked cell
+
+    LogicalMapCell hoveredCell; //Holds last hovered cell
 
     /// <summary>
     /// Initializes map controls
@@ -37,16 +41,56 @@ public class MapControls : MonoBehaviour {
             {
                 if (cell != selectedCell)
                 {
+
                     if (selectedCell)
                     {
-                        selectedCell.DisableHighlight();
+                       selectedCell.DisableHighlight();
                     }
+                    //master.logicalMap.HideAllHighlights();
+                    //master.logicalMap.EraseShootingRange();
+                    //master.logicalMap.HideAllLabels();
+                    // Pathfinder.FindDistance(distance,master.logicalMap, cell);
+                    //master.logicalMap.HighlightShootingRange();
+                    //Pathfinder.FindWeightedDistance(distance, master.logicalMap, cell);
                     cell.EnableHighlight(Color.black);
+                    //master.logicalMap.ShowDistanceLabel();
                     selectedCell = cell;
                 }
             }
         }
-	}
+        else
+        {
+           if (Input.GetKey(KeyCode.LeftShift))
+            {
+                if (selectedCell)
+                {
+                    LogicalMapCell cell;
+                    if (cell = GetCellUnderCoursor())
+                    {
+                        if (cell != selectedCell)
+                        {
+                            master.logicalMap.ShowAllHighlights();
+                            selectedCell.EnableHighlight(Color.black);
+                            /*if (hoveredCell)
+                            {
+                                hoveredCell.DisableHighlight();
+                            }*/
+                            cell.EnableHighlight(Color.blue);
+                            Pathfinder.FindPath(master.logicalMap, selectedCell, cell);
+                            hoveredCell = cell;
+                        }
+                    }
+                }
+            }
+        }
+         
+    }
+
+
+    public void GetDistance(float distance)
+    {
+       this.distance=(int)distance;
+    }
 
     /// <summary>
     /// Uses current mouse position to raycast
@@ -83,7 +127,7 @@ public class MapControls : MonoBehaviour {
         }
         else
         {
-            master.logicalMap.HideAllHighlights();
+           // master.logicalMap.HideAllHighlights();
             master.logicalMap.HideAllLabels();
         }
     }
