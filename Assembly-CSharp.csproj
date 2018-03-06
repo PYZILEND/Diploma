@@ -62,6 +62,7 @@
      <Compile Include="Assets\Scripts\MapEditor\MapEditorControls.cs" />
      <Compile Include="Assets\Scripts\Pathfinding\Pathfinder.cs" />
      <Compile Include="Assets\Scripts\Physical Map\PhysicalMap.cs" />
+     <Compile Include="Assets\Scripts\Units\Unit.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
