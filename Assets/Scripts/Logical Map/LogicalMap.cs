@@ -16,6 +16,8 @@ public class LogicalMap : MonoBehaviour {
     public Image highlightPrefab;
     Canvas mapCanvas;
 
+    int width;
+
     void Awake()
     {
         mapCanvas = GetComponentInChildren<Canvas>();
@@ -27,7 +29,8 @@ public class LogicalMap : MonoBehaviour {
     /// <param name="width">Width of the map in hexagons</param>
     /// <param name="height">Height of the map in hexagons</param>
     public void CreateMap(int width, int height)
-    {
+	{
+        this.width = width;
         //Initializing array
         cells = new LogicalMapCell[width * height];
 
@@ -62,12 +65,36 @@ public class LogicalMap : MonoBehaviour {
         cell.transform.localPosition = position;
         cell.coordinates = HexCoordinates.fromOffsetCoordinates(x, z);
         cell.terrain = TerrainType.Plain;
+        cell.InitializeArray();
+        //connecting cell to its neighbors
+        if (x > 0)
+        {
+            cell.SetNeighbor(HexDirection.W, cells[i - 1]);
+        }
+        if (z > 0)
+        {
+            if ((z & 1) == 0)
+            {
+                cell.SetNeighbor(HexDirection.SE, cells[i - width]);
+                if (x > 0)
+                {
+                    cell.SetNeighbor(HexDirection.SW, cells[i - width - 1]);
+                }
+            }
+            else {
+                cell.SetNeighbor(HexDirection.SW, cells[i - width]);
+                if (x < width - 1)
+                {
+                    cell.SetNeighbor(HexDirection.SE, cells[i - width + 1]);
+                }
+            }
+        }
 
         //Initializing cell's label
         Text label = Instantiate(cellLabelPrefab);
         label.rectTransform.SetParent(mapCanvas.transform, false);
         label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
-        label.text = cell.coordinates.X + "\n" + cell.coordinates.Y + "\n" + cell.coordinates.Z;
+	    //label.text = cell.coordinates.ToStringOnMultipleLines();
 
         //Initializing cell's highlight
         Image image = Instantiate(highlightPrefab);
@@ -81,6 +108,30 @@ public class LogicalMap : MonoBehaviour {
         cell.CalculateUIPosition();
         cell.DisableHighlight();
         cell.DisableLabel();
+    }
+
+    public void ShowDistanceLabel()
+    {
+        for (int i = 0; i < cells.Length; i++)
+        {
+            if (cells[i].inShootingRange) { cells[i].EnableLabel(cells[i].distance.ToString()); }
+        }
+    }
+
+    public void HighlightShootingRange()
+    {
+        for (int i = 0; i < cells.Length; i++)
+        {
+            if (cells[i].inShootingRange) { cells[i].EnableHighlight(); }
+        }
+    }
+
+    public void EraseShootingRange()
+    {
+        for (int i = 0; i < cells.Length; i++)
+        {
+            cells[i].inShootingRange = false;
+        }
     }
 
     public void HideAllHighlights()

@@ -9,10 +9,11 @@ using UnityEngine;
 public class GameMaster : MonoBehaviour {
 
     //Data for map initialization
+    
     public LogicalMap logicalMapPrefab;
     public PhysicalMap physicalMapPrefab;
-    public int mapWidth = 6;
-    public int mapHeight = 6;
+    public int mapWidth = 28;
+    public int mapHeight = 28;
 
     //Stores initialized maps
     public LogicalMap logicalMap;
@@ -28,6 +29,7 @@ public class GameMaster : MonoBehaviour {
         physicalMap.CreateMap(mapWidth, mapHeight);
 
         logicalMap = Instantiate(logicalMapPrefab, this.transform, false);
-        logicalMap.CreateMap(mapWidth, mapHeight);        
+        logicalMap.CreateMap(mapWidth, mapHeight);
+        logicalMap.ShowAllHighlights();
     }
 }

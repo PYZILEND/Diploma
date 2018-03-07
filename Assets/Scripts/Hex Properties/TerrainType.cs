@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public enum TerrainType
 {
-    Plain, Forest, Sand, Swamp, River, Ocean, Impassable
+    Plain, Road, Forest, Sand, River, Ocean, Impassable
 }
 
 /// <summary>
@@ -25,20 +25,20 @@ public static class TerrainTypeExtentions
         switch (type)
         {
             case TerrainType.Plain:
-                return Color.black;
+				return Color.yellow;
+			case TerrainType.Road:
+				return Color.white;
             case TerrainType.Forest:
                 return Color.green;
             case TerrainType.Sand:
-                return Color.yellow;
-            case TerrainType.Swamp:
                 return Color.red;
             case TerrainType.River:
-                return Color.grey;
+                return Color.cyan;
             case TerrainType.Ocean:
                 return Color.blue;
             case TerrainType.Impassable:
                 return Color.magenta;
         }
-        return Color.white;
+        return Color.black;
     }
 }

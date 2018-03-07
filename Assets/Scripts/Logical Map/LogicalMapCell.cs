@@ -16,8 +16,19 @@ public class LogicalMapCell : MonoBehaviour {
     public HexCoordinates coordinates;     
     public TerrainType terrain;
 
+    //array for storing 6 or less neighbors of cell
+    [SerializeField]
+    LogicalMapCell[] neighbors;
+
+    public bool inShootingRange;
+    public bool isReachable;
+    public int distance;
+
+    public LogicalMapCell PathFrom { get; set; }
     //Following 6 methods seem redundant, but they might end up getting more complex,
     //thus we're going to keep them for now
+
+
     public void EnableHighlight()
     {
         highlight.enabled = true;
@@ -58,6 +69,11 @@ public class LogicalMapCell : MonoBehaviour {
         highlight.color = TerrainTypeExtentions.TypeToColor(terrain);
     }
 
+    public void InitializeArray()
+    {
+        neighbors = new LogicalMapCell[6];
+    }
+
     /// <summary>
     /// Aligns this cell's UI elements to it's
     /// relative physical map location
@@ -75,5 +91,26 @@ public class LogicalMapCell : MonoBehaviour {
 
         highlight.transform.position = position;
         highlight.transform.localRotation = Quaternion.Euler(hit.normal);
+    }
+
+    /// <summary>
+    /// Returns its neighbor for any given direction
+    /// </summary>
+    /// <param name="direction">direction for retrieving neighbor</param>
+    /// <returns>neighbor of the cell</returns>
+    public LogicalMapCell GetNeighbor(HexDirection direction)
+    {
+        return neighbors[(int)direction];
+    }
+
+    /// <summary>
+    /// Set cell's neighbor and neighbor's neighbor as current cell
+    /// </summary>
+    /// <param name="direction">direction of neighbor</param>
+    /// <param name="cell">neighbor cell</param>
+    public void SetNeighbor(HexDirection direction, LogicalMapCell cell)
+    {
+        neighbors[(int)direction] = cell;
+        cell.neighbors[(int)direction.Opposite()] = this;
     }
 }

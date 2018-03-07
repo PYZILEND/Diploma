@@ -11,7 +11,6 @@ public class PhysicalMap : MonoBehaviour {
 
     Mesh mesh;
     MeshCollider meshCollider;
-
     //Data used to build mesh
     List<Vector3> vertices;
     List<int> triangles;   

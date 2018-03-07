@@ -5,7 +5,12 @@ licenseType: Free
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - shader1: {fileID: 4800000, guid: fa878bff34f5e794abc040f44524b497, type: 3}
+  - logicalMapPrefab: {instanceID: 0}
+  - physicalMapPrefab: {instanceID: 0}
+  - logicalMap: {instanceID: 0}
+  - physicalMap: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

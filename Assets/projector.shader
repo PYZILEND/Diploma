@@ -1,0 +1,76 @@
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced '_Projector' with 'unity_Projector'
+
+Shader "Projector/projector" {
+	Properties{
+		_Color("Color", Color) = (1,1,1,1)
+		_Radius("Radius", Float) = 1
+		_Mid("Midpoint", Vector) = (0,0,0,0)
+		_Width("Width", Range(0,1)) = 0.1
+	}
+		SubShader{
+		Pass{
+		Blend SrcAlpha OneMinusSrcAlpha
+		// add color of _ShadowTex to the color in the framebuffer 
+		ZWrite Off // don't change depths
+		Offset - 1, -1 // avoid depth fighting
+
+		CGPROGRAM
+
+#pragma vertex vert  
+#pragma fragment frag 
+
+		// User-specified properties
+		half _Radius;
+	float3 _Mid;
+	half _Width;
+	uniform fixed4 _Color;
+
+	// Projector-specific uniforms
+	uniform float4x4 unity_Projector; // transformation matrix 
+									  // from object space to projector space 
+
+	struct vertexInput {
+		float4 vertex : POSITION;
+		float3 normal : NORMAL;
+	};
+	struct vertexOutput {
+		float4 pos : SV_POSITION;
+		float4 posProj : TEXCOORD0;
+		// position in projector space
+	};
+
+	vertexOutput vert(vertexInput input)
+	{
+		vertexOutput output;
+
+		output.posProj = mul(unity_Projector, input.vertex);
+		output.pos = UnityObjectToClipPos(input.vertex);
+		return output;
+	}
+
+
+	float4 frag(vertexOutput input) : COLOR
+	{
+		if (input.posProj.w > 0.0) // in front of projector?
+		{
+			half circle = pow(input.posProj.x - _Mid.x, 2) + pow(input.posProj.y - _Mid.y, 2) + pow(input.posProj.z - _Mid.z, 2);
+			if (circle <= pow(_Radius + (_Width * 0.5), 2) && circle >= pow(_Radius - (_Width * 0.5), 2))
+				return _Color;
+			else
+				return float4 (0,0,0,0);
+			// alternatively: return tex2Dproj(  
+			//    _ShadowTex, input.posProj);
+		}
+		else // behind projector
+		{
+			return float4(0.0, 0.0, 0.0, 0.0);
+		}
+	}
+
+		ENDCG
+	}
+	}
+		Fallback "Projector/Light"
+}
