@@ -17,7 +17,11 @@ public class LogicalMap : MonoBehaviour {
     Canvas mapCanvas;
 
     int width;
+    int height;
 
+    /// <summary>
+    /// Initializes logical map fields
+    /// </summary>
     void Awake()
     {
         mapCanvas = GetComponentInChildren<Canvas>();
@@ -30,10 +34,14 @@ public class LogicalMap : MonoBehaviour {
     /// <param name="height">Height of the map in hexagons</param>
     public void CreateMap(int width, int height)
 	{
+        //Assigning map parameters
         this.width = width;
+        this.height = height;
+
         //Initializing array
         cells = new LogicalMapCell[width * height];
 
+        //Creating cells
         int i = 0;
         for(int z = 0; z < height; z++)
         {
@@ -57,22 +65,46 @@ public class LogicalMap : MonoBehaviour {
         Vector3 position;
         position.x = (x + z * 0.5f - z / 2) * (2f * HexMetrics.innerRadius);
         position.y = 100f;
-        position.z = z * (1.5f * HexMetrics.outerRadius);
+        position.z = z * (1.5f * HexMetrics.outerRadius);        
+
+        //Initializing cell's label
+        Text label = Instantiate(cellLabelPrefab);
+        label.rectTransform.SetParent(mapCanvas.transform, false);
+        label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
+
+        //Initializing cell's highlight
+        Image image = Instantiate(highlightPrefab);
+        image.rectTransform.SetParent(mapCanvas.transform, false);
+        image.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
 
         //Initializing cell
         LogicalMapCell cell = cells[i] = Instantiate(cellPrefab);
         cell.transform.SetParent(this.transform, false);
         cell.transform.localPosition = position;
-        cell.coordinates = HexCoordinates.fromOffsetCoordinates(x, z);
-        cell.terrain = TerrainType.Plain;
-        cell.InitializeArray();
-        //connecting cell to its neighbors
+        cell.Initialize(image, label, HexCoordinates.fromOffsetCoordinates(x, z), TerrainType.Plain);
+
+        //Connecting cell to its neighbors
+        ConnectWithNeighbours(cell, x, z, i);
+    }
+
+    /// <summary>
+    /// Connects cell with it's neighbour cells using it's offset coordinates and index
+    /// </summary>
+    /// <param name="cell">Cell to connect with neighbours</param>
+    /// <param name="x">Cell's X offset coordinate</param>
+    /// <param name="z">Cell's Z offset coordinate</param>
+    /// <param name="i">Cell's index in cells array</param>
+    public void ConnectWithNeighbours(LogicalMapCell cell, int x, int z, int i)
+    {
+        //Connecting cell's left neighbour
         if (x > 0)
         {
             cell.SetNeighbor(HexDirection.W, cells[i - 1]);
         }
+        //If not lowest row
         if (z > 0)
         {
+            //If even row
             if ((z & 1) == 0)
             {
                 cell.SetNeighbor(HexDirection.SE, cells[i - width]);
@@ -81,7 +113,9 @@ public class LogicalMap : MonoBehaviour {
                     cell.SetNeighbor(HexDirection.SW, cells[i - width - 1]);
                 }
             }
-            else {
+            //If odd row
+            else
+            {
                 cell.SetNeighbor(HexDirection.SW, cells[i - width]);
                 if (x < width - 1)
                 {
@@ -89,51 +123,48 @@ public class LogicalMap : MonoBehaviour {
                 }
             }
         }
-
-        //Initializing cell's label
-        Text label = Instantiate(cellLabelPrefab);
-        label.rectTransform.SetParent(mapCanvas.transform, false);
-        label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
-	    //label.text = cell.coordinates.ToStringOnMultipleLines();
-
-        //Initializing cell's highlight
-        Image image = Instantiate(highlightPrefab);
-        image.rectTransform.SetParent(mapCanvas.transform, false);
-        image.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
-
-        //Connecting cell with it's UI elements        
-        cell.label = label;
-        cell.highlight = image;
-        cell.ValidateHighlightWithTerrain();
-        cell.CalculateUIPosition();
-        cell.DisableHighlight();
-        cell.DisableLabel();
     }
 
-    public void ShowDistanceLabel()
+    /// <summary>
+    /// Shows distances of cells in shooting range
+    /// </summary>
+    public void ShowDistancesInShootingRange()
     {
         for (int i = 0; i < cells.Length; i++)
         {
-            if (cells[i].inShootingRange) { cells[i].EnableLabel(cells[i].distance.ToString()); }
+            if (cells[i].inShootingRange)
+            {
+                cells[i].EnableLabel(cells[i].distance.ToString());
+            }
         }
     }
 
+    /// <summary>
+    /// Shows distances of all cells
+    /// </summary>
+    public void ShowAllDistances()
+    {
+        for (int i = 0; i < cells.Length; i++)
+        {
+            cells[i].EnableLabel(cells[i].distance.ToString());
+        }
+    }
+
+
+    /// <summary>
+    /// Highlights cells in shooting range
+    /// </summary>
     public void HighlightShootingRange()
     {
         for (int i = 0; i < cells.Length; i++)
         {
             if (cells[i].inShootingRange) { cells[i].EnableHighlight(); }
         }
-    }
+    }    
 
-    public void EraseShootingRange()
-    {
-        for (int i = 0; i < cells.Length; i++)
-        {
-            cells[i].inShootingRange = false;
-        }
-    }
-
+    /// <summary>
+    /// Hides every cell's highlight
+    /// </summary>
     public void HideAllHighlights()
     {
         for(int i=0; i < cells.Length; i++)
@@ -142,6 +173,9 @@ public class LogicalMap : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Shows every cell's highlight
+    /// </summary>
     public void ShowAllHighlights()
     {
         for (int i = 0; i < cells.Length; i++)
@@ -151,6 +185,9 @@ public class LogicalMap : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Hides every cell's label
+    /// </summary>
     public void HideAllLabels()
     {
         for (int i = 0; i < cells.Length; i++)
@@ -159,6 +196,9 @@ public class LogicalMap : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Shows every cell's coordinates
+    /// </summary>
     public void ShowAllCoordinates()
     {
         for(int i = 0; i<cells.Length; i++)

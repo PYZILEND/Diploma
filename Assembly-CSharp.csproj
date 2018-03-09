@@ -52,17 +52,24 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Controls\CameraControls.cs" />
-     <Compile Include="Assets\Scripts\Controls\MapControls.cs" />
+     <Compile Include="Assets\Scripts\Controls\DebugControls.cs" />
+     <Compile Include="Assets\Scripts\Controls\MapInputs.cs" />
      <Compile Include="Assets\Scripts\GameMaster.cs" />
      <Compile Include="Assets\Scripts\Hex Properties\HexCoordinates.cs" />
+     <Compile Include="Assets\Scripts\Hex Properties\HexDirection.cs" />
      <Compile Include="Assets\Scripts\Hex Properties\HexMetrics.cs" />
      <Compile Include="Assets\Scripts\Hex Properties\TerrainType.cs" />
      <Compile Include="Assets\Scripts\Logical Map\LogicalMap.cs" />
      <Compile Include="Assets\Scripts\Logical Map\LogicalMapCell.cs" />
-     <Compile Include="Assets\Scripts\MapEditor\MapEditorControls.cs" />
+     <Compile Include="Assets\Scripts\MapEditor\MapEditor.cs" />
      <Compile Include="Assets\Scripts\Pathfinding\Pathfinder.cs" />
      <Compile Include="Assets\Scripts\Physical Map\PhysicalMap.cs" />
      <Compile Include="Assets\Scripts\Units\Unit.cs" />
+     <Compile Include="Assets\Scripts\Units\UnitControls.cs" />
+     <None Include="Assets\Shaders\projector.shader" />
+     <None Include="Assets\Shaders\RadiusShader.shader" />
+     <None Include="Assets\Shaders\ProjectorMultiply.shader" />
+     <None Include="Assets\Shaders\CircleShader.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

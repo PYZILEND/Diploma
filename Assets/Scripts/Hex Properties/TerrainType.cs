@@ -25,9 +25,9 @@ public static class TerrainTypeExtentions
         switch (type)
         {
             case TerrainType.Plain:
-				return Color.yellow;
-			case TerrainType.Road:
-				return Color.white;
+                return Color.yellow;
+            case TerrainType.Road:
+                return Color.white;
             case TerrainType.Forest:
                 return Color.green;
             case TerrainType.Sand:

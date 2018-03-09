@@ -15,6 +15,8 @@ public class Unit : MonoBehaviour {
 
     int cost;
 
+    public LogicalMapCell cell;
+
     public void MoveToCell(LogicalMapCell destination)
     {
 

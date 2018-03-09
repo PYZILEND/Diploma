@@ -18,6 +18,8 @@ public class GameMaster : MonoBehaviour {
     //Stores initialized maps
     public LogicalMap logicalMap;
     public PhysicalMap physicalMap;
+
+    public Unit unitPrefab;
     
     /// <summary>
     /// Initializing game
@@ -31,5 +33,8 @@ public class GameMaster : MonoBehaviour {
         logicalMap = Instantiate(logicalMapPrefab, this.transform, false);
         logicalMap.CreateMap(mapWidth, mapHeight);
         logicalMap.ShowAllHighlights();
+        logicalMap.ShowAllCoordinates();
+
+        MapEditor.unitPrefab = unitPrefab;
     }
 }

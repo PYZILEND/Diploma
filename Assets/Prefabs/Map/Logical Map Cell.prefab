@@ -51,3 +51,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfd05a840ddf44848b9408473f547249, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  highlight: {fileID: 0}
+  label: {fileID: 0}
+  terrain: 0
+  neighbors:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  inShootingRange: 0
+  isReachable: 0
+  distance: 0
+  pathFrom: {fileID: 0}

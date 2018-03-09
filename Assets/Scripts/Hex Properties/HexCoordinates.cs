@@ -9,7 +9,8 @@ using UnityEngine;
 /// coordinate types into cube coordinates
 /// </summary>
 [System.Serializable]  
-public struct HexCoordinates{
+public struct HexCoordinates
+{
 
     public int X { get; private set; }
     public int Z { get; private set; }

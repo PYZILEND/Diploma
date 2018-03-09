@@ -2,17 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Static class used to handle pathfinding algorithms
+/// </summary>
 public static class Pathfinder  {
     
 
     /// <summary>
-    /// 
+    /// Marks cells withing said range from specified cell.
+    /// Ignores weight.
     /// </summary>
-    /// <param name="dist"></param>
-    /// <param name="map"></param>
-    /// <param name="cell"></param>
+    /// <param name="dist">Maximum distance</param>
+    /// <param name="map">Logical map</param>
+    /// <param name="cell">Cell to find range for</param>
     public static void FindRange(int dist, LogicalMap map, LogicalMapCell cell)
     {
+        EraseShootingRange(map);
         for (int i = 0; i < map.cells.Length; i++)
         {
             int distance = DistanceTo(cell.coordinates, map.cells[i].coordinates);
@@ -22,7 +27,7 @@ public static class Pathfinder  {
         }
     }
     /// <summary>
-    /// 
+    /// Finds unweighted distance between two cells
     /// </summary>
     /// <param name="cell"></param>
     /// <param name="other"></param>
@@ -127,6 +132,7 @@ public static class Pathfinder  {
     }
 
     /// <summary>
+    /// Finds shortest path from one cell to another.
     /// 
     /// </summary>
     /// <param name="fromCell"></param>
@@ -145,11 +151,11 @@ public static class Pathfinder  {
 
             if (current == toCell)
             {
-                current = current.PathFrom;
+                current = current.pathFrom;
                 while (current != fromCell)
                 {
                     current.EnableHighlight(Color.magenta);
-                    current = current.PathFrom;
+                    current = current.pathFrom;
                 }
                 break;
             }
@@ -189,7 +195,7 @@ public static class Pathfinder  {
                     if (neighbor.distance == int.MaxValue)
                     {
                         neighbor.distance = distance;
-                        neighbor.PathFrom = current;
+                        neighbor.pathFrom = current;
                         //neighbor.EnableLabel(distance.ToString());
                         frontier.Add(neighbor);                        
                     }
@@ -197,7 +203,7 @@ public static class Pathfinder  {
                     if (distance < neighbor.distance)
                     {
                         neighbor.distance = distance;
-                        neighbor.PathFrom = current;
+                        neighbor.pathFrom = current;
                     }
 
                     frontier.Sort((x, y) => x.distance.CompareTo(y.distance));
@@ -206,6 +212,10 @@ public static class Pathfinder  {
         }
     }
 
+    /// <summary>
+    /// Resets every cell's distance
+    /// </summary>
+    /// <param name="map"></param>
     static void ResetCellsDistance(LogicalMap map)
     {
         for (int i = 0; i < map.cells.Length; i++)
@@ -214,5 +224,15 @@ public static class Pathfinder  {
         }
     }
 
-
+    /// <summary>
+    /// Removes all cells from shooting range
+    /// </summary>
+    public static void EraseShootingRange(LogicalMap map)
+    {
+        LogicalMapCell[] cells = map.cells;
+        for (int i = 0; i < cells.Length; i++)
+        {
+            cells[i].inShootingRange = false;
+        }
+    }
 }
