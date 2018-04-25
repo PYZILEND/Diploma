@@ -206,4 +206,12 @@ public class LogicalMap : MonoBehaviour {
             cells[i].EnableLabel(cells[i].coordinates.ToString());
         }
     }
+
+    public void HighlightReachableRange()
+    {
+        for (int i = 0; i < cells.Length; i++)
+        {
+            if (cells[i].isReachable) { cells[i].HighlightValidatedTerrain(); }
+        }
+    }
 }

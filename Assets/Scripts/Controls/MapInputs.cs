@@ -62,6 +62,23 @@ public class MapInputs : MonoBehaviour {
                     }
                 }
             }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.LeftShift))
+                {
+                    LogicalMapCell cell;
+                    if (cell = GetCellUnderCoursor())
+                    {
+                        if (selectedCell.unit)
+                        {
+                            if (cell.isReachable)
+                            {
+                                UnitControls.MoveUnit(cell, master.logicalMap);
+                            }
+                        }
+                    }
+                }
+            }
         }        
     }
 
