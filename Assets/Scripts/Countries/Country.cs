@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NewBehaviourScript : MonoBehaviour {
+public class Country : MonoBehaviour {
+
+    string name;
+
 
 	// Use this for initialization
 	void Start () {

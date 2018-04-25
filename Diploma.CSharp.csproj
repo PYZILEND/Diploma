@@ -287,7 +287,7 @@
     <Compile Include="Assets\Scripts\Controls\CameraControls.cs" />
     <Compile Include="Assets\Scripts\Controls\DebugControls.cs" />
     <Compile Include="Assets\Scripts\Controls\MapInputs.cs" />
-    <Compile Include="Assets\Scripts\Countries\NewBehaviourScript.cs" />
+    <Compile Include="Assets\Scripts\Countries\Country.cs" />
     <Compile Include="Assets\Scripts\GameMaster.cs" />
     <Compile Include="Assets\Scripts\Hex Properties\HexCoordinates.cs" />
     <Compile Include="Assets\Scripts\Hex Properties\HexDirection.cs" />

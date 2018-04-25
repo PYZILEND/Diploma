@@ -18,6 +18,8 @@ public static class Pathfinder  {
     public static void FindRange(int dist, LogicalMap map, LogicalMapCell cell)
     {
         ResetCells(map);
+        //List<LogicalMapCell> frontier = new List<LogicalMapCell>();
+
         for (int i = 0; i < map.cells.Length; i++)
         {
             int distance = DistanceTo(cell.coordinates, map.cells[i].coordinates);
@@ -135,9 +137,9 @@ public static class Pathfinder  {
     /// <param name="map"></param>
     /// <param name="cell"></param>
     /// <param name="toCell"></param>
-    public static void FindPath(LogicalMap map, LogicalMapCell cell, LogicalMapCell toCell)
+    public static List<LogicalMapCell> FindPath(LogicalMap map, LogicalMapCell cell, LogicalMapCell toCell)
     {
-        SearchPath(cell, toCell);
+        return SearchPath(cell, toCell);
     }
 
     /// <summary>
@@ -146,14 +148,17 @@ public static class Pathfinder  {
     /// </summary>
     /// <param name="fromCell"></param>
     /// <param name="toCell"></param>
-    static void SearchPath(LogicalMapCell fromCell, LogicalMapCell toCell)
+    static List<LogicalMapCell> SearchPath(LogicalMapCell fromCell, LogicalMapCell toCell)
     {
+        List<LogicalMapCell> path = new List<LogicalMapCell>();
         LogicalMapCell current = toCell;
         while (current != fromCell)
         {
+            path.Insert(0,current);
             current.EnableHighlight(Color.magenta);
             current = current.pathFrom;
         }
+        return path;
     }
 
     /// <summary>
