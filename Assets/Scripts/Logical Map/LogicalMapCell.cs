@@ -158,4 +158,10 @@ public class LogicalMapCell : MonoBehaviour {
         neighbors[(int)direction] = cell;
         cell.neighbors[(int)direction.Opposite()] = this;
     }
+
+    public void HighlightValidatedTerrain()
+    {
+        highlight.color = TerrainTypeExtentions.TypeToColor(terrain);
+        highlight.enabled = true;
+    }
 }
