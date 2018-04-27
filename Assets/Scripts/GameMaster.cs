@@ -20,6 +20,9 @@ public class GameMaster : MonoBehaviour {
     public PhysicalMap physicalMap;
 
     public Unit unitPrefab;
+    public List<Unit> units;
+
+    public bool isDominionTurn = true;
     
     /// <summary>
     /// Initializing game
@@ -35,6 +38,19 @@ public class GameMaster : MonoBehaviour {
         logicalMap.ShowAllHighlights();
         logicalMap.ShowAllCoordinates();
 
-        MapEditor.unitPrefab = unitPrefab;
+        MapEditor.master = this;
+    }
+
+    public void ChangeTurn()
+    {
+        isDominionTurn = !isDominionTurn;
+        foreach (Unit unit in units.ToArray())
+        {
+            if (unit.isDominion == isDominionTurn)
+            {
+                unit.ChangeTurn();
+            }
+        }
+        UnitControls.DropSelection(logicalMap);
     }
 }

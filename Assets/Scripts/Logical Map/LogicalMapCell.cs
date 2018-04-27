@@ -47,7 +47,7 @@ public class LogicalMapCell : MonoBehaviour {
         this.terrain = terrain;
 
         ValidateHighlightWithTerrain();
-        ValidateRelativePhysicalPosition();
+        ValidateUIPosition();
         DisableHighlight();
         DisableLabel();
     }
@@ -116,7 +116,7 @@ public class LogicalMapCell : MonoBehaviour {
     /// Aligns this cell's UI elements to it's
     /// relative physical map location
     /// </summary>
-    public void ValidateRelativePhysicalPosition()
+    public void ValidateUIPosition()
     {
         RaycastHit hit;
         Physics.Raycast(transform.position, new Vector3(0f, -1f, 0f), out hit);
@@ -129,12 +129,6 @@ public class LogicalMapCell : MonoBehaviour {
 
         highlight.transform.position = position;
         highlight.transform.localRotation = Quaternion.Euler(hit.normal);
-
-        if (unit)
-        {
-            unit.transform.position = position;
-            unit.transform.localRotation = Quaternion.Euler(hit.normal);
-        }
     }
 
     /// <summary>

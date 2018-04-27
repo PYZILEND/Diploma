@@ -12,7 +12,9 @@ public class MapEditor : MonoBehaviour
     static bool applyTerrainType;
 
     static bool placeUnit;
-    public static Unit unitPrefab;
+    static bool isUnitDominion;
+
+    public static GameMaster master;
 
     public static void ApplyChanges(LogicalMapCell cell)
     {
@@ -23,11 +25,21 @@ public class MapEditor : MonoBehaviour
         }
         if (placeUnit)
         {
-            Unit unit = Instantiate(unitPrefab);
+            Unit unit = Instantiate(master.unitPrefab);
             unit.transform.SetParent(cell.transform, false);
             unit.cell = cell;
             cell.unit = unit;
-            cell.ValidateRelativePhysicalPosition();
+            if (isUnitDominion)
+            {
+                unit.isDominion = true;
+            }
+            else
+            {
+                unit.isDominion = false;
+            }
+            unit.Initialize(UnitType.Tank);
+            unit.ValidatePosition();
+            master.units.Add(unit);
         }
     }
 
@@ -55,5 +67,10 @@ public class MapEditor : MonoBehaviour
     public void SetPlaceUnit(bool value)
     {
         placeUnit = value;
+    }
+
+    public void SetUnitAlignment(bool value)
+    {
+        isUnitDominion = value;
     }
 }

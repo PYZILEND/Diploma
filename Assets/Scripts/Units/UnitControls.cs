@@ -5,33 +5,61 @@ using UnityEngine;
 public class UnitControls : MonoBehaviour {
 
     static Unit selectedUnit;
-    static int range;
 
-    public static void SelectUnit(LogicalMapCell cell, LogicalMap map)
+    public static void DropSelection(LogicalMap map)
+    {
+        selectedUnit = null;
+        //Add clearing shit with pathfinder
+        map.HideAllHighlights();
+    }
+
+    public static void ProcessInput(LogicalMapCell cell, LogicalMap map, GameMaster master)
+    {
+        if (cell.unit)
+        {
+            if(cell.unit.isDominion == master.isDominionTurn)
+            {
+                SelectUnit(cell, map);
+            }
+            else
+            {
+                if (selectedUnit && !selectedUnit.hasAttacked)
+                {
+                    Shoot(cell);
+                }
+            }
+        }
+        else
+        {
+            if (selectedUnit && cell.distance<=selectedUnit.movePoints)
+            {
+                MoveUnit(cell, map);
+            }
+        }
+    }
+
+    static void SelectUnit(LogicalMapCell cell, LogicalMap map)
     {
         selectedUnit = cell.unit;
-        Pathfinder.FindRange(range, map, cell);
-        Pathfinder.FindWeightedDistance(range, map, cell);
-        map.HideAllHighlights();
-        map.HighlightReachableRange();
+        ValidateRanges(cell, map);
     }
 
-    public void GetRange(float value)
+    static void MoveUnit(LogicalMapCell cell, LogicalMap map)
     {
-        range = (int)value;
+        selectedUnit.MoveToCell(cell);
+        ValidateRanges(cell, map);
     }
 
-    public static void MoveUnit(LogicalMapCell cell, LogicalMap map)
+    static void Shoot(LogicalMapCell cell)
     {
-        map.HideAllHighlights();
-        map.HighlightReachableRange();
-        Pathfinder.FindPath(map, selectedUnit.cell, cell);
+        selectedUnit.ShootAt(cell);
     }
 
-    public static void ShootWithUnit(LogicalMapCell cell, LogicalMap map)
+    static void ValidateRanges(LogicalMapCell cell, LogicalMap map)
     {
+        Pathfinder.FindRange(UnitTypeExtentions.GetAttackRange(selectedUnit.type), map, cell);
+        Pathfinder.FindWeightedDistance(selectedUnit.movePoints, map, cell);
         map.HideAllHighlights();
         map.HighlightReachableRange();
-        Pathfinder.FindPath(map, selectedUnit.cell, cell);
     }
 }

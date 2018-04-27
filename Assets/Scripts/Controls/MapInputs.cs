@@ -55,27 +55,7 @@ public class MapInputs : MonoBehaviour {
                     if (cell != selectedCell)
                     {
                         selectedCell = cell;
-                        if (cell.unit)
-                        {
-                            UnitControls.SelectUnit(cell, master.logicalMap);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (Input.GetKeyDown(KeyCode.LeftShift))
-                {
-                    LogicalMapCell cell;
-                    if (cell = GetCellUnderCoursor())
-                    {
-                        if (selectedCell.unit)
-                        {
-                            if (cell.isReachable)
-                            {
-                                UnitControls.MoveUnit(cell, master.logicalMap);
-                            }
-                        }
+                        UnitControls.ProcessInput(cell, master.logicalMap, master);
                     }
                 }
             }
