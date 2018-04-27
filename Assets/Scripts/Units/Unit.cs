@@ -16,6 +16,7 @@ public class Unit : MonoBehaviour {
     public bool hasAttacked;
     public bool isDestroyed;
 
+
     public void Initialize(UnitType type)
     {
         this.type = type;

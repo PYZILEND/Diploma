@@ -1,12 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Static class used to handle pathfinding algorithms
 /// </summary>
-public static class Pathfinder  {
-    
+public static class Pathfinder
+{
+
 
     /// <summary>
     /// Marks cells withing said range from specified cell.
@@ -18,13 +18,32 @@ public static class Pathfinder  {
     public static void FindRange(int dist, LogicalMap map, LogicalMapCell cell)
     {
         ResetCells(map);
-        //List<LogicalMapCell> frontier = new List<LogicalMapCell>();
-
-        for (int i = 0; i < map.cells.Length; i++)
+        List<LogicalMapCell> frontier = new List<LogicalMapCell>();
+        List<LogicalMapCell> usedCell = new List<LogicalMapCell>();
+        frontier.Add(cell);
+        usedCell.Add(cell);
+        while (frontier.Count > 0)
         {
-            int distance = DistanceTo(cell.coordinates, map.cells[i].coordinates);
-            if (distance <= dist) {
-                map.cells[i].inShootingRange = true;
+            LogicalMapCell current = frontier[0];
+            frontier.RemoveAt(0);
+            for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+            {
+                LogicalMapCell neighbor = current.GetNeighbor(d);
+                if (neighbor == null)
+                {
+                    continue;
+                }
+                int distance = DistanceTo(cell.coordinates, neighbor.coordinates);
+                if ((distance <= dist)&&(!usedCell.Contains(neighbor)))
+                {
+                    if ((neighbor.unit != null) && (neighbor.unit.isDominion != cell.unit.isDominion))
+                    {
+                        neighbor.inShootingRange = true;
+                        //neighbor.highlight.color = Color.black;
+                    }
+                    frontier.Add(neighbor);
+                    usedCell.Add(neighbor);                    
+                }
             }
         }
     }
@@ -34,11 +53,11 @@ public static class Pathfinder  {
     /// <param name="cell"></param>
     /// <param name="other"></param>
     /// <returns></returns>
-    public static int DistanceTo(HexCoordinates cell,HexCoordinates other)
+    public static int DistanceTo(HexCoordinates cell, HexCoordinates other)
     {
         return (((cell.X < other.X ? other.X - cell.X : cell.X - other.X) +
             (cell.Y < other.Y ? other.Y - cell.Y : cell.Y - other.Y) +
-            (cell.Z < other.Z ? other.Z - cell.Z : cell.Z - other.Z))/2);
+            (cell.Z < other.Z ? other.Z - cell.Z : cell.Z - other.Z)) / 2);
     }
     /// <summary>
     /// 
@@ -48,7 +67,7 @@ public static class Pathfinder  {
     /// <param name="cell"></param>
     public static void FindWeightedDistance(int dist, LogicalMap map, LogicalMapCell cell)
     {
-        SearchWeightedDistance(dist,cell);
+        SearchWeightedDistance(dist, cell);
     }
     /// <summary>
     /// 
@@ -56,7 +75,7 @@ public static class Pathfinder  {
     /// <param name="dist"></param>
     /// <param name="map"></param>
     /// <param name="cell"></param>
-    static void SearchWeightedDistance(int dist,  LogicalMapCell cell)
+    static void SearchWeightedDistance(int dist, LogicalMapCell cell)
     {
         List<LogicalMapCell> frontier = new List<LogicalMapCell>();
         cell.distance = 0;
@@ -75,7 +94,7 @@ public static class Pathfinder  {
                     {
                         continue;
                     }
-                    if (neighbor.terrain== TerrainType.Ocean)
+                    if (neighbor.terrain == TerrainType.Ocean)
                     {
                         continue;
                     }
@@ -110,7 +129,7 @@ public static class Pathfinder  {
                             frontier.Add(neighbor);
                         }
                     }
-                    else 
+                    else
                     if (distance < neighbor.distance)
                     {
                         if (distance <= dist)
@@ -154,7 +173,7 @@ public static class Pathfinder  {
         LogicalMapCell current = toCell;
         while (current != fromCell)
         {
-            path.Insert(0,current);
+            path.Insert(0, current);
             current.EnableHighlight(Color.magenta);
             current = current.pathFrom;
         }

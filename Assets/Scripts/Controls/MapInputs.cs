@@ -11,7 +11,7 @@ public class MapInputs : MonoBehaviour {
 
     GameMaster master; //Needed to reference logical map
 
-    LogicalMapCell selectedCell; //Holds last clicked cell
+    static LogicalMapCell selectedCell; //Holds last clicked cell
     LogicalMapCell hoveredCell; //Holds last hovered cell
 
     bool editMode;
@@ -40,6 +40,7 @@ public class MapInputs : MonoBehaviour {
                     if (cell != selectedCell)
                     {
                         selectedCell = cell;
+                        cell.highlight.color = Color.blue;
                         MapEditor.ApplyChanges(cell);
                     }
                 }
@@ -103,4 +104,10 @@ public class MapInputs : MonoBehaviour {
             master.logicalMap.HideAllLabels();
         }*/
     }
+
+    public static LogicalMapCell GetSelectedCell()
+    {
+        return selectedCell;
+    }
+
 }
