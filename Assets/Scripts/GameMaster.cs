@@ -24,7 +24,11 @@ public class GameMaster : MonoBehaviour {
 
     public static byte incomeTurns;
 
-    public static List<Country> countries;
+    public static List<Country> countries;  
+    public List<Unit> units;
+
+    public bool isDominionTurn = true;
+    
     /// <summary>
     /// Initializing game
     /// </summary>
@@ -39,11 +43,28 @@ public class GameMaster : MonoBehaviour {
         logicalMap.ShowAllHighlights();
         logicalMap.ShowAllCoordinates();
 
-        MapEditor.unitPrefab = unitPrefab;
-        MapEditor.countryPrefab = countryPrefab;
+
+        MapEditor.countryPrefab = countryPrefab;//Move to editor
         countries = new List<Country>();
 
         //debug value
         incomeTurns = 10;
+
+
+        MapEditor.master = this;
+    }
+
+    public void ChangeTurn()
+    {
+        isDominionTurn = !isDominionTurn;
+        foreach (Unit unit in units.ToArray())
+        {
+            if (unit.isDominion == isDominionTurn)
+            {
+                unit.ChangeTurn();
+            }
+        }
+        UnitControls.DropSelection(logicalMap);
+
     }
 }

@@ -12,13 +12,15 @@ public class MapEditor : MonoBehaviour
     static bool applyTerrainType;
 
     static bool placeUnit;
-    static bool unitIsDominion;
-    public static Unit unitPrefab;
-    public static Country countryPrefab;
+
 
     string countryName="t";
     CountryType type=CountryType.poor;
     byte allegiance=0;
+
+    static bool isUnitDominion;
+
+    public static GameMaster master;
 
     public static void ApplyChanges(LogicalMapCell cell)
     {
@@ -29,13 +31,23 @@ public class MapEditor : MonoBehaviour
         }
         if (placeUnit)
         {
-            Unit unit = Instantiate(unitPrefab);
+            Unit unit = Instantiate(master.unitPrefab);
             unit.transform.SetParent(cell.transform, false);
             unit.cell = cell;
             unit.isDominion = unitIsDominion;
             Debug.Log(unitIsDominion);
             cell.unit = unit;
-            cell.ValidateRelativePhysicalPosition();
+            if (isUnitDominion)
+            {
+                unit.isDominion = true;
+            }
+            else
+            {
+                unit.isDominion = false;
+            }
+            unit.Initialize(UnitType.Tank);
+            unit.ValidatePosition();
+            master.units.Add(unit);
         }
     }
 
@@ -65,10 +77,8 @@ public class MapEditor : MonoBehaviour
         placeUnit = value;
     }
 
-    public void SetUnitIsDominion(bool value)
-    {
-        unitIsDominion = value;
-    }
+
+
 
     public void GetCountryName(string value)
     {
@@ -147,5 +157,10 @@ public class MapEditor : MonoBehaviour
                 selectedCountry.ChangeName(countryName);
             }
         }
+
+    public void SetUnitAlignment(bool value)
+    {
+        isUnitDominion = value;
+
     }
 }

@@ -1,6 +1,8 @@
 # Diploma
-Currently there are two classes for controlling input
-one for game mode input other for editor mode input
-not sure about that stuff, might combine them or implement
-third class to act as general input handler and use those
-two classes to hold methods for different response
+Need to change checkbox from setting a flag in unit to choosing right prefab for it, change corresponding thing in unit itself where it chooses it's color
+Find possible better place for units list and change turn method
+Upgrade move unit to actual movement
+Check if destroyed logically makes bugs
+Check if shooting is bugged
+Choose where to deligate controls
+Develop a solid control scheme

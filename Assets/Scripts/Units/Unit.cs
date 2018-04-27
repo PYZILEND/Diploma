@@ -4,32 +4,88 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour {
 
-    int maxHealth;
-    int currentHealth;
+    public UnitType type;
 
-    int range;
-    int damage;
+    public int healthPoints;
+    public int movePoints;
 
-    int maxMoveSpeed;
-    int moveSpeed;
-
-    int cost;
+    public LogicalMapCell cell;
 
     public bool isDominion;
-    public LogicalMapCell cell;
+
+    public bool hasAttacked;
+    public bool isDestroyed;
+
+
+    public void Initialize(UnitType type)
+    {
+        this.type = type;
+        healthPoints = UnitTypeExtentions.GetMaxHealth(type);
+        movePoints = 0;
+        hasAttacked = true;
+        isDestroyed = false;
+        if (isDominion)
+        {
+            GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+         }
+        else
+        {
+            GetComponentInChildren<MeshRenderer>().material.color = Color.blue;
+        }
+    }
+
+    public void ChangeTurn()
+    {
+        movePoints = UnitTypeExtentions.GetMaxMovePoints(type);
+        hasAttacked = false;
+        if (isDestroyed)
+        {
+            DestroyLogically();
+        }
+    }
 
     public void MoveToCell(LogicalMapCell destination)
     {
-
+        movePoints -= destination.distance;
+        cell.unit = null;
+        destination.unit = this;
+        cell = destination;        
+        transform.SetParent(destination.transform, false);
+        ValidatePosition();
     }
 
     public void ShootAt(LogicalMapCell cell)
     {
-
+        hasAttacked = true;
+        cell.unit.healthPoints -= UnitTypeExtentions.GetAttackPower(type);
+        if (cell.unit.healthPoints <= 0)
+        {
+            cell.unit.DestroyVisually();
+        }
     }
 
-    public void Destroy()
+    public void DestroyLogically()
     {
+        GetComponentInParent<GameMaster>().units.Remove(this);
+        cell.unit = null;
+        Destroy(gameObject);
+    }
 
+    public void DestroyVisually()
+    {
+        isDestroyed = true;
+        GetComponentInChildren<MeshRenderer>().material.color = Color.black;
+    }
+
+    public void ValidatePosition()
+    {
+        RaycastHit hit;
+        Physics.Raycast(transform.position, new Vector3(0f, -1f, 0f), out hit);
+
+        Vector3 position = hit.point;
+        position.y += 0.5f;
+
+        this.transform.position = position;
+        this.transform.localRotation = Quaternion.Euler(hit.normal);
     }
 }

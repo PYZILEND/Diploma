@@ -25,6 +25,7 @@ public class Country : MonoBehaviour {
     /// </summary>
     byte treasury;
 
+
     /// <summary>
     /// if not 0 then has reparations and secret army money
     /// was not disclosed yet
