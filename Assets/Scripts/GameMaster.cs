@@ -43,8 +43,6 @@ public class GameMaster : MonoBehaviour {
         logicalMap.ShowAllHighlights();
         logicalMap.ShowAllCoordinates();
 
-
-        MapEditor.countryPrefab = countryPrefab;//Move to editor
         countries = new List<Country>();
 
         //debug value

@@ -34,8 +34,8 @@ public class MapEditor : MonoBehaviour
             Unit unit = Instantiate(master.unitPrefab);
             unit.transform.SetParent(cell.transform, false);
             unit.cell = cell;
-            unit.isDominion = unitIsDominion;
-            Debug.Log(unitIsDominion);
+            unit.isDominion = isUnitDominion;
+            Debug.Log(isUnitDominion);
             cell.unit = unit;
             if (isUnitDominion)
             {
@@ -101,7 +101,7 @@ public class MapEditor : MonoBehaviour
             (GameMaster.countries.Find(u => u.GetCountryName() == countryName)==null)&&
             (GameMaster.countries.Find(u => u.GetCountryCapital() == MapInputs.GetSelectedCell()) == null))
         {
-            Country newCountry= Instantiate(countryPrefab);
+            Country newCountry= Instantiate(master.countryPrefab);
             newCountry.CreateCountry(countryName, type, allegiance,MapInputs.GetSelectedCell());
             GameMaster.countries.Add(newCountry);
         }
@@ -157,6 +157,7 @@ public class MapEditor : MonoBehaviour
                 selectedCountry.ChangeName(countryName);
             }
         }
+    }
 
     public void SetUnitAlignment(bool value)
     {
