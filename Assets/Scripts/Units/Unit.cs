@@ -15,6 +15,7 @@ public class Unit : MonoBehaviour {
 
     int cost;
 
+    public bool isDominion;
     public LogicalMapCell cell;
 
     public void MoveToCell(LogicalMapCell destination)

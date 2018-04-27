@@ -12,7 +12,13 @@ public class MapEditor : MonoBehaviour
     static bool applyTerrainType;
 
     static bool placeUnit;
+    static bool unitIsDominion;
     public static Unit unitPrefab;
+    public static Country countryPrefab;
+
+    string countryName="t";
+    CountryType type=CountryType.poor;
+    byte allegiance=0;
 
     public static void ApplyChanges(LogicalMapCell cell)
     {
@@ -26,6 +32,8 @@ public class MapEditor : MonoBehaviour
             Unit unit = Instantiate(unitPrefab);
             unit.transform.SetParent(cell.transform, false);
             unit.cell = cell;
+            unit.isDominion = unitIsDominion;
+            Debug.Log(unitIsDominion);
             cell.unit = unit;
             cell.ValidateRelativePhysicalPosition();
         }
@@ -55,5 +63,89 @@ public class MapEditor : MonoBehaviour
     public void SetPlaceUnit(bool value)
     {
         placeUnit = value;
+    }
+
+    public void SetUnitIsDominion(bool value)
+    {
+        unitIsDominion = value;
+    }
+
+    public void GetCountryName(string value)
+    {
+        countryName = value;
+    }
+
+    public void GetCountryAlligance(int value)
+    {
+        allegiance = (byte) value;
+    }
+
+    public void GetCountryType(int value)
+    {
+        type = ResourcesExtentions.GetCountyType(value);
+    }
+
+    public void CreateCountry()
+    {
+        if ((!countryName.Equals("")) &&( MapInputs.GetSelectedCell() != null)&&
+            (GameMaster.countries.Find(u => u.GetCountryName() == countryName)==null)&&
+            (GameMaster.countries.Find(u => u.GetCountryCapital() == MapInputs.GetSelectedCell()) == null))
+        {
+            Country newCountry= Instantiate(countryPrefab);
+            newCountry.CreateCountry(countryName, type, allegiance,MapInputs.GetSelectedCell());
+            GameMaster.countries.Add(newCountry);
+        }
+    }
+
+    public void ChangeCapital()
+    {
+        if ((!countryName.Equals("")&&(MapInputs.GetSelectedCell() != null)) &&
+            (GameMaster.countries.Find(u => u.GetCountryCapital() == MapInputs.GetSelectedCell()) == null))
+        {
+            Country selectedCountry = GameMaster.countries.Find(u => u.GetCountryName() == countryName);
+            if (selectedCountry != null)
+            {
+                selectedCountry.ChangeCapital(MapInputs.GetSelectedCell());
+            }                  
+        }
+    }
+
+    public void AddArea()
+    {
+        if ((!countryName.Equals("") && (MapInputs.GetSelectedCell() != null)) &&
+            (GameMaster.countries.Find(u => u.GetCountryCapital() == MapInputs.GetSelectedCell()) == null))
+        {
+            Country selectedCountry = GameMaster.countries.Find(u => u.GetCountryName() == countryName);
+            if (selectedCountry != null)
+            {
+                selectedCountry.AddAreaToCountry(MapInputs.GetSelectedCell());
+            }
+        }
+    }
+
+    public void DeleteCountry()
+    {
+        Debug.Log("start");
+        if ((MapInputs.GetSelectedCell() != null))
+        {
+            Country selectedCountry = MapInputs.GetSelectedCell().country;
+            if (selectedCountry != null)
+            {
+                selectedCountry.DeleteCountry();
+                GameMaster.countries.Remove(selectedCountry);
+            }
+        }
+    }
+
+    public void ChangeName()
+    {
+        if ((MapInputs.GetSelectedCell() != null))
+        {
+            Country selectedCountry = MapInputs.GetSelectedCell().country;
+            if (selectedCountry != null)
+            {
+                selectedCountry.ChangeName(countryName);
+            }
+        }
     }
 }

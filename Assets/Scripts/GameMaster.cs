@@ -20,7 +20,11 @@ public class GameMaster : MonoBehaviour {
     public PhysicalMap physicalMap;
 
     public Unit unitPrefab;
-    
+    public Country countryPrefab;
+
+    public static byte incomeTurns;
+
+    public static List<Country> countries;
     /// <summary>
     /// Initializing game
     /// </summary>
@@ -36,5 +40,10 @@ public class GameMaster : MonoBehaviour {
         logicalMap.ShowAllCoordinates();
 
         MapEditor.unitPrefab = unitPrefab;
+        MapEditor.countryPrefab = countryPrefab;
+        countries = new List<Country>();
+
+        //debug value
+        incomeTurns = 10;
     }
 }
