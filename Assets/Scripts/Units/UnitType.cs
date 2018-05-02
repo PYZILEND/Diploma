@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Possible unit types
+/// </summary>
 public enum UnitType
 {
     LBM, Tank, Mortair, WarBot, Artillery, Transport, Bullfrog, Destroyer, Submarine, Battleship, NavalTransport, Carrier, Leviathan,
@@ -11,6 +14,11 @@ public enum UnitType
 public static class UnitTypeExtentions
 {
     
+    /// <summary>
+    /// Creates unit of certain class depending on it's type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static Unit CreateUnitFromType(UnitType type)
     {
         if(type == UnitType.Transport || type==UnitType.NavalTransport || type==UnitType.TransportHelicopter)
@@ -101,6 +109,11 @@ public static class UnitTypeExtentions
         }
     }*/
 
+    /// <summary>
+    /// Returns max health for specified unit type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static int GetMaxHealth(UnitType type)
     {
         switch (type)
@@ -130,6 +143,11 @@ public static class UnitTypeExtentions
         }
     }
 
+    /// <summary>
+    /// Returns max move points for specified unit type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static int GetMaxMovePoints(UnitType type)
     {
         switch (type)
@@ -159,6 +177,11 @@ public static class UnitTypeExtentions
         }
     }
 
+    /// <summary>
+    /// Returns attack power for specified unit type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static int GetAttackPower(UnitType type)
     {
         switch (type)
@@ -188,6 +211,11 @@ public static class UnitTypeExtentions
         }
     }
 
+    /// <summary>
+    /// Returns attack range for specified unit type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static int GetAttackRange(UnitType type)
     {
         switch (type)
@@ -217,6 +245,11 @@ public static class UnitTypeExtentions
         }
     }
 
+    /// <summary>
+    /// Returns purchase cost for specified unit type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static int GetCost(UnitType type)
     {
         switch (type)
@@ -246,6 +279,11 @@ public static class UnitTypeExtentions
         }
     }
 
+    /// <summary>
+    /// Returns max room for specified transport type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
     public static int GetMaxRoom(UnitType type)
     {
         switch (type)

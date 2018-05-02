@@ -36,7 +36,7 @@ public static class Pathfinder
                 int distance = DistanceTo(cell.coordinates, neighbor.coordinates);
                 if ((distance <= dist)&&(!usedCell.Contains(neighbor)))
                 {
-                    if ((neighbor.unit != null) && (neighbor.unit.isDominion != cell.unit.isDominion))
+                    if ((neighbor.unit != null) && (neighbor.unit.allegiance != cell.unit.allegiance))
                     {
                         neighbor.inShootingRange = true;
                         //neighbor.highlight.color = Color.black;

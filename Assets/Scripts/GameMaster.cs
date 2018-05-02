@@ -8,26 +8,31 @@ using UnityEngine;
 /// </summary>
 public class GameMaster : MonoBehaviour {
 
-    //Data for map initialization
-    
+    //Data for map initialization    
     public LogicalMap logicalMapPrefab;
     public PhysicalMap physicalMapPrefab;
-    public int mapWidth = 28;
-    public int mapHeight = 28;
+    public static int mapWidth = 28;
+    public static int mapHeight = 28;
 
     //Stores initialized maps
-    public LogicalMap logicalMap;
-    public PhysicalMap physicalMap;
+    public static LogicalMap logicalMap;
+    public static PhysicalMap physicalMap;
 
-    public Unit unitPrefab;
-    public Country countryPrefab;
+    //For instantiating
+    public static Unit unitPrefab;
+    public static Country countryPrefab;
 
-    public static byte incomeTurns;
+    //Match settings fields
+    public static byte incomeTurns = 10;//Debug value
 
+    //Lists
     public static List<Country> countries;  
-    public List<Unit> units;
+    public static List<Unit> units;
 
-    public bool isDominionTurn = true;
+    /// <summary>
+    /// Shows who's turn it is
+    /// </summary>
+    public static Allegiance allegianceTurn = Allegiance.Dominion;
     
     /// <summary>
     /// Initializing game
@@ -44,25 +49,24 @@ public class GameMaster : MonoBehaviour {
         logicalMap.ShowAllCoordinates();
 
         countries = new List<Country>();
-
-        //debug value
-        incomeTurns = 10;
-
-
-        MapEditor.master = this;
+        units = new List<Unit>();
     }
 
+    /// <summary>
+    /// Passes turn to opposite allegiance
+    /// This allegiance's unit's move points and attacks are reset
+    /// Also drops unit selection
+    /// </summary>
     public void ChangeTurn()
     {
-        isDominionTurn = !isDominionTurn;
+        allegianceTurn = AllegianceExtentions.Opposite(allegianceTurn);
         foreach (Unit unit in units.ToArray())
         {
-            if (unit.isDominion == isDominionTurn)
+            if (unit.allegiance==allegianceTurn)
             {
                 unit.ChangeTurn();
             }
         }
-        UnitControls.DropSelection(logicalMap);
-
+        UnitControls.DropSelection();
     }
 }

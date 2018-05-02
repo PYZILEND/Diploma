@@ -9,20 +9,10 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class MapInputs : MonoBehaviour {
 
-    GameMaster master; //Needed to reference logical map
-
     static LogicalMapCell selectedCell; //Holds last clicked cell
     LogicalMapCell hoveredCell; //Holds last hovered cell
 
-    bool editMode;
-
-    /// <summary>
-    /// Initializes map controls
-    /// </summary>
-    void Awake()
-    {
-        master = GetComponentInParent<GameMaster>();
-    }
+    bool editMode;//Flag of map editing mode
 
     /// <summary>
     /// Recieves map related input and invokes coresponding methods
@@ -56,7 +46,7 @@ public class MapInputs : MonoBehaviour {
                     if (cell != selectedCell)
                     {
                         selectedCell = cell;
-                        UnitControls.ProcessInput(cell, master.logicalMap, master);
+                        UnitControls.ProcessInput(cell);
                     }
                 }
             }
@@ -76,12 +66,10 @@ public class MapInputs : MonoBehaviour {
         RaycastHit hit;
         if(Physics.Raycast(ray, out hit))
         {
-            LogicalMap map = master.logicalMap;
             HexCoordinates coordinates = HexCoordinates.fromPosition(hit.point);
-            int index = coordinates.X + coordinates.Z * master.mapWidth + (coordinates.Z / 2);
-            return map.cells[index];
+            int index = coordinates.X + coordinates.Z * GameMaster.mapWidth + (coordinates.Z / 2);
+            return GameMaster.logicalMap.cells[index];
         }
-
         return null;
     }
 
@@ -109,5 +97,4 @@ public class MapInputs : MonoBehaviour {
     {
         return selectedCell;
     }
-
 }

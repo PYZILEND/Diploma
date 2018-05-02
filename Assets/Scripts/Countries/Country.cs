@@ -3,98 +3,142 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Country : MonoBehaviour {
+
     /// <summary>
-    /// name of the country
+    /// Name of the country
     /// </summary>
+    [SerializeField]
     string countryName;
+
     /// <summary>
-    /// country area
-    /// cells that belong to the country
+    /// Country area
+    /// Cells that belong to the country
     /// </summary>
+    /// 
+    [SerializeField]
     List<LogicalMapCell> area;
+
     /// <summary>
-    /// capital of the country
+    /// Capital of the country
     /// </summary>
     LogicalMapCell capital;
+
     /// <summary>
-    /// how many turns country will give income
+    /// How many turns country will give income
     /// </summary>
     byte incomeTurnsLeft;
+
     /// <summary>
-    /// treasury
+    /// Treasury
     /// </summary>
-    byte treasury;
-
+    byte treasury;    
 
     /// <summary>
-    /// if not 0 then has reparations and secret army money
+    /// If not 0 then secret army
     /// was not disclosed yet
     /// </summary>
-    byte secretAliance;
+    byte secretArmy;
 
     /// <summary>
-    /// if not 0 then has guerilla army money left
+    /// Returns if country is a secret ally
+    /// </summary>
+    /// <returns>returns false if secretArmy is 0</returns>
+    public bool isSecretAliance
+    {
+        get
+        {
+            if (secretArmy > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// If not 0 then has guerilla army
     /// </summary>
     byte guerilla;
 
     /// <summary>
-    /// if true then has reparations money left
+    /// Returns status of guerilla
     /// </summary>
-    bool hasReparations;
+    /// <returns>returns false if no guerilla money left</returns>
+    public bool hasGuerilla
+    {
+        get
+        {
+            if (guerilla > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
 
     /// <summary>
-    /// 0 - is ??
-    /// 1 - is dominion
-    /// 2 - country is neutral
+    /// If true then has reparation money
     /// </summary>
-    byte allegiance;
+    bool hasReparation;
 
     /// <summary>
-    /// country type - poor, average, rich
+    /// County's allegiance
+    /// Guardians, Dominion, Neutral
+    /// </summary>
+    Allegiance allegiance;
+
+    /// <summary>
+    /// Country type - poor, average, rich
     /// </summary>
     CountryType type;
 
 
     /// <summary>
     /// Creating country
-    /// Sets alligiance, name, type, adds statingCell to area and sets it as capital
+    /// Sets alligiance, name, type, adds staringCell to area and sets it as capital
     /// Adds link to cell to country
     /// Adds guerilla money based on country type
     /// Adds sectretAliance money based on country type and allegiance
     /// Sets reparations based on allegiance
     /// Sets income turns
     /// </summary>
-    /// <param name="countryName">name of the country</param>
-    /// <param name="type">country type - poor, average, rich</param>
-    /// <param name="allegiance"> 0 - ??, 1 - dominion, 2 - neutral</param>
-    /// <param name="startingCell">first cell of the country</param>
-    public void CreateCountry(string countryName, CountryType type, byte allegiance,LogicalMapCell startingCell)
+    /// <param name="countryName">Name of the country</param>
+    /// <param name="type">Country type - poor, average, rich</param>
+    /// <param name="allegiance"> Country allegiance - Guardians, Dominion, Neutral</param>
+    /// <param name="startingCell">First cell of the country, becomes it's capital</param>
+    public void CreateCountry(string countryName, CountryType type, Allegiance allegiance,LogicalMapCell startingCell)
     {
+        if (startingCell.country)
+        {
+            startingCell.country.area.Remove(startingCell);
+        }
         area = new List<LogicalMapCell>();
         area.Add(startingCell);
+        capital = startingCell;        
+        startingCell.highlight.color = CountryTypeExtentions.GetColorCapital(type);
+        startingCell.country = this;
+
         this.countryName = countryName;
         this.type = type;
         this.allegiance = allegiance;
-        capital = startingCell;
-        startingCell.highlight.color = ResourcesExtentions.GetColorCapital(type);
-        startingCell.country = this;
-        guerilla = ResourcesExtentions.GetGuerilla(type);
+        guerilla = CountryTypeExtentions.GetGuerilla(type);
         incomeTurnsLeft = GameMaster.incomeTurns;
-        if (allegiance<2)
+        if (allegiance!=Allegiance.Neutral)
         {
-            secretAliance= ResourcesExtentions.GetSecretArmy(type);
-            hasReparations = true;
+            secretArmy= CountryTypeExtentions.GetSecretArmy(type);
+            hasReparation = true;
         }
         else
         {
-            secretAliance = 0;
-            hasReparations = false;
+            secretArmy = 0;
+            hasReparation = false;
         }
     }
 
     /// <summary>
     /// Adds area to country
     /// Check if cell's not already country's area
+    /// Remove cell from it's former country if any
     /// Adds link to cell to country
     /// Changes color based on type of country
     /// </summary>
@@ -103,14 +147,20 @@ public class Country : MonoBehaviour {
     {
         if (!area.Contains(areaCell))
         {
+            if (areaCell.country)
+            {
+                areaCell.country.area.Remove(areaCell);
+            }
             area.Add(areaCell);
-            areaCell.highlight.color = ResourcesExtentions.GetColor(type);
+            areaCell.highlight.color = CountryTypeExtentions.GetColor(type);
             areaCell.country = this;
         }        
     }
+
     /// <summary>
     /// Adds area to country
     /// Check if it's not already country's area
+    /// Remove cells from their former country if any
     /// Adds link to cells to country
     /// Changes color based on type of country
     /// </summary>
@@ -121,8 +171,12 @@ public class Country : MonoBehaviour {
         {
             if (!this.area.Contains(cell))
             {
+                if (cell.country)
+                {
+                    cell.country.area.Remove(cell);
+                }
                 this.area.Add(cell);
-                cell.highlight.color = ResourcesExtentions.GetColor(type);
+                cell.highlight.color = CountryTypeExtentions.GetColor(type);
                 cell.country = this;
             }
         }
@@ -142,11 +196,15 @@ public class Country : MonoBehaviour {
         {
             if (!area.Contains(cell))
             {
+                if (cell.country)
+                {
+                    cell.country.area.Remove(cell);
+                }
                 area.Add(cell);
-                cell.highlight.color = ResourcesExtentions.GetColorCapital(type);
+                cell.highlight.color = CountryTypeExtentions.GetColorCapital(type);
                 cell.country = this;
             }
-            capital.highlight.color = ResourcesExtentions.GetColor(type);
+            capital.highlight.color = CountryTypeExtentions.GetColor(type);
             capital = cell;
         }
     }
@@ -163,6 +221,8 @@ public class Country : MonoBehaviour {
             cell.ValidateHighlightWithTerrain();
             cell.country = null;
         }
+        GameMaster.countries.Remove(this);
+        Destroy(this.gameObject);
     }
 
     /// <summary>
@@ -196,9 +256,9 @@ public class Country : MonoBehaviour {
     /// </summary>
     public void AddToTreasury()
     {
-        if ((allegiance != 3) && (incomeTurnsLeft != 0) && (CheckIfInvasion()))
+        if ((allegiance != Allegiance.Neutral) && (incomeTurnsLeft != 0) && (CheckIfInvasion())) 
         {
-            treasury += ResourcesExtentions.GetIncome(type);
+            treasury += CountryTypeExtentions.GetIncome(type);
             incomeTurnsLeft--;
         }
     }
@@ -211,13 +271,14 @@ public class Country : MonoBehaviour {
     {
         foreach (LogicalMapCell cell in area)
         {
-            if ((cell.unit!=null)&&(cell.unit.isDominion != System.Convert.ToBoolean(allegiance)))
+            if ((cell.unit!=null) && (cell.unit.allegiance != allegiance))
             {
                 return false;
             }
         }
         return true;
     }
+
     /// <summary>
     /// Substructs sum from guerilla money
     /// </summary>
@@ -231,31 +292,18 @@ public class Country : MonoBehaviour {
             return true;
         }
         return false;
-    }
-
-    /// <summary>
-    /// Returns status of guerilla
-    /// </summary>
-    /// <returns>returns false if no guerilla money left</returns>
-    public bool hasGuerilla()
-    {
-        if (guerilla > 0)
-        {
-            return true;
-        }
-        return false;
-    }
+    }    
 
     /// <summary>
     /// Adds reparation money to treasury based on country type
-    /// sets hasReparations as false
+    /// sets hasReparation as false
     /// </summary>
-    public void UseReparations()
+    public void GetReparations()
     {
-        if (hasReparations)
+        if (hasReparation)
         {
-            treasury += ResourcesExtentions.GetReparations(type);
-            hasReparations = false;
+            treasury += CountryTypeExtentions.GetReparations(type);
+            hasReparation = false;
         }
     }
 
@@ -266,26 +314,13 @@ public class Country : MonoBehaviour {
     /// <returns>returns false if sum is bigger than secret army money</returns>
     public bool SpendSecretArmyMoney(byte sum)
     {
-        if (secretAliance - sum >= 0)
+        if (secretArmy - sum >= 0)
         {
-            secretAliance -= sum;
+            secretArmy -= sum;
             return true;
         }
         return false;
-    }
-
-    /// <summary>
-    /// Returns status of guerilla
-    /// </summary>
-    /// <returns>returns false if secretAliance is 0</returns>
-    public bool isSecretAliance()
-    {
-        if (secretAliance > 0)
-        {
-            return true;
-        }
-        return false;
-    }
+    }    
 
     /// <summary>
     /// Get country name
@@ -304,94 +339,6 @@ public class Country : MonoBehaviour {
     {
         return capital;
     }
-
 }
 
-public enum CountryType
-{
-    poor, average, rich
-}
 
-public static class ResourcesExtentions
-{
-    /// <summary>
-    /// Returns country type based on number from 0 to 2
-    /// </summary>
-    /// <param name="type">number of type</param>
-    /// <returns>country type</returns>
-    public static CountryType GetCountyType(int type)
-    {
-        switch (type)
-        {
-            case 0: return CountryType.poor;
-            case 1: return CountryType.average;
-            case 2: return CountryType.rich;
-            default: return CountryType.average;
-        }
-    }
-
-    public static Color GetColor(CountryType type)
-    {
-        switch (type)
-        {
-            case CountryType.poor: return Color.black;
-            case CountryType.average: return Color.green;
-            case CountryType.rich: return Color.red;
-            default: return Color.magenta;
-        }
-    }
-
-    public static Color GetColorCapital(CountryType type)
-    {
-        switch (type)
-        {
-            case CountryType.poor: return Color.cyan;
-            case CountryType.average: return Color.yellow;
-            case CountryType.rich: return Color.gray;
-            default: return Color.magenta;
-        }
-    }
-    public static byte GetIncome(CountryType type)
-    {
-        switch (type)
-        {
-            case CountryType.poor: return 2;
-            case CountryType.average: return 3;
-            case CountryType.rich: return 4;
-            default: return 0;
-        }
-    }
-
-    public static byte GetSecretArmy(CountryType type)
-    {
-        switch (type)
-        {
-            case CountryType.poor: return 8;
-            case CountryType.average: return 12;
-            case CountryType.rich: return 18;
-            default: return 0;
-        }
-    }
-
-    public static byte GetReparations(CountryType type)
-    {
-        switch (type)
-        {
-            case CountryType.poor: return 8;
-            case CountryType.average: return 12;
-            case CountryType.rich: return 18;
-            default: return 0;
-        }
-    }
-
-    public static byte GetGuerilla(CountryType type)
-    {
-        switch (type)
-        {
-            case CountryType.poor: return 4;
-            case CountryType.average: return 6;
-            case CountryType.rich: return 8;
-            default: return 0;
-        }
-    }
-}

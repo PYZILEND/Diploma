@@ -28,8 +28,8 @@ public class LogicalMapCell : MonoBehaviour {
     public LogicalMapCell pathFrom;
 
     public Unit unit;
-
     public Country country;
+
     /// <summary>
     /// Initializes cell.
     /// Set's cells highlight, label, coordinates and terrain type.

@@ -7,7 +7,6 @@ using UnityEngine;
 /// </summary>
 public class CameraControls : MonoBehaviour {
 
-    GameMaster master;
     Transform swivel, stick;
 
     //Zoom parameters
@@ -26,7 +25,6 @@ public class CameraControls : MonoBehaviour {
     {
         swivel = transform.GetChild(0);
         stick = swivel.GetChild(0);
-        master = GetComponentInParent<GameMaster>();
     }
 
     /// <summary>
@@ -99,10 +97,10 @@ public class CameraControls : MonoBehaviour {
     /// </summary>
     Vector3 ClampPosition(Vector3 position)
     {       
-        float maxX = (master.mapWidth - 0.5f) * (HexMetrics.innerRadius * 2f);
+        float maxX = (GameMaster.mapWidth - 0.5f) * (HexMetrics.innerRadius * 2f);
         position.x = Mathf.Clamp(position.x, 0f, maxX);
 
-        float maxZ = (master.mapHeight - 1f) * (HexMetrics.outerRadius * 1.5f);
+        float maxZ = (GameMaster.mapHeight - 1f) * (HexMetrics.outerRadius * 1.5f);
         position.z = Mathf.Clamp(position.z, 0f, maxZ);
 
         return position;

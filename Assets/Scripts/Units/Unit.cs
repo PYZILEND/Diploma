@@ -4,19 +4,33 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour {
 
+    /// <summary>
+    /// Unit type
+    /// </summary>
     public UnitType type;
 
+    //Unit's health and move points
     public int healthPoints;
     public int movePoints;
 
+    /// <summary>
+    /// Cell at which unit is positioned
+    /// </summary>
     public LogicalMapCell cell;
 
-    public bool isDominion;
+    /// <summary>
+    /// Unit's allegiance
+    /// </summary>
+    public Allegiance allegiance;
 
+    //Flags for attack and being destroyed
     public bool hasAttacked;
     public bool isDestroyed;
 
-
+    /// <summary>
+    /// Initializes unit based on it's type
+    /// </summary>
+    /// <param name="type"></param>
     public void Initialize(UnitType type)
     {
         this.type = type;
@@ -24,7 +38,7 @@ public class Unit : MonoBehaviour {
         movePoints = 0;
         hasAttacked = true;
         isDestroyed = false;
-        if (isDominion)
+        if (allegiance==Allegiance.Dominion)
         {
             GetComponentInChildren<MeshRenderer>().material.color = Color.red;
          }
@@ -34,6 +48,10 @@ public class Unit : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Restores unit's move points and attack status
+    /// If unit was destroyed on prev turn it's removed from game
+    /// </summary>
     public void ChangeTurn()
     {
         movePoints = UnitTypeExtentions.GetMaxMovePoints(type);
@@ -44,6 +62,10 @@ public class Unit : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Moves unit to specified cell
+    /// </summary>
+    /// <param name="destination"></param>
     public void MoveToCell(LogicalMapCell destination)
     {
         movePoints -= destination.distance;
@@ -54,6 +76,11 @@ public class Unit : MonoBehaviour {
         ValidatePosition();
     }
 
+    /// <summary>
+    /// Unit shoots at specified cell
+    /// If unit on said cell looses enough health it's destroyed
+    /// </summary>
+    /// <param name="cell"></param>
     public void ShootAt(LogicalMapCell cell)
     {
         hasAttacked = true;
@@ -64,19 +91,28 @@ public class Unit : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Removes unit from game
+    /// </summary>
     public void DestroyLogically()
     {
-        GetComponentInParent<GameMaster>().units.Remove(this);
+        GameMaster.units.Remove(this);
         cell.unit = null;
         Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Changes unit's model to destroyed one and marks it for logical destraction
+    /// </summary>
     public void DestroyVisually()
     {
         isDestroyed = true;
         GetComponentInChildren<MeshRenderer>().material.color = Color.black;
     }
 
+    /// <summary>
+    /// Aligns unit's position with relative phisical map terrain
+    /// </summary>
     public void ValidatePosition()
     {
         RaycastHit hit;
