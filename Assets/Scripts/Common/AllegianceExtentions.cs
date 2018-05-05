@@ -26,4 +26,15 @@ public static class AllegianceExtentions
             return Allegiance.Dominion;
         }
     }
+
+    public static Color AllegianceToColor(Allegiance allegiance)
+    {
+        switch (allegiance)
+        {
+            case Allegiance.Dominion: return Color.red;
+            case Allegiance.Guardians: return Color.green;
+            case Allegiance.Neutral: return Color.grey;
+        }
+        return Color.white;
+    }
 }

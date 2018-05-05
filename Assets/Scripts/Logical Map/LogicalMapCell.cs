@@ -103,15 +103,7 @@ public class LogicalMapCell : MonoBehaviour {
     public void DisableLabel()
     {
         label.enabled = false;
-    }
-
-    /// <summary>
-    /// Aligns cell's highlight color with it's terrain type.
-    /// </summary>
-    public void ValidateHighlightWithTerrain()
-    {
-        highlight.color = TerrainTypeExtentions.TypeToColor(terrain);
-    }
+    }        
 
     /// <summary>
     /// Aligns this cell's UI elements to it's
@@ -158,5 +150,25 @@ public class LogicalMapCell : MonoBehaviour {
     {
         highlight.color = TerrainTypeExtentions.TypeToColor(terrain);
         highlight.enabled = true;
+    }
+
+    /// <summary>
+    /// Aligns cell's highlight color with it's terrain type.
+    /// </summary>
+    public void ValidateHighlightWithTerrain()
+    {
+        highlight.color = TerrainTypeExtentions.TypeToColor(terrain);
+    }
+
+    public void ValidateHighlightWithAllegiance()
+    {
+        if (country)
+        {
+            highlight.color = AllegianceExtentions.AllegianceToColor(country.GetAllegiance());
+        }
+        else
+        {
+            highlight.color = Color.white;
+        }
     }
 }

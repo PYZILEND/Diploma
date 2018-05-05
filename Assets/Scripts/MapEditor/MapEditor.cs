@@ -19,7 +19,7 @@ public class MapEditor : MonoBehaviour
     string countryName="t";
     CountryType type=CountryType.poor;
     static Allegiance countryAllegiance;    
-
+    
     /// <summary>
     /// Applyes terrain and unit placement changes to specified cell
     /// </summary>
@@ -149,6 +149,22 @@ public class MapEditor : MonoBehaviour
             if (selectedCountry != null)
             {
                 selectedCountry.AddAreaToCountry(MapInputs.GetSelectedCell());
+            }
+        }
+    }
+
+    /// <summary>
+    /// Remove selected cell from country
+    /// </summary>
+    public void RemoveArea()
+    {
+        if ((MapInputs.GetSelectedCell() != null) &&
+            (GameMaster.countries.Find(u => u.GetCountryCapital() == MapInputs.GetSelectedCell()) == null))
+        {
+            Country selectedCountry = MapInputs.GetSelectedCell().country;
+            if (selectedCountry != null)
+            {
+                selectedCountry.RemoveAreaFromCountry(MapInputs.GetSelectedCell());
             }
         }
     }

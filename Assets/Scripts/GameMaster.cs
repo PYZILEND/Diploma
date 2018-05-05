@@ -18,9 +18,15 @@ public class GameMaster : MonoBehaviour {
     public static LogicalMap logicalMap;
     public static PhysicalMap physicalMap;
 
-    //For instantiating
+    //For instantiating (referances)
+    public Unit unitPrefabRef;
+    public Country countryPrefabRef;
+    public Capital capitalPrefabRef;
+
+    //For instantiating (statics)
     public static Unit unitPrefab;
     public static Country countryPrefab;
+    public static Capital capitalPrefab;
 
     //Match settings fields
     public static byte incomeTurns = 10;//Debug value
@@ -39,14 +45,17 @@ public class GameMaster : MonoBehaviour {
     /// </summary>
     void Awake()
     {
+        unitPrefab = unitPrefabRef;
+        countryPrefab = countryPrefabRef;
+        capitalPrefab = capitalPrefabRef;
+
         //Instantiating maps and creating cells
         physicalMap = Instantiate(physicalMapPrefab, this.transform, false);
         physicalMap.CreateMap(mapWidth, mapHeight);
 
         logicalMap = Instantiate(logicalMapPrefab, this.transform, false);
         logicalMap.CreateMap(mapWidth, mapHeight);
-        logicalMap.ShowAllHighlights();
-        logicalMap.ShowAllCoordinates();
+        logicalMap.HighlightAllegiance();
 
         countries = new List<Country>();
         units = new List<Unit>();

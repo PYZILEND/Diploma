@@ -19,9 +19,14 @@ public class Country : MonoBehaviour {
     List<LogicalMapCell> area;
 
     /// <summary>
-    /// Capital of the country
+    /// Capital of the country 
     /// </summary>
-    LogicalMapCell capital;
+    public LogicalMapCell capital;
+
+    /// <summary>
+    /// Capital city object
+    /// </summary>
+    Capital capitalCity;
 
     /// <summary>
     /// How many turns country will give income
@@ -88,10 +93,34 @@ public class Country : MonoBehaviour {
     Allegiance allegiance;
 
     /// <summary>
+    /// Country's initial allegiance
+    /// affects reparations
+    /// </summary>
+    Allegiance initialAllegiance;
+
+    /// <summary>
     /// Country type - poor, average, rich
     /// </summary>
     CountryType type;
 
+    /// <summary>
+    /// Checks if country was not invaded by enemy units
+    /// </summary>
+    /// <returns>returns true if there'no enemy units in cells of country's area</returns>
+    public bool isInvaded
+    {
+        get
+        {
+            foreach (LogicalMapCell cell in area)
+            {
+                if ((cell.unit != null) && (cell.unit.allegiance != allegiance && !cell.unit.isDestroyed))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 
     /// <summary>
     /// Creating country
@@ -114,13 +143,18 @@ public class Country : MonoBehaviour {
         }
         area = new List<LogicalMapCell>();
         area.Add(startingCell);
-        capital = startingCell;        
-        startingCell.highlight.color = CountryTypeExtentions.GetColorCapital(type);
+        startingCell.highlight.color = AllegianceExtentions.AllegianceToColor(allegiance);
         startingCell.country = this;
+
+        capital = startingCell;
+        capitalCity = Instantiate(GameMaster.capitalPrefab, capital.transform, false);
+        capitalCity.ValidatePosition();
+        capitalCity.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);        
 
         this.countryName = countryName;
         this.type = type;
         this.allegiance = allegiance;
+        initialAllegiance = allegiance;
         guerilla = CountryTypeExtentions.GetGuerilla(type);
         incomeTurnsLeft = GameMaster.incomeTurns;
         if (allegiance!=Allegiance.Neutral)
@@ -152,7 +186,7 @@ public class Country : MonoBehaviour {
                 areaCell.country.area.Remove(areaCell);
             }
             area.Add(areaCell);
-            areaCell.highlight.color = CountryTypeExtentions.GetColor(type);
+            areaCell.highlight.color = AllegianceExtentions.AllegianceToColor(allegiance);
             areaCell.country = this;
         }        
     }
@@ -176,10 +210,21 @@ public class Country : MonoBehaviour {
                     cell.country.area.Remove(cell);
                 }
                 this.area.Add(cell);
-                cell.highlight.color = CountryTypeExtentions.GetColor(type);
+                cell.highlight.color = AllegianceExtentions.AllegianceToColor(allegiance);
                 cell.country = this;
             }
         }
+    }
+
+    /// <summary>
+    /// Removes area from country
+    /// </summary>
+    /// <param name="areaCell">cell which will be removed</param>
+    public void RemoveAreaFromCountry(LogicalMapCell areaCell)
+    {
+        area.Remove(areaCell);
+        areaCell.country = null;
+        areaCell.ValidateHighlightWithTerrain();
     }
 
     /// <summary>
@@ -201,11 +246,12 @@ public class Country : MonoBehaviour {
                     cell.country.area.Remove(cell);
                 }
                 area.Add(cell);
-                cell.highlight.color = CountryTypeExtentions.GetColorCapital(type);
+                cell.highlight.color = AllegianceExtentions.AllegianceToColor(allegiance);
                 cell.country = this;
             }
-            capital.highlight.color = CountryTypeExtentions.GetColor(type);
             capital = cell;
+            capitalCity.transform.SetParent(cell.transform, false);
+            capitalCity.ValidatePosition();
         }
     }
 
@@ -256,27 +302,11 @@ public class Country : MonoBehaviour {
     /// </summary>
     public void AddToTreasury()
     {
-        if ((allegiance != Allegiance.Neutral) && (incomeTurnsLeft != 0) && (CheckIfInvasion())) 
+        if ((allegiance != Allegiance.Neutral) && (incomeTurnsLeft != 0) && (isInvaded)) 
         {
             treasury += CountryTypeExtentions.GetIncome(type);
             incomeTurnsLeft--;
         }
-    }
-
-    /// <summary>
-    /// Checks if country was not invaded by enemy units
-    /// </summary>
-    /// <returns>returns true if there'no enemy units in cells of country's area</returns>
-    public bool CheckIfInvasion()
-    {
-        foreach (LogicalMapCell cell in area)
-        {
-            if ((cell.unit!=null) && (cell.unit.allegiance != allegiance))
-            {
-                return false;
-            }
-        }
-        return true;
     }
 
     /// <summary>
@@ -338,6 +368,55 @@ public class Country : MonoBehaviour {
     public LogicalMapCell GetCountryCapital()
     {
         return capital;
+    }
+
+    /// <summary>
+    /// Returns country allegiance
+    /// </summary>
+    /// <returns></returns>
+    public Allegiance GetAllegiance()
+    {
+        return allegiance;
+    }
+
+    /// <summary>
+    /// Must be called when unit with opposite allegiance enters capital
+    /// </summary>
+    /// <param name="newAllegiance"></param>
+    public void SwitchAllegiance(Allegiance newAllegiance)
+    {
+        allegiance = newAllegiance;
+        capitalCity.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
+        if (!isInvaded)
+        {
+            TriggerLiberation();
+        }
+    }
+
+    /// <summary>
+    /// Must be called when country is invaded
+    /// </summary>
+    public void TriggerInvasion()
+    {
+        Debug.Log(countryName + "is invaded");
+        if (hasGuerilla)
+        {
+            Debug.Log(countryName + "spawns guerrila");
+            guerilla = 0;
+        }
+    }
+
+    /// <summary>
+    /// Must be called when country is libirated
+    /// </summary>
+    public void TriggerLiberation()
+    {
+        Debug.Log(countryName + "is libirated");
+        if(hasReparation && initialAllegiance != allegiance)
+        {
+            Debug.Log(countryName + "gives reparations");
+            hasReparation = false;
+        }
     }
 }
 

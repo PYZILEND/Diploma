@@ -176,7 +176,7 @@ public class LogicalMap : MonoBehaviour {
     /// <summary>
     /// Shows every cell's highlight
     /// </summary>
-    public void ShowAllHighlights()
+    public void HighlightTerrain()
     {
         for (int i = 0; i < cells.Length; i++)
         {
@@ -212,6 +212,15 @@ public class LogicalMap : MonoBehaviour {
         for (int i = 0; i < cells.Length; i++)
         {
             if (cells[i].isReachable) { cells[i].HighlightValidatedTerrain(); }
+        }
+    }
+
+    public void HighlightAllegiance()
+    {
+        for (int i = 0; i < cells.Length; i++)
+        {
+            cells[i].EnableHighlight();
+            cells[i].ValidateHighlightWithAllegiance();
         }
     }
 }

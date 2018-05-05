@@ -38,14 +38,7 @@ public class Unit : MonoBehaviour {
         movePoints = 0;
         hasAttacked = true;
         isDestroyed = false;
-        if (allegiance==Allegiance.Dominion)
-        {
-            GetComponentInChildren<MeshRenderer>().material.color = Color.red;
-         }
-        else
-        {
-            GetComponentInChildren<MeshRenderer>().material.color = Color.blue;
-        }
+        GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
     }
 
     /// <summary>
@@ -68,12 +61,41 @@ public class Unit : MonoBehaviour {
     /// <param name="destination"></param>
     public void MoveToCell(LogicalMapCell destination)
     {
+        if (destination.country)
+        {
+            if (cell.country == null || destination.country != cell.country)
+            {
+                if (!destination.country.isInvaded)
+                {
+                    destination.unit = this;
+                    if (destination.country.isInvaded)
+                    {
+                        destination.country.TriggerInvasion();
+                    }
+                }
+            }
+
+            if (destination.country.capital == destination && destination.country.GetAllegiance() != allegiance)
+            {
+                destination.country.SwitchAllegiance(allegiance);
+            }
+        }
+
+        if (cell.country && cell.country.isInvaded)
+        {
+            cell.unit = null;
+            if (!cell.country.isInvaded)
+            {
+                cell.country.TriggerLiberation();
+            }
+        }
+
         movePoints -= destination.distance;
         cell.unit = null;
         destination.unit = this;
-        cell = destination;        
+        cell = destination;
         transform.SetParent(destination.transform, false);
-        ValidatePosition();
+        ValidatePosition();        
     }
 
     /// <summary>
@@ -106,8 +128,17 @@ public class Unit : MonoBehaviour {
     /// </summary>
     public void DestroyVisually()
     {
+        if (cell.country.isInvaded)
+        {
+            isDestroyed = true;
+            if (!cell.country.isInvaded)
+            {
+                cell.country.TriggerLiberation();
+            }
+        }
         isDestroyed = true;
         GetComponentInChildren<MeshRenderer>().material.color = Color.black;
+        
     }
 
     /// <summary>

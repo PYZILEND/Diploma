@@ -29,6 +29,10 @@ public class MapInputs : MonoBehaviour {
                 {
                     if (cell != selectedCell)
                     {
+                        if (selectedCell)
+                        {
+                            selectedCell.ValidateHighlightWithAllegiance();
+                        }
                         selectedCell = cell;
                         cell.highlight.color = Color.blue;
                         MapEditor.ApplyChanges(cell);
@@ -50,7 +54,15 @@ public class MapInputs : MonoBehaviour {
                     }
                 }
             }
-        }        
+        }
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            GameMaster.logicalMap.HighlightAllegiance();
+        }
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            GameMaster.logicalMap.HighlightTerrain();
+        }
     }
 
     /// <summary>
@@ -80,17 +92,6 @@ public class MapInputs : MonoBehaviour {
     public void EditMode(bool value)
     {
         editMode = value;
-        /*
-        if (value)
-        {
-            master.logicalMap.ShowAllHighlights();
-            master.logicalMap.ShowAllCoordinates();
-        }
-        else
-        {
-            master.logicalMap.HideAllHighlights();
-            master.logicalMap.HideAllLabels();
-        }*/
     }
 
     public static LogicalMapCell GetSelectedCell()
