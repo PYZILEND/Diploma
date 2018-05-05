@@ -128,7 +128,7 @@ public class Unit : MonoBehaviour {
     /// </summary>
     public void DestroyVisually()
     {
-        if (cell.country.isInvaded)
+        if (cell.country && cell.country.isInvaded)
         {
             isDestroyed = true;
             if (!cell.country.isInvaded)

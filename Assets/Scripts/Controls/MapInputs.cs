@@ -47,11 +47,8 @@ public class MapInputs : MonoBehaviour {
                 LogicalMapCell cell;
                 if (cell = GetCellUnderCoursor())
                 {
-                    if (cell != selectedCell)
-                    {
-                        selectedCell = cell;
-                        UnitControls.ProcessInput(cell);
-                    }
+                    selectedCell = cell;
+                    UnitControls.ProcessInput(cell);
                 }
             }
         }
