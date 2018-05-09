@@ -39,15 +39,27 @@ public class GameMaster : MonoBehaviour {
     /// Shows who's turn it is
     /// </summary>
     public static Allegiance allegianceTurn = Allegiance.Dominion;
-    
+
+    //Used to reference GUI
+    public CountryInfo countryInfoRef;
+    public UnitInfo unitInfoRef;
+
+    //Used to control GUI via static methods
+    public static CountryInfo countryInfo;
+    public static UnitInfo unitInfo;
+
     /// <summary>
     /// Initializing game
     /// </summary>
     void Awake()
     {
+        //Hooking static fields to usual ones
         unitPrefab = unitPrefabRef;
         countryPrefab = countryPrefabRef;
         capitalPrefab = capitalPrefabRef;
+
+        countryInfo = countryInfoRef;
+        unitInfo = unitInfoRef;
 
         //Instantiating maps and creating cells
         physicalMap = Instantiate(physicalMapPrefab, this.transform, false);

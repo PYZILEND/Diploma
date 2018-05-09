@@ -8,7 +8,10 @@ public class Country : MonoBehaviour {
     /// Name of the country
     /// </summary>
     [SerializeField]
-    string countryName;
+    public string countryName
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Country area
@@ -21,7 +24,10 @@ public class Country : MonoBehaviour {
     /// <summary>
     /// Capital of the country 
     /// </summary>
-    public LogicalMapCell capital;
+    public LogicalMapCell capital
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Capital city object
@@ -31,18 +37,27 @@ public class Country : MonoBehaviour {
     /// <summary>
     /// How many turns country will give income
     /// </summary>
-    byte incomeTurnsLeft;
+    public byte incomeTurnsLeft
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Treasury
     /// </summary>
-    byte treasury;    
+    public byte treasury
+    {
+        get; private set;
+    }    
 
     /// <summary>
     /// If not 0 then secret army
     /// was not disclosed yet
     /// </summary>
-    byte secretArmy;
+    public byte secretArmy
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Returns if country is a secret ally
@@ -63,7 +78,10 @@ public class Country : MonoBehaviour {
     /// <summary>
     /// If not 0 then has guerilla army
     /// </summary>
-    byte guerilla;
+    public byte guerilla
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Returns status of guerilla
@@ -84,24 +102,36 @@ public class Country : MonoBehaviour {
     /// <summary>
     /// If true then has reparation money
     /// </summary>
-    bool hasReparation;
+    public bool hasReparation
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// County's allegiance
     /// Guardians, Dominion, Neutral
     /// </summary>
-    Allegiance allegiance;
+    public Allegiance allegiance
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Country's initial allegiance
     /// affects reparations
     /// </summary>
-    Allegiance initialAllegiance;
+    public Allegiance initialAllegiance
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Country type - poor, average, rich
     /// </summary>
-    CountryType type;
+    public CountryType type
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Checks if country was not invaded by enemy units
@@ -300,7 +330,7 @@ public class Country : MonoBehaviour {
     /// Checks if income turns is not 0
     /// Checks if country was not invaded by enemy units
     /// </summary>
-    public void AddToTreasury()
+    public void GetIncome()
     {
         if ((allegiance != Allegiance.Neutral) && (incomeTurnsLeft != 0) && (isInvaded)) 
         {
@@ -396,9 +426,15 @@ public class Country : MonoBehaviour {
     /// <summary>
     /// Must be called when country is invaded
     /// </summary>
-    public void TriggerInvasion()
+    /// <param name="invaderAllegiance">Invading unit's allegiance,
+    /// used in case a neutral country is invaded</param>
+    public void TriggerInvasion(Allegiance invaderAllegiance)
     {
         Debug.Log(countryName + "is invaded");
+        if(allegiance == Allegiance.Neutral)
+        {
+            SwitchAllegiance(AllegianceExtentions.Opposite(invaderAllegiance));
+        }
         if (hasGuerilla)
         {
             Debug.Log(countryName + "spawns guerrila");

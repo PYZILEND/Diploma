@@ -70,7 +70,7 @@ public class Unit : MonoBehaviour {
                     destination.unit = this;
                     if (destination.country.isInvaded)
                     {
-                        destination.country.TriggerInvasion();
+                        destination.country.TriggerInvasion(allegiance);
                     }
                 }
             }

@@ -20,38 +20,62 @@ public class MapInputs : MonoBehaviour {
     /// </summary>
 	void Update ()
     {
-        if (editMode)
+        if (!EventSystem.current.IsPointerOverGameObject())
         {
-            if (Input.GetMouseButton(0))
+            if (editMode)
             {
-                LogicalMapCell cell;
-                if (cell = GetCellUnderCoursor())
+                if (Input.GetMouseButton(0))
                 {
-                    if (cell != selectedCell)
+                    LogicalMapCell cell;
+                    if (cell = GetCellUnderCoursor())
                     {
-                        if (selectedCell)
+                        if (cell != selectedCell)
                         {
-                            selectedCell.ValidateHighlightWithAllegiance();
+                            if (selectedCell)
+                            {
+                                selectedCell.ValidateHighlightWithAllegiance();
+                            }
+                            selectedCell = cell;
+                            cell.highlight.color = Color.blue;
+                            MapEditor.ApplyChanges(cell);
                         }
-                        selectedCell = cell;
-                        cell.highlight.color = Color.blue;
-                        MapEditor.ApplyChanges(cell);
                     }
                 }
             }
-        }
-        else
-        {
-            if (Input.GetMouseButton(0))
+            else
             {
-                LogicalMapCell cell;
-                if (cell = GetCellUnderCoursor())
+                if (Input.GetMouseButton(0))
                 {
-                    selectedCell = cell;
-                    UnitControls.ProcessInput(cell);
+                    LogicalMapCell cell;
+                    if (cell = GetCellUnderCoursor())
+                    {
+                        selectedCell = cell;
+                        UnitControls.ProcessInput(cell);
+                    }
+                }
+            }
+
+            if (hoveredCell = GetCellUnderCoursor())
+            {
+                if (hoveredCell.country)
+                {
+                    GameMaster.countryInfo.ShowCountryInfo(hoveredCell.country);
+                }
+                else
+                {
+                    GameMaster.countryInfo.Clear();
+                }
+                if (hoveredCell.unit)
+                {
+                    GameMaster.unitInfo.ShowUnitInfo(hoveredCell.unit);
+                }
+                else
+                {
+                    GameMaster.unitInfo.Hide();
                 }
             }
         }
+
         if (Input.GetKeyDown(KeyCode.Z))
         {
             GameMaster.logicalMap.HighlightAllegiance();

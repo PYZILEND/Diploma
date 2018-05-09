@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Common\AllegianceExtentions.cs" />
+     <Compile Include="Assets\Scripts\Common\PhaseExtentions.cs" />
      <Compile Include="Assets\Scripts\Controls\CameraControls.cs" />
      <Compile Include="Assets\Scripts\Controls\DebugControls.cs" />
      <Compile Include="Assets\Scripts\Controls\MapInputs.cs" />
@@ -68,6 +69,8 @@
      <Compile Include="Assets\Scripts\MapEditor\MapEditor.cs" />
      <Compile Include="Assets\Scripts\Pathfinding\Pathfinder.cs" />
      <Compile Include="Assets\Scripts\Physical Map\PhysicalMap.cs" />
+     <Compile Include="Assets\Scripts\UI\CountryInfo.cs" />
+     <Compile Include="Assets\Scripts\UI\UnitInfo.cs" />
      <Compile Include="Assets\Scripts\Units\Specials\AntiAir.cs" />
      <Compile Include="Assets\Scripts\Units\Specials\Carrier.cs" />
      <Compile Include="Assets\Scripts\Units\Specials\Plane.cs" />
