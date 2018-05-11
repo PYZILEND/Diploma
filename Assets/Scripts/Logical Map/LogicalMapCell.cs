@@ -27,6 +27,15 @@ public class LogicalMapCell : MonoBehaviour {
     public int distance;
     public LogicalMapCell pathFrom;
 
+    /// <summary>
+    /// Weather cell's country can be selected
+    /// </summary>
+    public bool isSelectable;
+    /// <summary>
+    /// Weather a purchased unit can be placed into that cell
+    /// </summary>
+    public bool canPlaceUnit;
+
     public Unit unit;
     public Country country;
 
@@ -164,7 +173,7 @@ public class LogicalMapCell : MonoBehaviour {
     {
         if (country)
         {
-            highlight.color = AllegianceExtentions.AllegianceToColor(country.GetAllegiance());
+            highlight.color = AllegianceExtentions.AllegianceToColor(country.allegiance);
         }
         else
         {

@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Used to display information about country in UI
+/// </summary>
 public class CountryInfo : MonoBehaviour {
 
+    //Links to UI elements
     public Text countryName;
     public Text countryTreasury;
     public Text countryGuerrilla;
@@ -12,6 +16,10 @@ public class CountryInfo : MonoBehaviour {
     public Text countryIncomeTurns;
     public Text countryIncome;
 
+    /// <summary>
+    /// Used to show information about specified country
+    /// </summary>
+    /// <param name="country"></param>
     public void ShowCountryInfo(Country country)
     {
         countryName.text = country.countryName;
@@ -22,6 +30,9 @@ public class CountryInfo : MonoBehaviour {
         countryIncome.text = CountryTypeExtentions.GetIncome(country.type).ToString();
     }
 
+    /// <summary>
+    /// Used to clear info panel's UI fields
+    /// </summary>
     public void Clear()
     {
         countryName.text = "";

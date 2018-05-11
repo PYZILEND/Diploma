@@ -27,6 +27,11 @@ public static class AllegianceExtentions
         }
     }
 
+    /// <summary>
+    /// Returns color assosiated with specified allegiance
+    /// </summary>
+    /// <param name="allegiance"></param>
+    /// <returns></returns>
     public static Color AllegianceToColor(Allegiance allegiance)
     {
         switch (allegiance)

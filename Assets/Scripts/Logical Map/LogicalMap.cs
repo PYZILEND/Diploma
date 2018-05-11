@@ -215,6 +215,9 @@ public class LogicalMap : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Highlights cells based on their allegiance
+    /// </summary>
     public void HighlightAllegiance()
     {
         for (int i = 0; i < cells.Length; i++)

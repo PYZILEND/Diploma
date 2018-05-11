@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Used to display information about unit in UI
+/// </summary>
 public class UnitInfo : MonoBehaviour {
 
+    //Links to UI elements
     public Text unitName;
     public Text unitHP;
     public Text unitMP;
@@ -12,6 +16,10 @@ public class UnitInfo : MonoBehaviour {
     public Text unitRange;
     public Text unitCost;
 
+    /// <summary>
+    /// Shows information panel and fills it with unit's stats
+    /// </summary>
+    /// <param name="unit"></param>
     public void ShowUnitInfo(Unit unit)
     {
         this.gameObject.SetActive(true);
@@ -23,6 +31,9 @@ public class UnitInfo : MonoBehaviour {
         unitCost.text = UnitTypeExtentions.GetCost(unit.type).ToString();
     }
 
+    /// <summary>
+    /// Hides unit information panel
+    /// </summary>
     public void Hide()
     {
         this.gameObject.SetActive(false);

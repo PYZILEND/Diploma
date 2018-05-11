@@ -9,7 +9,11 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class MapInputs : MonoBehaviour {
 
-    static LogicalMapCell selectedCell; //Holds last clicked cell
+    //Holds last clicked cell
+    public static LogicalMapCell selectedCell
+    {
+        get; private set;        
+    } 
     LogicalMapCell hoveredCell; //Holds last hovered cell
 
     bool editMode;//Flag of map editing mode
@@ -20,8 +24,10 @@ public class MapInputs : MonoBehaviour {
     /// </summary>
 	void Update ()
     {
+        //Prevents raycasting from acting on cells that are behind UI elements
         if (!EventSystem.current.IsPointerOverGameObject())
         {
+            //Editor controls only apply in edit mode
             if (editMode)
             {
                 if (Input.GetMouseButton(0))
@@ -42,19 +48,39 @@ public class MapInputs : MonoBehaviour {
                     }
                 }
             }
+            //Non editor mode controls
             else
             {
-                if (Input.GetMouseButton(0))
+                //Unit controls
+                if (GameMaster.turnPhase == Phase.Battle)
                 {
-                    LogicalMapCell cell;
-                    if (cell = GetCellUnderCoursor())
+                    if (Input.GetMouseButtonDown(0))
                     {
-                        selectedCell = cell;
-                        UnitControls.ProcessInput(cell);
+                        LogicalMapCell cell;
+                        if (cell = GetCellUnderCoursor())
+                        {
+                            selectedCell = cell;
+                            UnitControls.ProcessInput(cell);
+                        }
+                    }
+                }
+                //Country controls
+                else
+                {
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        LogicalMapCell cell;
+                        if (cell = GetCellUnderCoursor())
+                        {
+                            selectedCell = cell;
+                            CountryControls.ProcessInput(cell);
+                        }
                     }
                 }
             }
 
+            //Uses hovering over cells to display information about
+            //cell's country and unit
             if (hoveredCell = GetCellUnderCoursor())
             {
                 if (hoveredCell.country)
@@ -76,10 +102,12 @@ public class MapInputs : MonoBehaviour {
             }
         }
 
+        //Can be used to highlight countryes and their allegiances
         if (Input.GetKeyDown(KeyCode.Z))
         {
             GameMaster.logicalMap.HighlightAllegiance();
         }
+        //Can be used to highlight terrain
         if (Input.GetKeyDown(KeyCode.X))
         {
             GameMaster.logicalMap.HighlightTerrain();
@@ -113,10 +141,5 @@ public class MapInputs : MonoBehaviour {
     public void EditMode(bool value)
     {
         editMode = value;
-    }
-
-    public static LogicalMapCell GetSelectedCell()
-    {
-        return selectedCell;
     }
 }

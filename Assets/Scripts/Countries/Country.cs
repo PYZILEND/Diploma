@@ -19,7 +19,7 @@ public class Country : MonoBehaviour {
     /// </summary>
     /// 
     [SerializeField]
-    List<LogicalMapCell> area;
+    public List<LogicalMapCell> area { get; private set; }
 
     /// <summary>
     /// Capital of the country 
@@ -63,7 +63,7 @@ public class Country : MonoBehaviour {
     /// Returns if country is a secret ally
     /// </summary>
     /// <returns>returns false if secretArmy is 0</returns>
-    public bool isSecretAliance
+    public bool hasSecretArmy
     {
         get
         {
@@ -120,7 +120,7 @@ public class Country : MonoBehaviour {
     /// Country's initial allegiance
     /// affects reparations
     /// </summary>
-    public Allegiance initialAllegiance
+    public Allegiance secretAllegiance
     {
         get; private set;
     }
@@ -134,19 +134,64 @@ public class Country : MonoBehaviour {
     }
 
     /// <summary>
-    /// Checks if country was not invaded by enemy units
+    /// Checks if country is invaded by enemy units
+    /// If guerrilla will spawn it also counts as invasion
     /// </summary>
-    /// <returns>returns true if there'no enemy units in cells of country's area</returns>
     public bool isInvaded
     {
         get
         {
+            if (willSpawnGuerrilla)
+            {
+                return true;
+            }
             foreach (LogicalMapCell cell in area)
             {
                 if ((cell.unit != null) && (cell.unit.allegiance != allegiance && !cell.unit.isDestroyed))
                 {
                     return true;
                 }
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if country can place guerrilla
+    /// </summary>
+    public bool willSpawnGuerrilla
+    {
+        get; private set;
+    }
+
+    /// <summary>
+    /// Checks if country can purchase units
+    /// </summary>
+    public bool CanBuyUnits
+    {
+        get
+        {
+            if(allegiance == GameMaster.allegianceTurn &&
+                !isInvaded &&
+                treasury > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if a secret ally can be disclosured
+    /// </summary>
+    public bool CanBeDisclosured
+    {
+        get
+        {
+            if(secretAllegiance == GameMaster.allegianceTurn &&
+                hasSecretArmy)
+            {
+                return true;
             }
             return false;
         }
@@ -183,13 +228,34 @@ public class Country : MonoBehaviour {
 
         this.countryName = countryName;
         this.type = type;
-        this.allegiance = allegiance;
-        initialAllegiance = allegiance;
+        this.allegiance = Allegiance.Neutral;
+        secretAllegiance = allegiance;
         guerilla = CountryTypeExtentions.GetGuerilla(type);
+        willSpawnGuerrilla = false;
         incomeTurnsLeft = GameMaster.incomeTurns;
-        if (allegiance!=Allegiance.Neutral)
+        if (secretAllegiance != Allegiance.Neutral)
         {
             secretArmy= CountryTypeExtentions.GetSecretArmy(type);
+            hasReparation = true;
+        }
+        else
+        {
+            secretArmy = 0;
+            hasReparation = false;
+        }
+    }
+
+    public void ResetCountry()
+    {
+        capitalCity.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
+        allegiance = Allegiance.Neutral;
+        guerilla = CountryTypeExtentions.GetGuerilla(type);
+        willSpawnGuerrilla = false;
+        incomeTurnsLeft = GameMaster.incomeTurns;
+        treasury = 0;
+        if (secretAllegiance != Allegiance.Neutral)
+        {
+            secretArmy = CountryTypeExtentions.GetSecretArmy(type);
             hasReparation = true;
         }
         else
@@ -298,6 +364,7 @@ public class Country : MonoBehaviour {
             cell.country = null;
         }
         GameMaster.countries.Remove(this);
+        Destroy(capitalCity.gameObject);
         Destroy(this.gameObject);
     }
 
@@ -311,18 +378,19 @@ public class Country : MonoBehaviour {
     }
 
     /// <summary>
-    /// Substructs sum from treasury if possible
+    /// Buys unit using treasury money
     /// </summary>
-    /// <param name="sum">sum of money that is spend</param>
-    /// <returns>returns false if sum is bigger than treasury</returns>
-    public bool SpendMoney(byte sum)
+    public void BuyWithTresury(UnitType unit, LogicalMapCell cell)
     {
-        if (treasury - sum >= 0)
+        if (treasury >= UnitTypeExtentions.GetCost(unit))
         {
-            treasury -= sum;
-            return true;
+            treasury -= (byte)UnitTypeExtentions.GetCost(unit);
+            Unit.CreateUnit(unit, cell, GameMaster.allegianceTurn);
         }
-        return false;
+        else
+        {
+            Debug.Log("This unit is too expansive");
+        }
     }
 
     /// <summary>
@@ -332,7 +400,7 @@ public class Country : MonoBehaviour {
     /// </summary>
     public void GetIncome()
     {
-        if ((allegiance != Allegiance.Neutral) && (incomeTurnsLeft != 0) && (isInvaded)) 
+        if ((allegiance == GameMaster.allegianceTurn) && (incomeTurnsLeft != 0) && (!isInvaded)) 
         {
             treasury += CountryTypeExtentions.GetIncome(type);
             incomeTurnsLeft--;
@@ -340,19 +408,24 @@ public class Country : MonoBehaviour {
     }
 
     /// <summary>
-    /// Substructs sum from guerilla money
+    /// Buys unit with guerrilla
     /// </summary>
-    /// <param name="sum">money spend sum</param>
-    /// <returns>returns false if sum is bigger than guerilla money</returns>
-    public bool SpendGuerilla(byte sum)
+    public void BuyWithGuerrilla(UnitType unit, LogicalMapCell cell)
     {
-        if (guerilla - sum >= 0)
+        if (guerilla >= UnitTypeExtentions.GetCost(unit))
         {
-            guerilla -= sum;
-            return true;
+            guerilla -= (byte)UnitTypeExtentions.GetCost(unit);
+            Unit.CreateUnit(unit, cell, GameMaster.allegianceTurn);
         }
-        return false;
-    }    
+        else
+        {
+            Debug.Log("This unit is too expansive");
+        }
+        if(guerilla == 0)
+        {
+            willSpawnGuerrilla = false;
+        }
+    }
 
     /// <summary>
     /// Adds reparation money to treasury based on country type
@@ -367,46 +440,30 @@ public class Country : MonoBehaviour {
         }
     }
 
-    /// <summary>
-    /// Substructs sum from secret army money
-    /// </summary>
-    /// <param name="sum">money spend sum</param>
-    /// <returns>returns false if sum is bigger than secret army money</returns>
-    public bool SpendSecretArmyMoney(byte sum)
+    public void Disclosure()
     {
-        if (secretArmy - sum >= 0)
+        Debug.Log(countryName + " has been disclosured as " + secretAllegiance.ToString() + " secret ally");
+        if (allegiance == Allegiance.Neutral)
         {
-            secretArmy -= sum;
-            return true;
+            allegiance = secretAllegiance;
+            capitalCity.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(secretAllegiance);
         }
-        return false;
-    }    
-
-    /// <summary>
-    /// Get country name
-    /// </summary>
-    /// <returns>returns country's name</returns>
-    public string GetCountryName()
-    {
-        return countryName;
     }
 
     /// <summary>
-    /// Get country capital LogicalMapCell
+    /// Substructs sum from treasury if possible
     /// </summary>
-    /// <returns>returns cell of country's capital</returns>
-    public LogicalMapCell GetCountryCapital()
+    public void BuyWithSecretArmy(UnitType unit, LogicalMapCell cell)
     {
-        return capital;
-    }
-
-    /// <summary>
-    /// Returns country allegiance
-    /// </summary>
-    /// <returns></returns>
-    public Allegiance GetAllegiance()
-    {
-        return allegiance;
+        if (secretArmy >= UnitTypeExtentions.GetCost(unit))
+        {
+            secretArmy -= (byte)UnitTypeExtentions.GetCost(unit);
+            Unit.CreateUnit(unit, cell, GameMaster.allegianceTurn);
+        }
+        else
+        {
+            Debug.Log("This unit is too expansive");
+        }
     }
 
     /// <summary>
@@ -430,15 +487,15 @@ public class Country : MonoBehaviour {
     /// used in case a neutral country is invaded</param>
     public void TriggerInvasion(Allegiance invaderAllegiance)
     {
-        Debug.Log(countryName + "is invaded");
+        Debug.Log(countryName + " is invaded");
         if(allegiance == Allegiance.Neutral)
         {
             SwitchAllegiance(AllegianceExtentions.Opposite(invaderAllegiance));
         }
         if (hasGuerilla)
         {
-            Debug.Log(countryName + "spawns guerrila");
-            guerilla = 0;
+            Debug.Log(countryName + " will spawn guerrila");
+            willSpawnGuerrilla = true;
         }
     }
 
@@ -447,13 +504,76 @@ public class Country : MonoBehaviour {
     /// </summary>
     public void TriggerLiberation()
     {
-        Debug.Log(countryName + "is libirated");
-        if(hasReparation && initialAllegiance != allegiance)
+        Debug.Log(countryName + " is libirated");
+        if(hasReparation && secretAllegiance != allegiance)
         {
-            Debug.Log(countryName + "gives reparations");
-            hasReparation = false;
+            if (hasSecretArmy)
+            {
+                Debug.Log(countryName + " was a " + secretAllegiance.ToString() + " secret ally");
+                secretArmy = 0;
+            }
+            Debug.Log(countryName + " gives reparations");
+            GetReparations();
         }
     }
+
+    /// <summary>
+    /// Marks country's area as selectable
+    /// </summary>
+    public void MakeSelectable()
+    {
+        foreach (LogicalMapCell cell in area)
+        {
+            cell.EnableHighlight(AllegianceExtentions.AllegianceToColor(GameMaster.allegianceTurn));
+            cell.isSelectable = true;
+        }
+    }
+
+    /// <summary>
+    /// Marks country's area as unselectable
+    /// </summary>
+    public void MakeUnselectable()
+    {
+        foreach (LogicalMapCell cell in area)
+        {
+            cell.DisableHighlight();
+            cell.isSelectable = false;
+        }
+    }
+
+    /// <summary>
+    /// Marks cells where a unit can be placed based on it's travel type and cell's terrain type
+    /// </summary>
+    /// <param name="unit"></param>
+    public void ValidatePossibleUnitPlacements(UnitType unit)
+    {
+        foreach (LogicalMapCell cell in area)
+            if (TravelTypeExtentions.CanTravelOn(cell.terrain, TravelTypeExtentions.UnitTypeToTravelType(unit)) && 
+                cell.unit == null &&
+                cell.country.capital != cell)
+            {
+                cell.HighlightValidatedTerrain();
+                cell.canPlaceUnit = true;
+            }
+            else
+            {
+                cell.DisableHighlight();
+                cell.canPlaceUnit = false;
+            }
+    }
+
+    /// <summary>
+    /// Clears country's area unit placement permits,
+    /// used when selection of a country is dropped
+    /// </summary>
+    public void DropUnitPlacements()
+    {
+        foreach(LogicalMapCell cell in area)
+        {
+            cell.DisableHighlight();
+            cell.canPlaceUnit = false;
+        }
+    }   
 }
 
 

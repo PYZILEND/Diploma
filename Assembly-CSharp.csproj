@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\Controls\MapInputs.cs" />
      <Compile Include="Assets\Scripts\Countries\Capital.cs" />
      <Compile Include="Assets\Scripts\Countries\Country.cs" />
+     <Compile Include="Assets\Scripts\Countries\CountryControls.cs" />
      <Compile Include="Assets\Scripts\Countries\CountryTypeExtentions.cs" />
      <Compile Include="Assets\Scripts\GameMaster.cs" />
      <Compile Include="Assets\Scripts\Hex Properties\HexCoordinates.cs" />
@@ -77,6 +78,7 @@
      <Compile Include="Assets\Scripts\Units\Specials\Platform.cs" />
      <Compile Include="Assets\Scripts\Units\Specials\SuperUnit.cs" />
      <Compile Include="Assets\Scripts\Units\Specials\Transport.cs" />
+     <Compile Include="Assets\Scripts\Units\TravelType.cs" />
      <Compile Include="Assets\Scripts\Units\Unit.cs" />
      <Compile Include="Assets\Scripts\Units\UnitControls.cs" />
      <Compile Include="Assets\Scripts\Units\UnitType.cs" />

@@ -28,17 +28,43 @@ public class Unit : MonoBehaviour {
     public bool isDestroyed;
 
     /// <summary>
-    /// Initializes unit based on it's type
+    /// Creates unit of specified type on specified cell with said allegiance
     /// </summary>
     /// <param name="type"></param>
-    public void Initialize(UnitType type)
+    /// <param name="cell"></param>
+    /// <param name="allegiance"></param>
+    /// <returns></returns>
+    public static Unit CreateUnit(UnitType type, LogicalMapCell cell, Allegiance allegiance)
     {
-        this.type = type;
+        Unit unit = Instantiate(GameMaster.unitPrefab);
+        GameMaster.units.Add(unit);
+
+        unit.transform.SetParent(cell.transform, false);
+        unit.cell = cell;        
+        cell.unit = unit;
+
+        unit.allegiance = allegiance;
+        unit.type = type;        
+        unit.healthPoints = UnitTypeExtentions.GetMaxHealth(type);
+        unit.movePoints = 0;
+        unit.hasAttacked = true;
+        unit.isDestroyed = false;
+
+        unit.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
+        unit.ValidatePosition();
+
+        return unit;
+    }
+
+    /// <summary>
+    /// Resets unit to it's default state
+    /// </summary>
+    public void ResetUnit()
+    {
         healthPoints = UnitTypeExtentions.GetMaxHealth(type);
-        movePoints = 0;
-        hasAttacked = true;
+        movePoints = UnitTypeExtentions.GetMaxMovePoints(type);
+        hasAttacked = false;
         isDestroyed = false;
-        GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
     }
 
     /// <summary>
@@ -75,7 +101,7 @@ public class Unit : MonoBehaviour {
                 }
             }
 
-            if (destination.country.capital == destination && destination.country.GetAllegiance() != allegiance)
+            if (destination.country.capital == destination && destination.country.allegiance != allegiance)
             {
                 destination.country.SwitchAllegiance(allegiance);
             }
