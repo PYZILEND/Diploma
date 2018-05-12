@@ -93,4 +93,13 @@ public struct HexCoordinates
     {
         return X.ToString() + "\n" + Y.ToString() + "\n" + Z.ToString();
     }
+
+    /// <summary>
+    /// Converts cooridnates to cell's index in cells array
+    /// </summary>
+    /// <returns></returns>
+    public int ToIndex()
+    {
+        return X + Z * GameMaster.mapWidth + (Z / 2);
+    }
 }

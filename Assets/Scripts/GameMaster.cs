@@ -8,9 +8,11 @@ using UnityEngine;
 /// </summary>
 public class GameMaster : MonoBehaviour {
 
-    //Data for map initialization    
-    public LogicalMap logicalMapPrefab;
-    public PhysicalMap physicalMapPrefab;
+    //Data for map initialization        
+    public LogicalMap logicalMapPrefabRef;
+    public PhysicalMap physicalMapPrefabRef;
+    public static LogicalMap logicalMapPrefab;
+    public static PhysicalMap physicalMapPrefab;
     public static int mapWidth = 28;
     public static int mapHeight = 28;
 
@@ -66,11 +68,9 @@ public class GameMaster : MonoBehaviour {
         unitInfo = unitInfoRef;
 
         //Instantiating maps and creating cells
-        physicalMap = Instantiate(physicalMapPrefab, this.transform, false);
-        physicalMap.CreateMap(mapWidth, mapHeight);
-
-        logicalMap = Instantiate(logicalMapPrefab, this.transform, false);
-        logicalMap.CreateMap(mapWidth, mapHeight);
+        logicalMapPrefab = logicalMapPrefabRef;
+        physicalMapPrefab = physicalMapPrefabRef;
+        BuildMap();
         logicalMap.HighlightAllegiance();
 
         countries = new List<Country>();
@@ -78,6 +78,7 @@ public class GameMaster : MonoBehaviour {
 
         //Initializing game start
         RestartGame();
+       // MapSaver.SaveMap();
     }
 
     //This method should probably get a rework
@@ -176,5 +177,44 @@ public class GameMaster : MonoBehaviour {
 
         //Showing possible disclosure options
         CountryControls.ChangePhase();
+    }
+
+    /// <summary>
+    /// Deletes current map, countryes and units
+    /// </summary>
+    public static void DropMap()
+    {
+        countries.Clear();
+        units.Clear();
+        if (physicalMap)
+        {
+            Destroy(physicalMap.gameObject);
+        }
+        if (logicalMap)
+        {
+            Destroy(logicalMap.gameObject);
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static void BuildMap()
+    {
+        physicalMap = Instantiate(physicalMapPrefab);
+        physicalMap.CreateMap(mapWidth, mapHeight);
+
+        logicalMap = Instantiate(logicalMapPrefab);
+        logicalMap.CreateMap(mapWidth, mapHeight);
+    }
+
+    public void SaveMap()
+    {
+        MapSaver.SaveMap();
+    }
+
+    public void LoadMap()
+    {
+        MapLoader.LoadMap();
     }
 }

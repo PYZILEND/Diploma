@@ -128,8 +128,7 @@ public class MapInputs : MonoBehaviour {
         if(Physics.Raycast(ray, out hit))
         {
             HexCoordinates coordinates = HexCoordinates.fromPosition(hit.point);
-            int index = coordinates.X + coordinates.Z * GameMaster.mapWidth + (coordinates.Z / 2);
-            return GameMaster.logicalMap.cells[index];
+            return GameMaster.logicalMap.cells[coordinates.ToIndex()];
         }
         return null;
     }
