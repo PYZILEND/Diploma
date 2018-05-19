@@ -28,30 +28,63 @@ public class Unit : MonoBehaviour {
     public bool isDestroyed;
 
     /// <summary>
+    /// References unit's transport
+    /// </summary>
+    public Transport transport;
+    public bool isEmbarked
+    {
+        get
+        {
+            if (transport)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// References unit's platform
+    /// </summary>
+    public Platform platform;
+    public bool isOnPlatform
+    {
+        get
+        {
+            if (platform)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Creates unit of specified type on specified cell with said allegiance
     /// </summary>
     /// <param name="type"></param>
     /// <param name="cell"></param>
     /// <param name="allegiance"></param>
     /// <returns></returns>
-    public static Unit CreateUnit(UnitType type, LogicalMapCell cell, Allegiance allegiance)
+    public static Unit CreateUnit(Unit unitPrefab, LogicalMapCell cell, Allegiance allegiance)
     {
-        Unit unit = Instantiate(GameMaster.unitPrefab);
+        Unit unit = Instantiate(unitPrefab);
         GameMaster.units.Add(unit);
 
         unit.transform.SetParent(cell.transform, false);
         unit.cell = cell;        
         cell.unit = unit;
 
-        unit.allegiance = allegiance;
-        unit.type = type;        
-        unit.healthPoints = UnitTypeExtentions.GetMaxHealth(type);
+        unit.allegiance = allegiance;       
+        unit.healthPoints = unit.type.maxHealth;
         unit.movePoints = 0;
         unit.hasAttacked = true;
         unit.isDestroyed = false;
 
         unit.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
         unit.ValidatePosition();
+
+        unit.AffectCountryes(cell);
 
         return unit;
     }
@@ -61,8 +94,8 @@ public class Unit : MonoBehaviour {
     /// </summary>
     public void ResetUnit()
     {
-        healthPoints = UnitTypeExtentions.GetMaxHealth(type);
-        movePoints = UnitTypeExtentions.GetMaxMovePoints(type);
+        healthPoints = type.maxHealth;
+        movePoints = type.maxMovePoints;
         hasAttacked = false;
         isDestroyed = false;
     }
@@ -73,7 +106,7 @@ public class Unit : MonoBehaviour {
     /// </summary>
     public void ChangeTurn()
     {
-        movePoints = UnitTypeExtentions.GetMaxMovePoints(type);
+        movePoints = type.maxMovePoints;
         hasAttacked = false;
         if (isDestroyed)
         {
@@ -87,34 +120,7 @@ public class Unit : MonoBehaviour {
     /// <param name="destination"></param>
     public void MoveToCell(LogicalMapCell destination)
     {
-        if (destination.country)
-        {
-            if (cell.country == null || destination.country != cell.country)
-            {
-                if (!destination.country.isInvaded)
-                {
-                    destination.unit = this;
-                    if (destination.country.isInvaded)
-                    {
-                        destination.country.TriggerInvasion(allegiance);
-                    }
-                }
-            }
-
-            if (destination.country.capital == destination && destination.country.allegiance != allegiance)
-            {
-                destination.country.SwitchAllegiance(allegiance);
-            }
-        }
-
-        if (cell.country && cell.country.isInvaded)
-        {
-            cell.unit = null;
-            if (!cell.country.isInvaded)
-            {
-                cell.country.TriggerLiberation();
-            }
-        }
+        AffectCountryes(destination);
 
         movePoints -= destination.distance;
         cell.unit = null;
@@ -125,6 +131,66 @@ public class Unit : MonoBehaviour {
     }
 
     /// <summary>
+    /// Affect countryes by this unit's movement or placement
+    /// </summary>
+    /// <param name="destination"></param>
+    public void AffectCountryes(LogicalMapCell destination)
+    {
+        //Save unit in destination to revert changes later
+        //Used when we board transport or platform
+        Unit destUnit = null;
+        if (destination.unit)
+        {
+            destUnit = destination.unit;
+        }
+
+        //If destination cell has a country
+        if (destination.country)
+        {
+            //If we come from another country or from neutral area (ocean, impassable)
+            if (cell.country == null || destination.country != cell.country)
+            {
+                //If this changes invaded status, then country gets invaded
+                if (!destination.country.isInvaded)
+                {
+                    destination.unit = this;
+                    if (destination.country.isInvaded)
+                    {
+                        destination.country.TriggerInvasion(allegiance);
+                    }
+                }
+            }
+
+            //If we moved into capital and it has different allegiance
+            if (destination.country.capital == destination && destination.country.allegiance != allegiance)
+            {
+                destination.country.SwitchAllegiance(allegiance);
+            }
+        }
+
+        //If leaving old cell changed invaded status
+        if (cell.country && cell.country.isInvaded)
+        {
+            cell.unit = null;
+            if (!cell.country.isInvaded)
+            {
+                cell.country.TriggerLiberation();
+            }            
+        }
+
+        //Refert values back before leaving method
+        if (destUnit)
+        {
+            destination.unit = destUnit;
+        }
+        else
+        {
+            destination.unit = null;
+        }
+        cell.unit = this;
+    }
+
+    /// <summary>
     /// Unit shoots at specified cell
     /// If unit on said cell looses enough health it's destroyed
     /// </summary>
@@ -132,11 +198,12 @@ public class Unit : MonoBehaviour {
     public void ShootAt(LogicalMapCell cell)
     {
         hasAttacked = true;
-        cell.unit.healthPoints -= UnitTypeExtentions.GetAttackPower(type);
+        cell.unit.healthPoints -= type.attackPower;
         if (cell.unit.healthPoints <= 0)
         {
             cell.unit.DestroyVisually();
         }
+        movePoints = 0;
     }
 
     /// <summary>
@@ -163,8 +230,7 @@ public class Unit : MonoBehaviour {
             }
         }
         isDestroyed = true;
-        GetComponentInChildren<MeshRenderer>().material.color = Color.black;
-        
+        GetComponentInChildren<MeshRenderer>().material.color = Color.black;        
     }
 
     /// <summary>
@@ -180,5 +246,78 @@ public class Unit : MonoBehaviour {
 
         this.transform.position = position;
         this.transform.localRotation = Quaternion.Euler(hit.normal);
+    }
+
+    /// <summary>
+    /// Method for embarking transport
+    /// </summary>
+    /// <param name="cell"></param>
+    public void Embark(LogicalMapCell cell)
+    {
+        transport = (Transport) cell.unit;
+
+        AffectCountryes(cell);
+
+        movePoints -= cell.distance;
+        this.cell.unit = null;
+        this.cell = cell;
+        transform.SetParent(transport.transform, false);
+        GetComponentInChildren<MeshRenderer>().enabled = false;
+
+        transport.TakeAboard(this);
+    }
+
+    /// <summary>
+    /// Method for disembarking transport
+    /// </summary>
+    /// <param name="cell"></param>
+    public void Disembark(LogicalMapCell cell)
+    {               
+        AffectCountryes(cell);
+
+        movePoints -= cell.distance;
+        this.cell = cell;
+        cell.unit = this;        
+        transform.SetParent(cell.transform, false);
+        GetComponentInChildren<MeshRenderer>().enabled = true;
+        ValidatePosition();
+
+        transport.RemoveFromTransport(this);
+        transport = null;
+    }
+
+    /// <summary>
+    /// Method for boarding platform
+    /// </summary>
+    /// <param name="cell"></param>
+    public void BoardPlatform(LogicalMapCell cell)
+    {
+        platform = (Platform)cell.unit;
+        platform.boardedUnit = this;
+
+        AffectCountryes(cell);
+
+        movePoints -= cell.distance;
+        this.cell.unit = null;
+        transform.SetParent(platform.transform, false);
+        ValidatePosition();
+    }
+
+    /// <summary>
+    /// Method for leaving platform
+    /// </summary>
+    /// <param name="cell"></param>
+    public void LeavePlatform(LogicalMapCell cell)
+    {
+        platform.boardedUnit = null;
+        platform = null;
+
+        AffectCountryes(cell);
+
+        movePoints -= cell.distance;
+        this.cell = cell;
+        cell.unit = this;
+        transform.SetParent(cell.transform, false);
+        ValidatePosition();
     }
 }

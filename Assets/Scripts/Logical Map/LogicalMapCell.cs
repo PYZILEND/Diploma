@@ -36,6 +36,11 @@ public class LogicalMapCell : MonoBehaviour {
     /// </summary>
     public bool canPlaceUnit;
 
+    /// <summary>
+    /// Weather cell is protected by anti-air
+    /// </summary>
+    public bool isProtected;
+
     public Unit unit;
     public Country country;
 

@@ -21,12 +21,12 @@ public class GameMaster : MonoBehaviour {
     public static PhysicalMap physicalMap;
 
     //For instantiating (referances)
-    public Unit unitPrefabRef;
+    public Unit[] unitPrefabsRef;
     public Country countryPrefabRef;
     public Capital capitalPrefabRef;
 
     //For instantiating (statics)
-    public static Unit unitPrefab;
+    public static Unit[] unitPrefabs;
     public static Country countryPrefab;
     public static Capital capitalPrefab;
 
@@ -49,10 +49,12 @@ public class GameMaster : MonoBehaviour {
     //Used to reference GUI
     public CountryInfo countryInfoRef;
     public UnitInfo unitInfoRef;
+    public MultipleSelection multipleSelectionPanelRef;
 
     //Used to control GUI via static methods
     public static CountryInfo countryInfo;
     public static UnitInfo unitInfo;
+    public static MultipleSelection multipleSelectionPanel;
 
     /// <summary>
     /// Initializing game
@@ -60,12 +62,18 @@ public class GameMaster : MonoBehaviour {
     void Awake()
     {
         //Hooking static fields to usual ones
-        unitPrefab = unitPrefabRef;
+        unitPrefabs = new Unit[unitPrefabsRef.Length];       
+        for(int i = 0; i< unitPrefabsRef.Length; i++)
+        {
+            unitPrefabs[i] = unitPrefabsRef[i];
+        }
         countryPrefab = countryPrefabRef;
         capitalPrefab = capitalPrefabRef;
 
         countryInfo = countryInfoRef;
         unitInfo = unitInfoRef;
+        multipleSelectionPanel = multipleSelectionPanelRef;
+        multipleSelectionPanel.Hide();
 
         //Instantiating maps and creating cells
         logicalMapPrefab = logicalMapPrefabRef;
@@ -77,6 +85,7 @@ public class GameMaster : MonoBehaviour {
         units = new List<Unit>();
 
         //Initializing game start
+        CountryControls.selectedUnit = unitPrefabs[0];
         RestartGame();
        // MapSaver.SaveMap();
     }
@@ -166,7 +175,7 @@ public class GameMaster : MonoBehaviour {
         }
 
         //Restore each unit's initial state (NOT POSITION)
-        foreach(Unit unit in units)
+        foreach (Unit unit in units)
         {
             unit.ResetUnit();
         }

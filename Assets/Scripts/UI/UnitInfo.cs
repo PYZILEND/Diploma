@@ -26,9 +26,9 @@ public class UnitInfo : MonoBehaviour {
         unitName.text = "Not implemented";
         unitHP.text = unit.healthPoints.ToString();
         unitMP.text = unit.movePoints.ToString();
-        unitDamage.text = UnitTypeExtentions.GetAttackPower(unit.type).ToString();
-        unitRange.text = UnitTypeExtentions.GetAttackRange(unit.type).ToString();
-        unitCost.text = UnitTypeExtentions.GetCost(unit.type).ToString();
+        unitDamage.text = unit.type.attackPower.ToString();
+        unitRange.text = unit.type.attackRange.ToString();
+        unitCost.text = unit.type.cost.ToString();
     }
 
     /// <summary>

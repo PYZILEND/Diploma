@@ -43,7 +43,7 @@ public class MapInputs : MonoBehaviour {
                             }
                             selectedCell = cell;
                             cell.highlight.color = Color.blue;
-                            MapEditor.ApplyChanges(cell);
+                            MapEditor.ApplyChanges(cell);                            
                         }
                     }
                 }
@@ -111,6 +111,10 @@ public class MapInputs : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.X))
         {
             GameMaster.logicalMap.HighlightTerrain();
+        }
+        if (Input.GetMouseButton(1) && GameMaster.turnPhase == Phase.Battle)
+        {
+            UnitControls.DropSelection();
         }
     }
 

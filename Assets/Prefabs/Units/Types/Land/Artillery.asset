@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f8b28297bf498c409166ed15353cb5a, type: 3}
+  m_Name: Artillery
+  m_EditorClassIdentifier: 
+  unitName: Artillery
+  maxHealth: 3
+  maxMovePoints: 10
+  attackPower: 4
+  attackRange: 4
+  cost: 4
+  travelType: 0
+  canEmbark: 1
+  canGoOverUnits: 0
+  capacity: 0
+  secondAttackPower: 0

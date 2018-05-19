@@ -6,4 +6,5 @@ public enum ActionType { UnitMove, UnitAttack, UnitPurchase, AllyDisclosure}
 
 public class Action : MonoBehaviour {
 
+
 }

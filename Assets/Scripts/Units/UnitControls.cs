@@ -14,6 +14,7 @@ public class UnitControls : MonoBehaviour {
         selectedUnit = null;
         //Add clearing shit with pathfinder
         GameMaster.logicalMap.HideAllHighlights();
+        GameMaster.multipleSelectionPanel.Hide();
     }
 
     /// <summary>
@@ -26,11 +27,18 @@ public class UnitControls : MonoBehaviour {
         {
             if(cell.unit.allegiance == GameMaster.allegianceTurn)
             {
-                SelectUnit(cell);
+                if (!selectedUnit || (!(cell.unit is Transport) && !(cell.unit is Platform)))
+                {
+                    SelectUnit(cell);
+                }
+                else if(cell.isReachable)
+                {
+                    BoardUnit(cell);
+                }
             }
             else
             {
-                if (selectedUnit && !selectedUnit.hasAttacked)
+                if (selectedUnit && !selectedUnit.hasAttacked && cell.inShootingRange)
                 {
                     Shoot(cell);
                 }
@@ -38,9 +46,16 @@ public class UnitControls : MonoBehaviour {
         }
         else
         {
-            if (selectedUnit && cell.distance<=selectedUnit.movePoints)
+            if (selectedUnit && cell.isReachable)
             {
-                MoveUnit(cell);
+                if (selectedUnit.isEmbarked || selectedUnit.isOnPlatform)
+                {
+                    Disembark(cell);
+                }
+                else
+                {
+                    MoveUnit(cell);
+                }
             }
         }
     }
@@ -51,8 +66,18 @@ public class UnitControls : MonoBehaviour {
     /// <param name="cell"></param>
     static void SelectUnit(LogicalMapCell cell)
     {
+        if (cell.unit.type.capacity > 0)
+        {
+            GameMaster.multipleSelectionPanel.Show(Input.mousePosition, cell.unit);
+        }
         selectedUnit = cell.unit;
         ValidateRanges(cell);
+    }
+
+    public static void SelectUnit(Unit unit)
+    {
+        selectedUnit = unit;
+        ValidateRanges(unit.cell);
     }
 
     /// <summary>
@@ -74,14 +99,38 @@ public class UnitControls : MonoBehaviour {
         selectedUnit.ShootAt(cell);
     }
 
+    static void BoardUnit(LogicalMapCell cell)
+    {
+        if(cell.unit is Transport)
+        {
+            selectedUnit.Embark(cell);
+        }
+        else if(cell.unit is Platform)
+        {
+            selectedUnit.BoardPlatform(cell);
+        }
+    }
+
+    static void Disembark(LogicalMapCell cell)
+    {
+        if (selectedUnit.isEmbarked)
+        {
+            selectedUnit.Disembark(cell);
+        }
+        else if (selectedUnit.isOnPlatform)
+        {
+            selectedUnit.LeavePlatform(cell);
+        }
+    }
+
     /// <summary>
     /// Validates shooting and moving ranges for unit in selected cell
     /// </summary>
     /// <param name="cell"></param>
     static void ValidateRanges(LogicalMapCell cell)
     {
-        Pathfinder.FindRange(UnitTypeExtentions.GetAttackRange(selectedUnit.type), GameMaster.logicalMap, cell);
-        Pathfinder.FindWeightedDistance(selectedUnit.movePoints, GameMaster.logicalMap, cell);
+        Pathfinder.MarkShootingRange(selectedUnit.type.attackRange, cell);
+        Pathfinder.SearchPossiblePaths(selectedUnit.movePoints, cell, selectedUnit.type);
         GameMaster.logicalMap.HideAllHighlights();
         GameMaster.logicalMap.HighlightReachableRange();
     }
