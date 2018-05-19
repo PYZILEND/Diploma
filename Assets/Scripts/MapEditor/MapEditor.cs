@@ -34,7 +34,7 @@ public class MapEditor : MonoBehaviour
 
         if (placeUnit)
         {
-            Unit.CreateUnit(UnitType.Tank, cell, unitAllegiance);
+            Unit.CreateUnit(GameMaster.unitPrefabs[3], cell, unitAllegiance);
         }
     }
 

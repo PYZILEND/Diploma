@@ -51,9 +51,10 @@ public class MapLoader : MonoBehaviour {
         LogicalMapCell cell = GameMaster.logicalMap.cells[reader.ReadInt32()];
         country.CreateCountry(countryName, type, allegiance, cell);
         for (int i = 1; i < areaSize; i++)
-        {
+        {            
             cell = GameMaster.logicalMap.cells[reader.ReadInt32()];
-            country.AddAreaToCountry(cell);
+            country.AddAreaToCountry(cell);            
         }
+        GameMaster.countries.Add(country);
     }    
 }

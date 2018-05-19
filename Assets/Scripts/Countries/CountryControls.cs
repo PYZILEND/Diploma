@@ -5,7 +5,7 @@ using UnityEngine;
 public class CountryControls : MonoBehaviour {
 
     public static Country selectedCountry;
-    static UnitType selectedUnit;    
+    public static Unit selectedUnit;    
 
     /// <summary>
     /// Processes player's input
@@ -38,13 +38,13 @@ public class CountryControls : MonoBehaviour {
             DropSelection();
         }
         selectedCountry = cell.country;
-        selectedCountry.MakeUnselectable();
-        selectedCountry.ValidatePossibleUnitPlacements(selectedUnit);
+        selectedCountry.MakeUnselectable();        
         if(GameMaster.turnPhase == Phase.SecretAllies)
         {
             MakeAllUnselectable();
             selectedCountry.Disclosure();
         }
+        selectedCountry.ValidatePossibleUnitPlacements(selectedUnit);
     }
 
     /// <summary>
@@ -168,7 +168,7 @@ public class CountryControls : MonoBehaviour {
     /// <param name="value"></param>
     public void GetSelectedUnit(int value)
     {
-        selectedUnit = (UnitType)value;
+        selectedUnit = GameMaster.unitPrefabs[value];
         if (selectedCountry)
         {
             selectedCountry.ValidatePossibleUnitPlacements(selectedUnit);

@@ -6,18 +6,15 @@ using UnityEngine;
 /// </summary>
 public static class Pathfinder
 {
-
-
     /// <summary>
     /// Marks cells withing said range from specified cell.
     /// Ignores weight.
     /// </summary>
     /// <param name="dist">Maximum distance</param>
-    /// <param name="map">Logical map</param>
     /// <param name="cell">Cell to find range for</param>
-    public static void FindRange(int dist, LogicalMap map, LogicalMapCell cell)
+    public static void MarkShootingRange(int dist, LogicalMapCell cell)
     {
-        ResetCells(map);
+        ResetCells();
         List<LogicalMapCell> frontier = new List<LogicalMapCell>();
         List<LogicalMapCell> usedCell = new List<LogicalMapCell>();
         frontier.Add(cell);
@@ -39,7 +36,6 @@ public static class Pathfinder
                     if ((neighbor.unit != null) && (neighbor.unit.allegiance != cell.unit.allegiance))
                     {
                         neighbor.inShootingRange = true;
-                        //neighbor.highlight.color = Color.black;
                     }
                     frontier.Add(neighbor);
                     usedCell.Add(neighbor);                    
@@ -47,6 +43,7 @@ public static class Pathfinder
             }
         }
     }
+
     /// <summary>
     /// Finds unweighted distance between two cells
     /// </summary>
@@ -59,27 +56,17 @@ public static class Pathfinder
             (cell.Y < other.Y ? other.Y - cell.Y : cell.Y - other.Y) +
             (cell.Z < other.Z ? other.Z - cell.Z : cell.Z - other.Z)) / 2);
     }
+
     /// <summary>
-    /// 
+    /// Searches possible paths for a said unit, withing said distance
     /// </summary>
     /// <param name="dist"></param>
-    /// <param name="map"></param>
     /// <param name="cell"></param>
-    public static void FindWeightedDistance(int dist, LogicalMap map, LogicalMapCell cell)
-    {
-        SearchWeightedDistance(dist, cell);
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="dist"></param>
-    /// <param name="map"></param>
-    /// <param name="cell"></param>
-    static void SearchWeightedDistance(int dist, LogicalMapCell cell)
+    /// <param name="type"></param>
+    public static void SearchPossiblePaths(int maxDistance, LogicalMapCell cell, UnitType type)
     {
         List<LogicalMapCell> frontier = new List<LogicalMapCell>();
         cell.distance = 0;
-        //cell.EnableLabel(cell.distance.ToString());
         frontier.Add(cell);
 
         while (frontier.Count > 0)
@@ -88,66 +75,169 @@ public static class Pathfinder
             frontier.RemoveAt(0);
             for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
             {
+                LogicalMapCell neighbor = current.GetNeighbor(d);
+
+                int distance = CountDistance(neighbor, type);
+                if(distance == -1)
                 {
-                    LogicalMapCell neighbor = current.GetNeighbor(d);
-                    if (neighbor == null)
-                    {
-                        continue;
-                    }
-                    if (neighbor.terrain == TerrainType.Ocean)
-                    {
-                        continue;
-                    }
-                    if (neighbor.terrain == TerrainType.Impassable)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
+                distance += current.distance;
 
-                    int distance = current.distance;
-                    if (neighbor.terrain == TerrainType.Road)
+                if (neighbor.distance == int.MaxValue)
+                {
+                    neighbor.distance = distance;
+                    if (distance <= maxDistance)
                     {
-                        distance += 1;
-                    }
-                    else {
-
-                        if (neighbor.terrain == TerrainType.Forest || neighbor.terrain == TerrainType.Sand || neighbor.terrain == TerrainType.River)
+                        if (!wentOverUnit)
                         {
-                            distance += 4;
-                        }
-                        else {
-                            distance += 2;
-                        }
-                    }
-                    if (neighbor.distance == int.MaxValue)
-                    {
-                        neighbor.distance = distance;
-                        if (distance <= dist)
-                        {
-                            //neighbor.EnableLabel(distance.ToString());
                             neighbor.isReachable = true;
-                            neighbor.pathFrom = current;
+                        }
+                        neighbor.pathFrom = current;
+                        if (!canBoardHere)
+                        {
                             frontier.Add(neighbor);
                         }
                     }
-                    else
-                    if (distance < neighbor.distance)
+                }
+                else
+                if (distance < neighbor.distance)
+                {
+                    if (distance <= maxDistance)
                     {
-                        if (distance <= dist)
+                        if (!wentOverUnit)
                         {
                             neighbor.isReachable = true;
-                            neighbor.pathFrom = current;
                         }
-                        else
-                        {
-                            neighbor.isReachable = false;
-                        }
-                        neighbor.distance = distance;
+                        neighbor.pathFrom = current;
                     }
-
-                    frontier.Sort((x, y) => x.distance.CompareTo(y.distance));
-                }
+                    else
+                    {
+                        neighbor.isReachable = false;
+                    }
+                    neighbor.distance = distance;
+                }          
+                
+                frontier.Sort((x, y) => x.distance.CompareTo(y.distance));
             }
         }
+    }
+
+    //Used to store weather unit will be getting over other unit
+    //or boarding
+    static bool wentOverUnit;
+    static bool canBoardHere;
+
+    static int CountDistance(LogicalMapCell neighbour, UnitType type)
+    {
+        wentOverUnit = false;
+        canBoardHere = false;
+
+        if (neighbour == null)
+        {
+            return -1;
+        }
+
+        if (neighbour.unit)
+        {
+            if (type.canGoOverUnits)
+            {
+                wentOverUnit = true;
+            }
+            else if(type.canEmbark)
+            {
+                if(neighbour.unit.allegiance == GameMaster.allegianceTurn)
+                {
+                    if(neighbour.unit is Transport || neighbour.unit is Platform)
+                    {
+                        canBoardHere = true;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        switch (type.travelType)
+        {
+            case TravelType.Land:
+                return CountDistanceLand(neighbour, type);
+
+            case TravelType.Naval:
+                return CountDistanceNaval(neighbour, type);
+
+            case TravelType.Amphibious:
+                return CountDistanceAmphibious(neighbour, type);
+
+            case TravelType.Air:
+                return CountDistanceAir(neighbour, type);
+        }
+
+        return -1;            
+    }
+
+    static int CountDistanceLand(LogicalMapCell neighbour, UnitType type)
+    {
+        if(neighbour.terrain == TerrainType.Impassable ||
+            neighbour.terrain == TerrainType.Ocean)
+        {
+            return -1;
+        }
+        if (type.maxMovePoints > 10)
+        {
+            if(neighbour.terrain == TerrainType.Plain || neighbour.terrain == TerrainType.Road)
+            {
+                return 10;
+            }
+            else
+            {
+                return 20;
+            }
+        }
+        else
+        {
+            if(neighbour.terrain == TerrainType.Road)
+            {
+                return 5;
+            }
+            else
+            {
+                return 10;
+            }
+        }
+    }
+
+    static int CountDistanceNaval(LogicalMapCell neighbour, UnitType type)
+    {
+        if(neighbour.terrain != TerrainType.Ocean)
+        {
+            return -1;
+        }
+        return 10;
+    }
+
+    static int CountDistanceAmphibious(LogicalMapCell neighbour, UnitType type)
+    {
+        if(neighbour.terrain != TerrainType.Impassable)
+        {
+            return 10;
+        }
+        return -1;
+    }
+
+    static int CountDistanceAir(LogicalMapCell neighbour, UnitType type)
+    {
+        return 10;
     }
 
     /// <summary>
@@ -162,8 +252,7 @@ public static class Pathfinder
     }
 
     /// <summary>
-    /// Finds shortest path from one cell to another.
-    /// 
+    /// Finds shortest path from one cell to another.    /// 
     /// </summary>
     /// <param name="fromCell"></param>
     /// <param name="toCell"></param>
@@ -184,13 +273,13 @@ public static class Pathfinder
     /// Resets every cell's distance and shooting range
     /// </summary>
     /// <param name="map"></param>
-    static void ResetCells(LogicalMap map)
+    static void ResetCells()
     {
-        for (int i = 0; i < map.cells.Length; i++)
+        for (int i = 0; i < GameMaster.logicalMap.cells.Length; i++)
         {
-            map.cells[i].inShootingRange = false;
-            map.cells[i].isReachable = false;
-            map.cells[i].distance = int.MaxValue;
+            GameMaster.logicalMap.cells[i].inShootingRange = false;
+            GameMaster.logicalMap.cells[i].isReachable = false;
+            GameMaster.logicalMap.cells[i].distance = int.MaxValue;
         }
     }
 }
