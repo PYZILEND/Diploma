@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Country : MonoBehaviour {
 
@@ -218,7 +219,25 @@ public class Country : MonoBehaviour {
         startingCell.country = this;
 
         capital = startingCell;
-        capitalCity = Instantiate(GameMaster.capitalPrefab, capital.transform, false);
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            capitalCity = Instantiate(GameMaster.capitalPrefab, capital.transform, false);
+
+            Canvas canvas = Instantiate(GameMaster.capitalInfo, capital.transform, false);
+            canvas.transform.SetParent(capital.transform, false);
+            canvas.transform.position = capital.GetUIPosition()+new Vector3(0,3f,0);
+            Text[] newText;
+            newText =canvas.GetComponentsInChildren<Text>();
+            newText[0].text = countryName;
+            newText[1].text = "$ " +CountryTypeExtentions.GetSecretArmy(type);
+            incomeTurnsLeft = GameMaster.incomeTurns;
+            canvas.transform.GetChild(0).gameObject.SetActive(false);
+            canvas.transform.GetChild(1).gameObject.SetActive(false);
+        }
+        else
+        {
+            capitalCity = Instantiate(MapCreator.capitalPrefab, capital.transform, false);            
+        }
         capitalCity.Initialize(allegiance);
 
         this.countryName = countryName;
@@ -227,7 +246,6 @@ public class Country : MonoBehaviour {
         secretAllegiance = allegiance;
         guerilla = CountryTypeExtentions.GetGuerilla(type);
         willSpawnGuerrilla = false;
-        incomeTurnsLeft = GameMaster.incomeTurns;
         if (secretAllegiance != Allegiance.Neutral)
         {
             secretArmy= CountryTypeExtentions.GetSecretArmy(type);
@@ -358,7 +376,7 @@ public class Country : MonoBehaviour {
             cell.ValidateHighlightWithTerrain();
             cell.country = null;
         }
-        GameMaster.countries.Remove(this);
+        MapEditor.countries.Remove(this);
         Destroy(capitalCity.gameObject);
         Destroy(this.gameObject);
     }
@@ -372,6 +390,15 @@ public class Country : MonoBehaviour {
         countryName = newName;
     }
 
+    public void ChangeAlligiance(Allegiance allegiance)
+    {
+        this.allegiance = allegiance;
+    }
+
+    public void ChangeType(CountryType type)
+    {
+        this.type = type;
+    }
     /// <summary>
     /// Buys unit using treasury money
     /// </summary>
@@ -553,6 +580,25 @@ public class Country : MonoBehaviour {
     /// </summary>
     public void MakeSelectable()
     {
+        if (GameMaster.turnPhase != Phase.Battle)
+        {
+            //capital.transform.GetChild(1).GetChild(0).gameObject.SetActive(true);
+            capital.transform.GetChild(1).GetChild(1).gameObject.SetActive(true);
+            Text[] newText;
+            newText = capital.transform.GetChild(1).GetComponentsInChildren<Text>();
+            switch (GameMaster.turnPhase)
+            {
+                case Phase.Guerrila:
+                    newText[0].text = "$ " + CountryTypeExtentions.GetGuerilla(type);
+                    break;
+                case Phase.SecretAllies:
+                    newText[0].text = "$ " + CountryTypeExtentions.GetSecretArmy(type);
+                    break;
+                case Phase.Recruitment:
+                    newText[0].text = "$ " + CountryTypeExtentions.GetIncome(type);
+                    break;
+            }
+        }
         foreach (LogicalMapCell cell in area)
         {
             cell.EnableHighlight(AllegianceExtentions.AllegianceToColor(GameMaster.allegianceTurn));
@@ -565,6 +611,7 @@ public class Country : MonoBehaviour {
     /// </summary>
     public void MakeUnselectable()
     {
+        capital.transform.GetChild(1).GetChild(1).gameObject.SetActive(false);
         foreach (LogicalMapCell cell in area)
         {
             cell.DisableHighlight();

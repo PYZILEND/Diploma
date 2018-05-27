@@ -18,8 +18,26 @@ public class MapEditor : MonoBehaviour
     //Country editing fields
     string countryName="t";
     CountryType type=CountryType.poor;
-    static Allegiance countryAllegiance;    
-    
+    static Allegiance countryAllegiance;
+
+    public static List<Country> countries;
+
+    public static LogicalMapCell selectedCell;
+
+    void Awake()
+    {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            GameMaster.countries= new List<Country>();
+            countries = GameMaster.countries;
+        }
+        else
+        {
+            MapCreator.countries = new List<Country>();
+            countries = MapCreator.countries;
+        }
+    }
+
     /// <summary>
     /// Applyes terrain and unit placement changes to specified cell
     /// </summary>
@@ -105,13 +123,29 @@ public class MapEditor : MonoBehaviour
     /// </summary>
     public void CreateCountry()
     {
-        if ((!countryName.Equals("")) && (MapInputs.selectedCell != null) &&
-            (GameMaster.countries.Find(u => u.countryName == countryName)==null) &&
-            (GameMaster.countries.Find(u => u.capital == MapInputs.selectedCell) == null))
+        if ((!countryName.Equals("")) && (selectedCell != null) &&
+            (countries.Find(u => u.countryName == countryName) == null) &&
+            (countries.Find(u => u.capital == selectedCell) == null))
         {
-            Country newCountry = Instantiate(GameMaster.countryPrefab);
-            newCountry.CreateCountry(countryName, type, countryAllegiance, MapInputs.selectedCell);
-            GameMaster.countries.Add(newCountry);
+            Country newCountry;
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+            {
+                newCountry = Instantiate(GameMaster.countryPrefab);
+            }
+            else
+            {
+                newCountry = Instantiate(MapCreator.countryPrefab);
+            }
+            newCountry.CreateCountry(countryName, type, countryAllegiance, selectedCell);
+            countries.Add(newCountry);
+        }
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            GameMaster.logicalMap.HighlightAllegiance();
+        }
+        else
+        {
+            MapCreator.newMap.HighlightAllegiance();
         }
     }
 
@@ -120,14 +154,22 @@ public class MapEditor : MonoBehaviour
     /// </summary>
     public void ChangeCapital()
     {
-        if ((!countryName.Equals("") && (MapInputs.selectedCell != null)) &&
-            (GameMaster.countries.Find(u => u.capital == MapInputs.selectedCell) == null))
+        if ((!countryName.Equals("") && (selectedCell != null)) &&
+            (countries.Find(u => u.capital == selectedCell) == null))
         {
-            Country selectedCountry = GameMaster.countries.Find(u => u.countryName == countryName);
+            Country selectedCountry =countries.Find(u => u.countryName == countryName);
             if (selectedCountry != null)
             {
-                selectedCountry.ChangeCapital(MapInputs.selectedCell);
+                selectedCountry.ChangeCapital(selectedCell);
             }                  
+        }
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            GameMaster.logicalMap.HighlightAllegiance();
+        }
+        else
+        {
+            MapCreator.newMap.HighlightAllegiance();
         }
     }
 
@@ -136,14 +178,22 @@ public class MapEditor : MonoBehaviour
     /// </summary>
     public void AddArea()
     {
-        if ((!countryName.Equals("") && (MapInputs.selectedCell != null)) &&
-            (GameMaster.countries.Find(u => u.capital == MapInputs.selectedCell) == null))
+        if ((!countryName.Equals("") && (selectedCell != null)) &&
+            (countries.Find(u => u.capital == selectedCell) == null))
         {
-            Country selectedCountry = GameMaster.countries.Find(u => u.countryName == countryName);
+            Country selectedCountry =countries.Find(u => u.countryName == countryName);
             if (selectedCountry != null)
             {
-                selectedCountry.AddAreaToCountry(MapInputs.selectedCell);
+                selectedCountry.AddAreaToCountry(selectedCell);
             }
+        }
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            GameMaster.logicalMap.HighlightAllegiance();
+        }
+        else
+        {
+            MapCreator.newMap.HighlightAllegiance();
         }
     }
 
@@ -152,14 +202,22 @@ public class MapEditor : MonoBehaviour
     /// </summary>
     public void RemoveArea()
     {
-        if ((MapInputs.selectedCell != null) &&
-            (GameMaster.countries.Find(u => u.capital == MapInputs.selectedCell) == null))
+        if ((selectedCell != null) &&
+            (countries.Find(u => u.capital == selectedCell) == null))
         {
-            Country selectedCountry = MapInputs.selectedCell.country;
+            Country selectedCountry = selectedCell.country;
             if (selectedCountry != null)
             {
-                selectedCountry.RemoveAreaFromCountry(MapInputs.selectedCell);
+                selectedCountry.RemoveAreaFromCountry(selectedCell);
             }
+        }
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            GameMaster.logicalMap.HighlightAllegiance();
+        }
+        else
+        {
+            MapCreator.newMap.HighlightAllegiance();
         }
     }
 
@@ -168,13 +226,21 @@ public class MapEditor : MonoBehaviour
     /// </summary>
     public void DeleteCountry()
     {
-        if ((MapInputs.selectedCell != null))
+        if ((selectedCell != null))
         {
-            Country selectedCountry = MapInputs.selectedCell.country;
+            Country selectedCountry = selectedCell.country;
             if (selectedCountry != null)
             {
                 selectedCountry.DeleteCountry();                
             }
+        }
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            GameMaster.logicalMap.HighlightAllegiance();
+        }
+        else
+        {
+            MapCreator.newMap.HighlightAllegiance();
         }
     }
 
@@ -183,13 +249,61 @@ public class MapEditor : MonoBehaviour
     /// </summary>
     public void ChangeName()
     {
-        if ((MapInputs.selectedCell != null))
+        if ((selectedCell != null))
         {
-            Country selectedCountry = MapInputs.selectedCell.country;
-            if (selectedCountry != null)
+            Country selectedCountry = selectedCell.country;
+            if (selectedCountry != null&& selectedCountry.countryName!=countryName)
             {
                 selectedCountry.ChangeName(countryName);
             }
+        }
+    }
+
+    public void ChangeAllegiance()
+    {
+        if ((selectedCell != null))
+        {
+            Country selectedCountry = selectedCell.country;
+            if (selectedCountry != null && selectedCountry.allegiance != countryAllegiance)
+            {
+                selectedCountry.ChangeAlligiance(countryAllegiance);
+            }
+        }
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            GameMaster.logicalMap.HighlightAllegiance();
+        }
+        else
+        {
+            MapCreator.newMap.HighlightAllegiance();
+        }
+    }
+
+    public void ChangeType()
+    {
+        if ((selectedCell != null))
+        {
+            Country selectedCountry = selectedCell.country;
+            if (selectedCountry != null && selectedCountry.type!=type)
+            {
+                selectedCountry.ChangeType(type);
+            }
+        }
+    }
+
+    public void Reset()
+    {
+        while (countries.Count > 0)
+        {
+            countries[0].DeleteCountry();
+        }
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != 1)
+        {
+            GameMaster.logicalMap.HighlightAllegiance();
+        }
+        else
+        {
+            MapCreator.newMap.HighlightAllegiance();
         }
     }
 }

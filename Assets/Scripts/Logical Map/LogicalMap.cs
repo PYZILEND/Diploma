@@ -10,10 +10,11 @@ using UnityEngine.UI;
 public class LogicalMap : MonoBehaviour {
 
     public LogicalMapCell cellPrefab;
-    public LogicalMapCell[] cells;
+    public LogicalMapCell[] cells;    
 
     public Text cellLabelPrefab;
     public Image highlightPrefab;
+    
     Canvas mapCanvas;
 
     int width;
@@ -85,6 +86,20 @@ public class LogicalMap : MonoBehaviour {
 
         //Connecting cell to its neighbors
         ConnectWithNeighbours(cell, x, z, i);
+    }
+
+    public void RedoHighlight(int ind)
+    {
+        Vector2 coords = HexCoordinates.FromIndex(ind, width);
+        Vector3 position;
+        position.x = (coords.x + coords.y * 0.5f - coords.y / 2) * (2f * HexMetrics.innerRadius);
+        position.y = 100f;
+        position.z = coords.y * (1.5f * HexMetrics.outerRadius);
+
+        Destroy(cells[ind].highlight.gameObject);
+        Image image = Instantiate(highlightPrefab);
+        image.rectTransform.SetParent(mapCanvas.transform, false);
+        image.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
     }
 
     /// <summary>

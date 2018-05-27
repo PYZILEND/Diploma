@@ -19,7 +19,7 @@ public class LogicalMapCell : MonoBehaviour {
 
     //Array for storing 6 or less neighbors of cell
     [SerializeField]
-    LogicalMapCell[] neighbors;
+    public LogicalMapCell[] neighbors;
 
     //Cell's pathfinding related fields
     public bool inShootingRange;
@@ -138,6 +138,15 @@ public class LogicalMapCell : MonoBehaviour {
         highlight.transform.localRotation = Quaternion.Euler(hit.normal);
     }
 
+    public Vector3 GetUIPosition()
+    {
+        RaycastHit hit;
+        Physics.Raycast(transform.position, new Vector3(0f, -1f, 0f), out hit);
+
+        Vector3 position = hit.point;
+        position.y += 0.5f;
+        return position;
+    }
     /// <summary>
     /// Returns cell's neighbor for any given direction
     /// </summary>

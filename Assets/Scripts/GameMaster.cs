@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// This class is a parent class to other game elements
@@ -24,11 +25,13 @@ public class GameMaster : MonoBehaviour {
     public Unit[] unitPrefabsRef;
     public Country countryPrefabRef;
     public Capital capitalPrefabRef;
+    public Canvas capitalInfoRef;
 
     //For instantiating (statics)
     public static Unit[] unitPrefabs;
     public static Country countryPrefab;
     public static Capital capitalPrefab;
+    public static Canvas capitalInfo;
 
     //Match settings fields
     public static byte incomeTurns = 10;//Debug value
@@ -55,6 +58,11 @@ public class GameMaster : MonoBehaviour {
     public static CountryInfo countryInfo;
     public static UnitInfo unitInfo;
     public static MultipleSelection multipleSelectionPanel;
+    public string mapName="test";
+
+    public Text phaseInfo;
+
+    public CameraControls mainCamera;
 
     /// <summary>
     /// Initializing game
@@ -78,10 +86,14 @@ public class GameMaster : MonoBehaviour {
         //Instantiating maps and creating cells
         logicalMapPrefab = logicalMapPrefabRef;
         physicalMapPrefab = physicalMapPrefabRef;
+        capitalInfo = capitalInfoRef;
         BuildMap();
         logicalMap.HighlightAllegiance();
 
-        countries = new List<Country>();
+        if (countries == null)
+        {
+            countries = new List<Country>();
+        }
         units = new List<Unit>();
 
         //Initializing game start
@@ -145,6 +157,8 @@ public class GameMaster : MonoBehaviour {
                 break;
         }
 
+        phaseInfo.text = allegianceTurn.ToString() + "\n " + turnPhase.ToString()+" phase";
+
         //Will likely be replaced with context checks later on
         if (victoryAchieved)
         {
@@ -168,8 +182,9 @@ public class GameMaster : MonoBehaviour {
     /// </summary>
     public void RestartGame()
     {
+        mainCamera.CameraOver();
         //Restore each country's initial state
-        foreach(Country country in countries)
+        foreach (Country country in countries)
         {
             country.ResetCountry();
         }
@@ -183,6 +198,8 @@ public class GameMaster : MonoBehaviour {
         //Game starts from dominion disclosuring it's secret ally
         turnPhase = Phase.SecretAllies;
         allegianceTurn = Allegiance.Dominion;
+        
+        phaseInfo.text = allegianceTurn.ToString() + "\n " + turnPhase.ToString() + " phase";
 
         //Showing possible disclosure options
         CountryControls.ChangePhase();
@@ -216,6 +233,34 @@ public class GameMaster : MonoBehaviour {
         logicalMap = Instantiate(logicalMapPrefab);
         logicalMap.CreateMap(mapWidth, mapHeight);
     }
+    
+    public static void BuildMap(string mapName)
+    {
+        physicalMap = Instantiate(physicalMapPrefab);
+
+        Mesh mesh = new Mesh();
+        mesh.name = "MapMesh";
+        Mesh mesh2 = (Mesh)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Maps/"+mapName+"_mesh.asset", typeof(Mesh));
+        mesh.vertices = mesh2.vertices;
+        mesh.triangles = mesh2.triangles;
+        mesh.colors = mesh2.colors;
+        mesh.normals = mesh2.normals;
+        physicalMap.GetComponent<MeshFilter>().mesh=mesh;
+        physicalMap.GetComponent<MeshCollider>();
+
+        mesh = new Mesh();
+        mesh.name = "MapMeshCollider";
+        mesh2 = (Mesh)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Maps/" + mapName + "_meshCollider.asset", typeof(Mesh));
+        mesh.vertices = mesh2.vertices;
+        mesh.triangles = mesh2.triangles;
+        mesh.colors = mesh2.colors;
+        mesh.normals = mesh2.normals;
+
+        physicalMap.GetComponent<MeshCollider>().sharedMesh= mesh;
+
+        logicalMap = Instantiate(logicalMapPrefab);
+        logicalMap.CreateMap(mapWidth, mapHeight);
+    }
 
     public void SaveMap()
     {
@@ -224,6 +269,7 @@ public class GameMaster : MonoBehaviour {
 
     public void LoadMap()
     {
-        MapLoader.LoadMap();
+        MapLoader.LoadMap(mapName);
+        mainCamera.CameraOver();
     }
 }

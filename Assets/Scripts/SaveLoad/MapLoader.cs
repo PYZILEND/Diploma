@@ -5,12 +5,12 @@ using System.IO;
 
 public class MapLoader : MonoBehaviour {
         
-	public static void LoadMap()
+	public static void LoadMap(string mapName)
     {
         string path = Application.dataPath.ToString() +
             Path.AltDirectorySeparatorChar +
             "Maps" +
-            Path.AltDirectorySeparatorChar + "test.map";
+            Path.AltDirectorySeparatorChar + mapName + ".map";
 
         using (
         BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open)))
@@ -18,10 +18,17 @@ public class MapLoader : MonoBehaviour {
             //Delete current map
             GameMaster.DropMap();
 
-            GameMaster.mapWidth = reader.ReadInt32();
+            GameMaster.mapHeight = reader.ReadInt32();
             GameMaster.mapWidth = reader.ReadInt32();
 
-            GameMaster.BuildMap();
+            if (UnityEditor.AssetDatabase.FindAssets("Assets/Maps/"+ mapName+"_mesh.asset")!= null)
+            {
+                GameMaster.BuildMap(mapName);
+            }
+            else
+            {
+                GameMaster.BuildMap();
+            }
 
             for (int i = 0; i < (GameMaster.mapHeight * GameMaster.mapWidth); i++)
             {

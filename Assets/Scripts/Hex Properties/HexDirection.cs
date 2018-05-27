@@ -14,4 +14,24 @@ public static class HexDirectionExtensions
     {
         return (int)direction < 3 ? (direction + 3) : (direction - 3);
     }
+
+    public static HexDirection NeighborLeft(this HexDirection direction)
+    {
+        return (int)direction == 0 ? HexDirection.NW : (direction - 1);
+    }
+
+    public static HexDirection NeighborRight(this HexDirection direction)
+    {
+        return (int)direction == 5 ? HexDirection.NE : (direction + 1);
+    }
+
+    public static HexDirection OppositeNeighborLeft(this HexDirection direction)
+    {
+        return Opposite(NeighborLeft(direction));
+    }
+
+    public static HexDirection OppositeNeighborRight(this HexDirection direction)
+    {
+        return Opposite(NeighborRight(direction));
+    }
 }

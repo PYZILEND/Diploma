@@ -42,8 +42,10 @@ public class MapInputs : MonoBehaviour {
                                 selectedCell.ValidateHighlightWithAllegiance();
                             }
                             selectedCell = cell;
+                            MapEditor.selectedCell = cell;
                             cell.highlight.color = Color.blue;
-                            MapEditor.ApplyChanges(cell);                            
+                            MapEditor.ApplyChanges(cell);
+                            Debug.Log(cell.coordinates.ToIndex(GameMaster.mapWidth));                       
                         }
                     }
                 }
@@ -132,7 +134,10 @@ public class MapInputs : MonoBehaviour {
         if(Physics.Raycast(ray, out hit))
         {
             HexCoordinates coordinates = HexCoordinates.fromPosition(hit.point);
-            return GameMaster.logicalMap.cells[coordinates.ToIndex()];
+            if (coordinates.Z >= 0)
+            {
+                return GameMaster.logicalMap.cells[coordinates.ToIndex()];
+            }
         }
         return null;
     }

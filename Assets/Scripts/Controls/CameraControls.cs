@@ -10,7 +10,7 @@ public class CameraControls : MonoBehaviour {
     Transform swivel, stick;
 
     //Zoom parameters
-    float zoom = 1f;
+    public static float zoom = 1f;
     public float zoomMax, zoomMin;
     public float minZoomAngle, maxZoomAngle;
     public float moveSpeedMinZoom, moveSpeedMaxZoom;
@@ -26,7 +26,6 @@ public class CameraControls : MonoBehaviour {
         swivel = transform.GetChild(0);
         stick = swivel.GetChild(0);
     }
-
     /// <summary>
     /// Checking for input.
     /// </summary>
@@ -89,7 +88,31 @@ public class CameraControls : MonoBehaviour {
         //Applying new camera position
         Vector3 position = transform.localPosition;
         position += direction * distance;
-        transform.localPosition = ClampPosition(position);
+
+        //if not work check build index
+        //might actually not work when build
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex!=1)
+        {
+            transform.localPosition = ClampPosition(position,GameMaster.mapHeight,GameMaster.mapWidth);
+        }
+        else
+        {
+            transform.localPosition = ClampPosition(position, MapCreator.mapHeight, MapCreator.mapWidth);
+        }
+    }
+
+    /// <summary>
+    /// This method is used to make sure that camera doesn't go out of bounds
+    /// </summary>
+    Vector3 ClampPosition(Vector3 position,int mapHeight,int mapWidth)
+    {
+        float maxX = (mapWidth - 0.5f) * (HexMetrics.innerRadius * 2f);
+        position.x = Mathf.Clamp(position.x, 0f, maxX);
+
+        float maxZ = (mapHeight - 1f) * (HexMetrics.outerRadius * 1.5f);
+        position.z = Mathf.Clamp(position.z, 0f, maxZ);
+
+        return position;
     }
 
     /// <summary>
@@ -115,4 +138,13 @@ public class CameraControls : MonoBehaviour {
         float rotation = transform.localRotation.eulerAngles.y + (delta * rotationSpeed * Time.deltaTime);
         transform.localRotation = Quaternion.Euler(0f, rotation, 0f);
     }
+
+    public void CameraOver()
+    {
+        transform.localPosition = new Vector3(GameMaster.mapWidth * HexMetrics.innerRadius, 0, GameMaster.mapHeight * HexMetrics.outerRadius / 1.5f);
+        swivel.rotation = Quaternion.Euler(90, 0, 0);
+        stick.localPosition = new Vector3(0, 0, -250);
+        zoom = 0f;
+    }
+
 }

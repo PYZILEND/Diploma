@@ -102,4 +102,26 @@ public struct HexCoordinates
     {
         return X + Z * GameMaster.mapWidth + (Z / 2);
     }
+
+    public int ToIndex(int mapWidth)
+    {
+        return X + Z * mapWidth + (Z / 2);
+    }
+
+    public static int ToIndex(Vector3 position, int mapWidth)
+    {
+        HexCoordinates coord = fromPosition(position);
+        return coord.X + coord.Z * mapWidth + (coord.Z / 2);
+    }
+
+    public static int ToIndex(int x,int z, int mapWidth)
+    {
+        HexCoordinates coord = fromOffsetCoordinates(x, z);
+        return coord.X + coord.Z * mapWidth + (coord.Z / 2);
+    }
+    
+    public static Vector2 FromIndex(int ind, int mapWidth)
+    {
+        return new Vector2(ind % mapWidth, (int)ind/mapWidth);
+    }
 }
