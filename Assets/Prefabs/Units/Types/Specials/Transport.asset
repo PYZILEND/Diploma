@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f8b28297bf498c409166ed15353cb5a, type: 3}
   m_Name: Transport
   m_EditorClassIdentifier: 
-  unitName: Artillery
+  unitName: Transport
   maxHealth: 3
   maxMovePoints: 50
   attackPower: 0
@@ -22,3 +22,4 @@ MonoBehaviour:
   canGoOverUnits: 0
   capacity: 2
   secondAttackPower: 0
+  travelSpeed: 2

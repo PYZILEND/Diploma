@@ -66,33 +66,35 @@ public class Unit : MonoBehaviour {
     /// <param name="cell"></param>
     /// <param name="allegiance"></param>
     /// <returns></returns>
-    public static Unit CreateUnit(Unit unitPrefab, LogicalMapCell cell, Allegiance allegiance)
+    public virtual void InitializeUnit(LogicalMapCell cell, Allegiance allegiance)
     {
-        Unit unit = Instantiate(unitPrefab);
-        GameMaster.units.Add(unit);
+        GameMaster.units.Add(this);
 
-        unit.transform.SetParent(cell.transform, false);
-        unit.cell = cell;        
-        cell.unit = unit;
+        this.transform.SetParent(cell.transform, false);
+        this.cell = cell;        
+        cell.unit = this;
 
-        unit.allegiance = allegiance;       
-        unit.healthPoints = unit.type.maxHealth;
-        unit.movePoints = 0;
-        unit.hasAttacked = true;
-        unit.isDestroyed = false;
+        this.allegiance = allegiance;
+        this.healthPoints = this.type.maxHealth;
+        this.movePoints = 0;
+        this.hasAttacked = true;
+        this.isDestroyed = false;
 
-        unit.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
-        unit.ValidatePosition();
+        this.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
+        this.ValidatePosition();
 
-        unit.AffectCountryes(cell);
-
-        return unit;
+        if (cell.isCapital &&
+            cell.country.allegiance != allegiance &&
+            !cell.unit)
+        {
+            cell.country.SwitchAllegiance(allegiance);
+        }
     }
 
     /// <summary>
     /// Resets unit to it's default state
     /// </summary>
-    public void ResetUnit()
+    public virtual void ResetUnit()
     {
         healthPoints = type.maxHealth;
         movePoints = type.maxMovePoints;
@@ -104,7 +106,7 @@ public class Unit : MonoBehaviour {
     /// Restores unit's move points and attack status
     /// If unit was destroyed on prev turn it's removed from game
     /// </summary>
-    public void ChangeTurn()
+    public virtual void ChangeTurn()
     {
         movePoints = type.maxMovePoints;
         hasAttacked = false;
@@ -118,76 +120,161 @@ public class Unit : MonoBehaviour {
     /// Moves unit to specified cell
     /// </summary>
     /// <param name="destination"></param>
-    public void MoveToCell(LogicalMapCell destination)
+    public virtual void MoveToCell(LogicalMapCell destination)
     {
-        AffectCountryes(destination);
+        List<LogicalMapCell> path = Pathfinder.SearchPath(cell, destination);
+        AffectCountryes(path);                
 
         movePoints -= destination.distance;
         cell.unit = null;
         destination.unit = this;
         cell = destination;
-        transform.SetParent(destination.transform, false);
-        ValidatePosition();        
+
+        StopAllCoroutines();
+        StartCoroutine(Travel(path));        
+    }
+
+    IEnumerator Travel(List<LogicalMapCell> path)
+    {
+        Vector3 a, b, c = path[0].GetRelativePhysicalPosition();
+        Vector3 d;
+
+        float t = Time.deltaTime * type.travelSpeed;
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            a = c;
+            b = path[i].GetRelativePhysicalPosition();
+            c = (b + path[i + 1].GetRelativePhysicalPosition()) * 0.5f;
+            for(; t < 1f; t += Time.deltaTime * type.travelSpeed)
+            {
+                transform.position = GetBezierPoint(a, b, c, t);
+                ValidatePosition();
+                d = GetBezierDerivative(a, b, c, t);
+                transform.localRotation = Quaternion.LookRotation(d);
+                yield return null;
+            }
+            t -= 1f;
+        }
+        a = c;
+        b = path[path.Count - 1].GetRelativePhysicalPosition();
+        c = b;
+        for (; t < 1f; t += Time.deltaTime * type.travelSpeed)
+        {
+            transform.position = GetBezierPoint(a, b, c, t);
+            ValidatePosition();
+            d = GetBezierDerivative(a, b, c, t);
+            transform.localRotation = Quaternion.LookRotation(d);
+            yield return null;
+        }
+
+        transform.SetParent(path[path.Count-1].transform, false);
+        transform.localPosition = new Vector3(0, 0, 0);
+        ValidatePosition();
+        d = GetBezierDerivative(a, b, c, t);
+        transform.localRotation = Quaternion.LookRotation(d);
+        if (isEmbarked)
+        {
+            GetComponentInChildren<MeshRenderer>().enabled = false;
+            transform.SetParent(transport.transform, false);
+            transform.localPosition = new Vector3(0, 0, 0);
+        }
+        else if (platform)
+        {
+            transform.SetParent(platform.transform, false);
+            transform.localPosition = new Vector3(0, 0, 0);
+            ValidatePosition();
+        }
+    }
+
+    Vector3 GetBezierPoint(Vector3 a, Vector3 b, Vector3 c, float t)
+    {
+        float r = 1f - t;
+        return r * r * a + 2f * r * t * b + t * t * c;
+    }
+
+    Vector3 GetBezierDerivative(Vector3 a, Vector3 b, Vector3 c, float t)
+    {
+        return 2f * ((1f - t) * (b - a) + t * (c - b));
     }
 
     /// <summary>
     /// Affect countryes by this unit's movement or placement
     /// </summary>
     /// <param name="destination"></param>
-    public void AffectCountryes(LogicalMapCell destination)
+    public void AffectCountryes(List<LogicalMapCell> path)
     {
         //Save unit in destination to revert changes later
         //Used when we board transport or platform
-        Unit destUnit = null;
-        if (destination.unit)
+        for (int i = 0; i < path.Count - 1; i++)
         {
-            destUnit = destination.unit;
-        }
+            LogicalMapCell start = path[i];
+            LogicalMapCell destination = path[i + 1];
 
-        //If destination cell has a country
-        if (destination.country)
-        {
-            //If we come from another country or from neutral area (ocean, impassable)
-            if (cell.country == null || destination.country != cell.country)
+            Unit startUnit = null;
+            if (start.unit)
             {
-                //If this changes invaded status, then country gets invaded
-                if (!destination.country.isInvaded)
+                startUnit = start.unit;
+            }
+            Unit destUnit = null;
+            if (destination.unit)
+            {
+                destUnit = destination.unit;
+            }
+
+            //If destination cell has a country
+            if (destination.country)
+            {
+                //If we come from another country or from neutral area (ocean, impassable)
+                if (start.country == null || destination.country != start.country)
                 {
-                    destination.unit = this;
-                    if (destination.country.isInvaded)
+                    //If this changes invaded status, then country gets invaded
+                    if (!destination.country.isInvaded)
                     {
-                        destination.country.TriggerInvasion(allegiance);
+                        destination.unit = this;
+                        if (destination.country.isInvaded)
+                        {
+                            destination.country.TriggerInvasion(allegiance);
+                        }
                     }
+                }
+
+                //If we moved into capital and it has different allegiance
+                if (destination.isCapital &&
+                    destination.country.allegiance != allegiance &&
+                    !destination.unit)
+                {
+                    destination.country.SwitchAllegiance(allegiance);
                 }
             }
 
-            //If we moved into capital and it has different allegiance
-            if (destination.country.capital == destination && destination.country.allegiance != allegiance)
+            start.unit = this;
+            //If leaving old cell changed invaded status
+            if (start.country && start.country.isInvaded)
             {
-                destination.country.SwitchAllegiance(allegiance);
+                start.unit = null;
+                if (!start.country.isInvaded)
+                {
+                    start.country.TriggerLiberation();
+                }
+            }
+
+            if (startUnit)
+            {
+                start.unit = startUnit;
+            }
+            else
+            {
+                start.unit = null;
+            }
+            if (destUnit)
+            {
+                destination.unit = destUnit;
+            }
+            else
+            {
+                destination.unit = null;
             }
         }
-
-        //If leaving old cell changed invaded status
-        if (cell.country && cell.country.isInvaded)
-        {
-            cell.unit = null;
-            if (!cell.country.isInvaded)
-            {
-                cell.country.TriggerLiberation();
-            }            
-        }
-
-        //Refert values back before leaving method
-        if (destUnit)
-        {
-            destination.unit = destUnit;
-        }
-        else
-        {
-            destination.unit = null;
-        }
-        cell.unit = this;
     }
 
     /// <summary>
@@ -195,7 +282,7 @@ public class Unit : MonoBehaviour {
     /// If unit on said cell looses enough health it's destroyed
     /// </summary>
     /// <param name="cell"></param>
-    public void ShootAt(LogicalMapCell cell)
+    public virtual void ShootAt(LogicalMapCell cell)
     {
         hasAttacked = true;
         cell.unit.healthPoints -= type.attackPower;
@@ -209,7 +296,7 @@ public class Unit : MonoBehaviour {
     /// <summary>
     /// Removes unit from game
     /// </summary>
-    public void DestroyLogically()
+    public virtual void DestroyLogically()
     {
         GameMaster.units.Remove(this);
         cell.unit = null;
@@ -219,7 +306,7 @@ public class Unit : MonoBehaviour {
     /// <summary>
     /// Changes unit's model to destroyed one and marks it for logical destraction
     /// </summary>
-    public void DestroyVisually()
+    public virtual void DestroyVisually()
     {
         if (cell.country && cell.country.isInvaded)
         {
@@ -252,17 +339,19 @@ public class Unit : MonoBehaviour {
     /// Method for embarking transport
     /// </summary>
     /// <param name="cell"></param>
-    public void Embark(LogicalMapCell cell)
+    public virtual void Embark(LogicalMapCell cell)
     {
         transport = (Transport) cell.unit;
 
-        AffectCountryes(cell);
+        List<LogicalMapCell> path = Pathfinder.SearchPath(this.cell, cell);
+        AffectCountryes(path);
 
         movePoints -= cell.distance;
         this.cell.unit = null;
         this.cell = cell;
-        transform.SetParent(transport.transform, false);
-        GetComponentInChildren<MeshRenderer>().enabled = false;
+
+        StopAllCoroutines();
+        StartCoroutine(Travel(path));
 
         transport.TakeAboard(this);
     }
@@ -271,16 +360,18 @@ public class Unit : MonoBehaviour {
     /// Method for disembarking transport
     /// </summary>
     /// <param name="cell"></param>
-    public void Disembark(LogicalMapCell cell)
-    {               
-        AffectCountryes(cell);
+    public virtual void Disembark(LogicalMapCell cell)
+    {
+        List<LogicalMapCell> path = Pathfinder.SearchPath(this.cell, cell);
+        AffectCountryes(path);
 
         movePoints -= cell.distance;
         this.cell = cell;
-        cell.unit = this;        
-        transform.SetParent(cell.transform, false);
+        cell.unit = this;
+
         GetComponentInChildren<MeshRenderer>().enabled = true;
-        ValidatePosition();
+        StopAllCoroutines();
+        StartCoroutine(Travel(path));               
 
         transport.RemoveFromTransport(this);
         transport = null;
@@ -295,12 +386,16 @@ public class Unit : MonoBehaviour {
         platform = (Platform)cell.unit;
         platform.boardedUnit = this;
 
-        AffectCountryes(cell);
+        List<LogicalMapCell> path = Pathfinder.SearchPath(this.cell, cell);
+        AffectCountryes(path);
 
         movePoints -= cell.distance;
         this.cell.unit = null;
-        transform.SetParent(platform.transform, false);
-        ValidatePosition();
+        this.cell = cell;
+
+        StopAllCoroutines();
+        StartCoroutine(Travel(path));
+        
     }
 
     /// <summary>
@@ -312,12 +407,14 @@ public class Unit : MonoBehaviour {
         platform.boardedUnit = null;
         platform = null;
 
-        AffectCountryes(cell);
+        List<LogicalMapCell> path = Pathfinder.SearchPath(this.cell, cell);
+        AffectCountryes(path);
 
         movePoints -= cell.distance;
         this.cell = cell;
         cell.unit = this;
-        transform.SetParent(cell.transform, false);
-        ValidatePosition();
+
+        StopAllCoroutines();
+        StartCoroutine(Travel(path));
     }
 }

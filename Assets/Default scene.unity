@@ -909,7 +909,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 896926241}
-        m_MethodName: SelectUnit
+        m_MethodName: Select
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1503,7 +1503,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 896926241}
-        m_MethodName: SelectUnit
+        m_MethodName: Select
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5586,7 +5586,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 896926241}
-        m_MethodName: SelectUnit
+        m_MethodName: Select
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8337,10 +8337,22 @@ MonoBehaviour:
   - {fileID: 114695760632977296, guid: 5767468cf87f4f74eb50f678fe258a45, type: 2}
   - {fileID: 114356707592948336, guid: bf368f06a3508b64e915d18b7dd9e7b7, type: 2}
   - {fileID: 114695760632977296, guid: cd3c502a1f9f47c4c84470cfb80dcc42, type: 2}
+  - {fileID: 114169941624553526, guid: 35962c39e8ddbc54ab87b7d8cacd2e4a, type: 2}
+  - {fileID: 114590837348123826, guid: 2b470dbefd186064d81dce91e8fffcee, type: 2}
+  - {fileID: 114294853856149620, guid: 5f6baca98d3ea7b45854a513f7c4ba6d, type: 2}
+  - {fileID: 114740070450757426, guid: 5340ad2b00daaf547afe55e96954544e, type: 2}
+  - {fileID: 114220350559150680, guid: 1a9f86a9665b75a478fd7f0be9a50941, type: 2}
   - {fileID: 0}
   - {fileID: 0}
-  countryPrefabRef: {fileID: 114796946621879810, guid: 9a25e765dd518ff4da4a86c86d531f09,
-    type: 2}
+  unitTypesRef: []
+  countryPrefabsRef:
+  - {fileID: 114796946621879810, guid: 9a25e765dd518ff4da4a86c86d531f09, type: 2}
+  - {fileID: 114796946621879810, guid: ee062a2968e0b1c4f92822ccef9e305e, type: 2}
+  - {fileID: 114796946621879810, guid: 1302a36307cb897439f5e2077cde305e, type: 2}
+  countryTypesRef:
+  - {fileID: 11400000, guid: 368749b111cbcbc4d8b7d4125e08b07d, type: 2}
+  - {fileID: 11400000, guid: 9ed9692e8eb37824eadfe0adb11afa8f, type: 2}
+  - {fileID: 11400000, guid: c2e5621f0c11e4c4c8465af5806836d4, type: 2}
   capitalPrefabRef: {fileID: 114544995254195222, guid: 7147eecb52af35e4fad160afe9f4a1f0,
     type: 2}
   countryInfoRef: {fileID: 695939320}
@@ -8858,7 +8870,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 896926241}
-        m_MethodName: SelectUnit
+        m_MethodName: Select
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11414,7 +11426,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 896926241}
-        m_MethodName: SelectUnit
+        m_MethodName: Select
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11557,6 +11569,16 @@ MonoBehaviour:
     - m_Text: "\u0422\u0440\u0430\u043D\u0441\u043F\u043E\u0440\u0442"
       m_Image: {fileID: 0}
     - m_Text: "\u041F\u043E\u0434\u043B\u043E\u0434\u043A\u0430"
+      m_Image: {fileID: 0}
+    - m_Text: "\u0421\u0430\u043C\u043E\u043B\u0435\u0442"
+      m_Image: {fileID: 0}
+    - m_Text: "\u041F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430"
+      m_Image: {fileID: 0}
+    - m_Text: "\u0410\u0432\u0438\u0430\u043D\u043E\u0441\u0435\u0446"
+      m_Image: {fileID: 0}
+    - m_Text: "\u041F\u0412\u041E"
+      m_Image: {fileID: 0}
+    - m_Text: "\u0411\u0443\u043B\u0444\u0440\u043E\u0433"
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:

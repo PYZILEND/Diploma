@@ -12,13 +12,13 @@ public static class Pathfinder
     /// </summary>
     /// <param name="dist">Maximum distance</param>
     /// <param name="cell">Cell to find range for</param>
-    public static void MarkShootingRange(int dist, LogicalMapCell cell)
+    public static void MarkShootingRange(Unit unit)
     {
         ResetCells();
         List<LogicalMapCell> frontier = new List<LogicalMapCell>();
         List<LogicalMapCell> usedCell = new List<LogicalMapCell>();
-        frontier.Add(cell);
-        usedCell.Add(cell);
+        frontier.Add(unit.cell);
+        usedCell.Add(unit.cell);
         while (frontier.Count > 0)
         {
             LogicalMapCell current = frontier[0];
@@ -30,15 +30,45 @@ public static class Pathfinder
                 {
                     continue;
                 }
-                int distance = DistanceTo(cell.coordinates, neighbor.coordinates);
-                if ((distance <= dist)&&(!usedCell.Contains(neighbor)))
+                int distance = DistanceTo(unit.cell.coordinates, neighbor.coordinates);
+                if ((distance <= unit.type.attackRange)&&(!usedCell.Contains(neighbor)))
                 {
-                    if ((neighbor.unit != null) && (neighbor.unit.allegiance != cell.unit.allegiance))
+                    if ((neighbor.unit != null) && 
+                        (neighbor.unit.allegiance != unit.allegiance))
                     {
                         neighbor.inShootingRange = true;
                     }
                     frontier.Add(neighbor);
                     usedCell.Add(neighbor);                    
+                }
+            }
+        }
+    }
+
+    public static void SearchPossiblePlaneLanding(Unit plane)
+    {
+        foreach(Country country in GameMaster.countries)
+        {
+            if (country.allegiance == GameMaster.allegianceTurn &&
+                DistanceTo(plane.cell.coordinates, country.capital.coordinates) <= plane.movePoints &&
+                DistanceTo(plane.cell.coordinates, country.capital.coordinates) != 0 &&
+                country.capitalCity.remainingCapacity > 0)
+            {
+                country.capital.isReachable = true;
+                country.capital.distance = plane.movePoints;
+            }
+        }
+        foreach(Unit unit in GameMaster.units)
+        {
+            if(unit is Carrier && unit.allegiance == GameMaster.allegianceTurn)
+            {
+                Carrier carrier = (Carrier)unit;
+                if(DistanceTo(plane.cell.coordinates, unit.cell.coordinates) <= plane.movePoints &&
+                    DistanceTo(plane.cell.coordinates, unit.cell.coordinates) != 0 &&
+                   carrier.remainingCapacity > 0)
+                {
+                    carrier.cell.isReachable = true;
+                    carrier.cell.distance = plane.movePoints;
                 }
             }
         }
@@ -63,11 +93,11 @@ public static class Pathfinder
     /// <param name="dist"></param>
     /// <param name="cell"></param>
     /// <param name="type"></param>
-    public static void SearchPossiblePaths(int maxDistance, LogicalMapCell cell, UnitType type)
+    public static void SearchPossiblePaths(Unit unit)
     {
         List<LogicalMapCell> frontier = new List<LogicalMapCell>();
-        cell.distance = 0;
-        frontier.Add(cell);
+        unit.cell.distance = 0;
+        frontier.Add(unit.cell);
 
         while (frontier.Count > 0)
         {
@@ -77,7 +107,7 @@ public static class Pathfinder
             {
                 LogicalMapCell neighbor = current.GetNeighbor(d);
 
-                int distance = CountDistance(neighbor, type);
+                int distance = CountDistance(neighbor, unit.type);
                 if(distance == -1)
                 {
                     continue;
@@ -87,7 +117,7 @@ public static class Pathfinder
                 if (neighbor.distance == int.MaxValue)
                 {
                     neighbor.distance = distance;
-                    if (distance <= maxDistance)
+                    if (distance <= unit.movePoints)
                     {
                         if (!wentOverUnit)
                         {
@@ -103,7 +133,7 @@ public static class Pathfinder
                 else
                 if (distance < neighbor.distance)
                 {
-                    if (distance <= maxDistance)
+                    if (distance <= unit.movePoints)
                     {
                         if (!wentOverUnit)
                         {
@@ -132,8 +162,15 @@ public static class Pathfinder
     {
         wentOverUnit = false;
         canBoardHere = false;
-
+        
         if (neighbour == null)
+        {
+            return -1;
+        }
+
+        if(neighbour.country && 
+            neighbour.country.secretAllegiance == GameMaster.allegianceTurn &&
+            neighbour.country.allegiance == Allegiance.Neutral)
         {
             return -1;
         }
@@ -148,9 +185,30 @@ public static class Pathfinder
             {
                 if(neighbour.unit.allegiance == GameMaster.allegianceTurn)
                 {
-                    if(neighbour.unit is Transport || neighbour.unit is Platform)
+                    
+                    if(neighbour.unit is Transport)
                     {
-                        canBoardHere = true;
+                        Transport trans = (Transport)neighbour.unit;
+                        if (trans.remainingCapacity > 0)
+                        {
+                            canBoardHere = true;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                    }
+                    else if(neighbour.unit is Platform)
+                    {
+                        Platform platf = (Platform)neighbour.unit;
+                        if (!platf.boardedUnit)
+                        {
+                            canBoardHere = true;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
                     }
                     else
                     {
@@ -241,30 +299,20 @@ public static class Pathfinder
     }
 
     /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="map"></param>
-    /// <param name="cell"></param>
-    /// <param name="toCell"></param>
-    public static List<LogicalMapCell> FindPath(LogicalMap map, LogicalMapCell cell, LogicalMapCell toCell)
-    {
-        return SearchPath(cell, toCell);
-    }
-
-    /// <summary>
-    /// Finds shortest path from one cell to another.    /// 
+    /// Finds shortest path from one cell to another.
     /// </summary>
     /// <param name="fromCell"></param>
     /// <param name="toCell"></param>
-    static List<LogicalMapCell> SearchPath(LogicalMapCell fromCell, LogicalMapCell toCell)
+    public static List<LogicalMapCell> SearchPath(LogicalMapCell fromCell, LogicalMapCell toCell)
     {
         List<LogicalMapCell> path = new List<LogicalMapCell>();
         LogicalMapCell current = toCell;
+        path.Insert(0, current);
         while (current != fromCell)
-        {
-            path.Insert(0, current);
+        {            
             current.EnableHighlight(Color.magenta);
             current = current.pathFrom;
+            path.Insert(0, current);
         }
         return path;
     }

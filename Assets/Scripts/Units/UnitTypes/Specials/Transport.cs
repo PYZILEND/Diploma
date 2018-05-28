@@ -23,14 +23,11 @@ public class Transport : Unit
     /// <param name="cell"></param>
     /// <param name="allegiance"></param>
     /// <returns></returns>
-    new public static Transport CreateUnit(Unit unitPrefab, LogicalMapCell cell, Allegiance allegiance)
+    public override void InitializeUnit(LogicalMapCell cell, Allegiance allegiance)
     {
-        Transport unit = (Transport) Unit.CreateUnit(unitPrefab, cell, allegiance);
-
-        unit.remainingCapacity = unit.type.capacity;
-        unit.embarkedUnits = new Unit[unit.type.capacity];
-
-        return unit;
+        base.InitializeUnit(cell, allegiance);
+        this.remainingCapacity = this.type.capacity;
+        this.embarkedUnits = new Unit[this.type.capacity];
     }
 
     /// <summary>
@@ -39,13 +36,15 @@ public class Transport : Unit
     /// their cell property
     /// </summary>
     /// <param name="destination"></param>
-    new public void MoveToCell(LogicalMapCell destination)
+    public override void MoveToCell(LogicalMapCell destination)
     {
         base.MoveToCell(destination);
-
-        foreach(Unit unit in embarkedUnits)
+        for(int i=0; i<embarkedUnits.Length; i++)
         {
-            unit.cell = destination;
+            if (embarkedUnits[i])
+            {
+                embarkedUnits[i].cell = destination;
+            }
         }
     }
 
@@ -53,7 +52,7 @@ public class Transport : Unit
     /// When transport is destroyed
     /// All embarked units are also destroyed
     /// </summary>
-    new public void DestroyVisually()
+    public override void DestroyVisually()
     {
         base.DestroyVisually();
 
@@ -90,13 +89,10 @@ public class Transport : Unit
     /// <returns></returns>
     public int FindFreeSpace()
     {
-        Debug.Log(embarkedUnits.Length);
         int i = 0;
         while(embarkedUnits[i] != null)
         {
-            i++;
-            Debug.Log(i);
-            Debug.Log(embarkedUnits[i]);
+            i++;          
             if (i >= embarkedUnits.Length)
             {
                 return -1;

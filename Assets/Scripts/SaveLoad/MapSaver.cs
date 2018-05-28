@@ -40,7 +40,7 @@ public class MapSaver : MonoBehaviour {
     static void SaveCountry(BinaryWriter writer, Country country)
     {
         writer.Write(country.countryName);
-        writer.Write((byte)country.type);
+        writer.Write(country.type.name);
         writer.Write((byte)country.secretAllegiance);
         writer.Write(country.area.Count);
         for(int i = 0; i<country.area.Count; i++)

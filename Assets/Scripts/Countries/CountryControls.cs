@@ -5,7 +5,7 @@ using UnityEngine;
 public class CountryControls : MonoBehaviour {
 
     public static Country selectedCountry;
-    public static Unit selectedUnit;    
+    public static Unit selectedUnitPrefab;    
 
     /// <summary>
     /// Processes player's input
@@ -19,8 +19,7 @@ public class CountryControls : MonoBehaviour {
             {
                 PurchaseUnit(cell);
             }
-
-            if (selectedCountry == null || cell.country != selectedCountry)
+            else if (selectedCountry == null || cell.country != selectedCountry)
             {
                 SelectCountry(cell);
             }
@@ -44,7 +43,7 @@ public class CountryControls : MonoBehaviour {
             MakeAllUnselectable();
             selectedCountry.Disclosure();
         }
-        selectedCountry.ValidatePossibleUnitPlacements(selectedUnit);
+        selectedCountry.ValidatePossibleUnitPlacements(selectedUnitPrefab);
     }
 
     /// <summary>
@@ -60,7 +59,7 @@ public class CountryControls : MonoBehaviour {
     /// <summary>
     /// Must be called when game changes phase
     /// </summary>
-    public static void ChangePhase()
+    public static void ShowSelectable()
     {
         if (selectedCountry)
         {
@@ -79,15 +78,15 @@ public class CountryControls : MonoBehaviour {
         switch (GameMaster.turnPhase)
         {
             case Phase.Guerrila:
-                selectedCountry.BuyWithGuerrilla(selectedUnit, cell);
+                selectedCountry.BuyWithGuerrilla(selectedUnitPrefab, cell);
                 break;
 
             case Phase.Recruitment:
-                selectedCountry.BuyWithTresury(selectedUnit, cell);
+                selectedCountry.BuyWithTresury(selectedUnitPrefab, cell);
                 break;
 
             case Phase.SecretAllies:
-                selectedCountry.BuyWithSecretArmy(selectedUnit, cell);
+                selectedCountry.BuyWithSecretArmy(selectedUnitPrefab, cell);
                 break;
         }
     }
@@ -168,10 +167,10 @@ public class CountryControls : MonoBehaviour {
     /// <param name="value"></param>
     public void GetSelectedUnit(int value)
     {
-        selectedUnit = GameMaster.unitPrefabs[value];
+        selectedUnitPrefab = GameMaster.unitPrefabs[value];
         if (selectedCountry)
         {
-            selectedCountry.ValidatePossibleUnitPlacements(selectedUnit);
+            selectedCountry.ValidatePossibleUnitPlacements(selectedUnitPrefab);
         }
     }
 }

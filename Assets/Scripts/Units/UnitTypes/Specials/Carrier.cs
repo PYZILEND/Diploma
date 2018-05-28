@@ -24,34 +24,35 @@ public class Carrier : Unit
     /// <param name="cell"></param>
     /// <param name="allegiance"></param>
     /// <returns></returns>
-    new public static Carrier CreateUnit(Unit unitPrefab, LogicalMapCell cell, Allegiance allegiance)
+    public override void InitializeUnit(LogicalMapCell cell, Allegiance allegiance)
     {
-        Carrier unit = (Carrier)Unit.CreateUnit(unitPrefab, cell, allegiance);
+        base.InitializeUnit(cell, allegiance);
 
-        unit.remainingCapacity = unit.type.capacity;
-        unit.planes = new Plane[unit.type.capacity];
-
-        return unit;
+        this.remainingCapacity = this.type.capacity;
+        this.planes = new Plane[this.type.capacity];
     }
 
     /// <summary>
     /// When moving also move it's planes
     /// </summary>
     /// <param name="destination"></param>
-    new public void MoveToCell(LogicalMapCell destination)
+    public override void MoveToCell(LogicalMapCell destination)
     {
         base.MoveToCell(destination);
 
-        foreach (Plane plane in planes)
+        for(int i= 0; i < planes.Length; i++)
         {
-            plane.cell = destination;
+            if (planes[i])
+            {
+                planes[i].cell = destination;
+            }
         }
     }
 
     /// <summary>
     /// When destroyed also destroy it's planes
     /// </summary>
-    new public void DestroyVisually()
+    public override void DestroyVisually()
     {
         base.DestroyVisually();
 
@@ -71,7 +72,7 @@ public class Carrier : Unit
     public void TakeAboard(Plane plane)
     {
         remainingCapacity--;
-        planes[FindFreeSpace()] = plane;
+        planes[FindFreeSpace()] = plane;
     }
 
     /// <summary>

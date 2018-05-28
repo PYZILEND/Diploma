@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum CountryType
+public enum OldCountryType
 {
     poor, average, rich
 }
 
+/*
 public static class CountryTypeExtentions
 {
     /// <summary>
@@ -89,4 +90,4 @@ public static class CountryTypeExtentions
             default: return 0;
         }
     }
-}
+}*/

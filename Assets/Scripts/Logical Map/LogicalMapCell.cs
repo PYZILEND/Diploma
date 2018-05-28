@@ -39,10 +39,64 @@ public class LogicalMapCell : MonoBehaviour {
     /// <summary>
     /// Weather cell is protected by anti-air
     /// </summary>
-    public bool isProtected;
+    public bool isProtected
+    {
+        get
+        {
+
+            if (unit &&
+                unit is AntiAir &&
+                !unit.isEmbarked &&
+                !unit.isDestroyed &&
+                unit.allegiance != GameMaster.allegianceTurn)
+            {
+                return true;
+            }
+            
+            for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+            {
+                if (neighbors[(int) d])
+                {
+                    if (neighbors[(int)d].unit &&
+                        neighbors[(int)d].unit is AntiAir &&
+                        !neighbors[(int)d].unit.isEmbarked &&
+                        !neighbors[(int)d].unit.isDestroyed &&
+                        neighbors[(int)d].unit.allegiance != GameMaster.allegianceTurn)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
 
     public Unit unit;
     public Country country;
+
+    public bool isCapital
+    {
+        get
+        {
+            if(country && country.capital == this)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public Capital capital
+    {
+        get
+        {
+            if (isCapital)
+            {
+                return country.capitalCity;
+            }
+            return null;
+        }
+    }
 
     /// <summary>
     /// Initializes cell.
@@ -136,6 +190,28 @@ public class LogicalMapCell : MonoBehaviour {
 
         highlight.transform.position = position;
         highlight.transform.localRotation = Quaternion.Euler(hit.normal);
+    }
+
+    public Vector3 GetRelativePhysicalPosition()
+    {
+        RaycastHit hit;
+        Physics.Raycast(transform.position, new Vector3(0f, -1f, 0f), out hit);
+
+        Vector3 position = hit.point;
+        position.y += 0.5f;
+
+        return position;
+    }
+
+    public Vector3 GetRelativePhysicalPosition(Vector3 logicalPosition)
+    {
+        RaycastHit hit;
+        Physics.Raycast(logicalPosition, new Vector3(0f, -1f, 0f), out hit);
+
+        Vector3 position = hit.point;
+        position.y += 0.5f;
+
+        return position;
     }
 
     /// <summary>

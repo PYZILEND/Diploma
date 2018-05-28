@@ -9,13 +9,28 @@ public class MultipleSelection : MonoBehaviour {
     Unit[] units;
     Unit unit;
 
-    public void Show(Vector3 position, Unit unit)
+    bool showingForPlanes
+    {
+        get
+        {
+            for(int i=0; i<units.Length; i++)
+            {
+                if(units[i] is Plane)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public void ShowForTransport(Vector3 position, Unit unit)
     {
         this.gameObject.SetActive(true);
         GetComponent<RectTransform>().transform.position = position;
         GetComponent<RectTransform>().sizeDelta = new Vector2(10 + 60 * (unit.type.capacity + 1), 60);
 
-        for(int i = 0; i<unit.type.capacity + 1; i++)
+        for(int i = 0; i <= unit.type.capacity; i++)
         {
             selections[i].gameObject.SetActive(true);
         }
@@ -61,29 +76,104 @@ public class MultipleSelection : MonoBehaviour {
         }
     }
 
+    public void ShowForCapital(Vector3 position, LogicalMapCell cell)
+    {
+        this.gameObject.SetActive(true);
+        if (cell.unit)
+        {
+            GetComponent<RectTransform>().transform.position = position;
+            GetComponent<RectTransform>().sizeDelta = new Vector2(10 + 60 * (cell.capital.planes.Length + 1), 60);
+            unit = cell.unit;
+            for (int i = 0; i <= cell.capital.planes.Length; i++)
+            {
+                selections[i].gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            GetComponent<RectTransform>().transform.position = position;
+            GetComponent<RectTransform>().sizeDelta = new Vector2(10 + 60 * (cell.capital.planes.Length), 60);
+            for (int i = 1; i <= cell.capital.planes.Length; i++)
+            {
+                selections[i].gameObject.SetActive(true);
+                selections[i].GetComponent<RectTransform>().transform.localPosition = new Vector2(5 + 60 * (i - 1), -5);
+            }
+        }
+
+        units = new Unit[cell.capital.planes.Length];
+        for(int i = 0; i < cell.capital.planes.Length; i++)
+        {
+            units[i] = cell.capital.planes[i];
+        }
+    }
+
+    public void ShowForSuperUnit(Vector3 position, Unit unit, Unit otherUnit)
+    {
+        this.gameObject.SetActive(true);
+        GetComponent<RectTransform>().transform.position = position;
+        GetComponent<RectTransform>().sizeDelta = new Vector2(130, 60);
+
+        selections[0].gameObject.SetActive(true);
+        selections[1].gameObject.SetActive(true);
+
+        this.unit = unit;
+        units = new Unit[1];
+        units[0] = otherUnit;
+    }
+
     public void Hide()
     {
         this.gameObject.SetActive(false);
         for(int i = 0; i<selections.Length; i++)
         {
             selections[i].gameObject.SetActive(false);
+            selections[i].GetComponent<RectTransform>().transform.localPosition = new Vector2(5 + 60 * i, -5);
         }
     }
 
-    public void SelectUnit(int index)
+    public void Select(int index)
     {
-        if (index == -1)
+        if (unit is SuperUnit)
         {
-            UnitControls.SelectUnit(unit);
-            Hide();
+            SuperUnit super = (SuperUnit)unit;
+            if (index == -1 && !super.hasAttacked)
+            {                
+                super.primaryWeaponSelected = true;
+                super.ShootAt(units[0].cell);
+                Hide();
+                return;
+            }
+            if(index == 0 && !super.hasAttackedWithSecondaryWeapon)
+            {
+                super.primaryWeaponSelected = false;
+                super.ShootAt(units[0].cell);
+                Hide();
+            }
+            
         }
         else
         {
-            if (units[index])
+            if (index == -1)
             {
-                UnitControls.SelectUnit(units[index]);
-                Hide();
+                if (unit is Transport && showingForPlanes)
+                {
+                    Hide();
+                    ShowForTransport(Input.mousePosition, unit);
+                }
+                else
+                {
+                    UnitControls.SelectUnit(unit);
+                    Hide();
+                }
             }
-        }        
+            else
+            {
+                if (units[index])
+                {
+                    UnitControls.SelectUnit(units[index]);
+                    Hide();
+                }
+            }
+        }
     }
 }

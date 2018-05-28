@@ -23,13 +23,37 @@ public class UnitControls : MonoBehaviour {
     /// <param name="cell"></param>
     public static void ProcessInput(LogicalMapCell cell)
     {
-        if (cell.unit)
+        if(!selectedUnit && cell.isCapital && cell.capital.hasPlanes)
+        {
+            ShowCapitalSelection(cell);
+        }        
+        if(selectedUnit && selectedUnit is Plane)
+        {
+            if (cell.isReachable)
+            {
+                MoveUnit(cell);
+            }
+            else if (cell.inShootingRange &&
+                !selectedUnit.hasAttacked &&
+                !cell.isProtected)
+            {
+                Shoot(cell);
+            }
+        }
+        else if (cell.unit)
         {
             if(cell.unit.allegiance == GameMaster.allegianceTurn)
             {
                 if (!selectedUnit || (!(cell.unit is Transport) && !(cell.unit is Platform)))
                 {
-                    SelectUnit(cell);
+                    if (cell.isCapital && cell.capital.hasPlanes)
+                    {
+                        ShowCapitalSelection(cell);
+                    }
+                    else
+                    {
+                        SelectUnit(cell);
+                    }
                 }
                 else if(cell.isReachable)
                 {
@@ -38,7 +62,9 @@ public class UnitControls : MonoBehaviour {
             }
             else
             {
-                if (selectedUnit && !selectedUnit.hasAttacked && cell.inShootingRange)
+                if (selectedUnit && 
+                    cell.inShootingRange &&
+                    (!selectedUnit.hasAttacked || selectedUnit is SuperUnit))
                 {
                     Shoot(cell);
                 }
@@ -65,19 +91,29 @@ public class UnitControls : MonoBehaviour {
     /// </summary>
     /// <param name="cell"></param>
     static void SelectUnit(LogicalMapCell cell)
-    {
+    {        
         if (cell.unit.type.capacity > 0)
         {
-            GameMaster.multipleSelectionPanel.Show(Input.mousePosition, cell.unit);
+            GameMaster.multipleSelectionPanel.ShowForTransport(Input.mousePosition, cell.unit);
         }
         selectedUnit = cell.unit;
-        ValidateRanges(cell);
+        ValidateRanges();
+    }
+
+    static void ShowCapitalSelection(LogicalMapCell cell)
+    {
+        GameMaster.multipleSelectionPanel.ShowForCapital(Input.mousePosition, cell);
+        if (cell.unit)
+        {
+            selectedUnit = cell.unit;
+            ValidateRanges();
+        }
     }
 
     public static void SelectUnit(Unit unit)
     {
         selectedUnit = unit;
-        ValidateRanges(unit.cell);
+        ValidateRanges();
     }
 
     /// <summary>
@@ -87,7 +123,7 @@ public class UnitControls : MonoBehaviour {
     static void MoveUnit(LogicalMapCell cell)
     {
         selectedUnit.MoveToCell(cell);
-        ValidateRanges(cell);
+        ValidateRanges();
     }
 
     /// <summary>
@@ -96,7 +132,15 @@ public class UnitControls : MonoBehaviour {
     /// <param name="cell"></param>
     static void Shoot(LogicalMapCell cell)
     {
-        selectedUnit.ShootAt(cell);
+        if (selectedUnit is SuperUnit)
+        {
+            GameMaster.multipleSelectionPanel.ShowForSuperUnit(Input.mousePosition, selectedUnit, cell.unit);
+        }
+        else
+        {
+            selectedUnit.ShootAt(cell);
+            ValidateRanges();
+        }
     }
 
     static void BoardUnit(LogicalMapCell cell)
@@ -109,6 +153,7 @@ public class UnitControls : MonoBehaviour {
         {
             selectedUnit.BoardPlatform(cell);
         }
+        DropSelection();
     }
 
     static void Disembark(LogicalMapCell cell)
@@ -121,16 +166,24 @@ public class UnitControls : MonoBehaviour {
         {
             selectedUnit.LeavePlatform(cell);
         }
+        ValidateRanges();
     }
 
     /// <summary>
     /// Validates shooting and moving ranges for unit in selected cell
     /// </summary>
     /// <param name="cell"></param>
-    static void ValidateRanges(LogicalMapCell cell)
+    static void ValidateRanges()
     {
-        Pathfinder.MarkShootingRange(selectedUnit.type.attackRange, cell);
-        Pathfinder.SearchPossiblePaths(selectedUnit.movePoints, cell, selectedUnit.type);
+        Pathfinder.MarkShootingRange(selectedUnit);
+        if(selectedUnit is Plane)
+        {
+            Pathfinder.SearchPossiblePlaneLanding(selectedUnit);
+        }
+        else
+        {
+            Pathfinder.SearchPossiblePaths(selectedUnit);
+        }        
         GameMaster.logicalMap.HideAllHighlights();
         GameMaster.logicalMap.HighlightReachableRange();
     }

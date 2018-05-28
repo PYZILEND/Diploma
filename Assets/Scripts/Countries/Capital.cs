@@ -17,14 +17,38 @@ public class Capital : MonoBehaviour {
     /// </summary>
     public Plane[] planes;
 
+    public bool hasPlanes
+    {
+        get
+        {
+            for(int i = 0; i<planes.Length; i++)
+            {
+                if (planes[i])
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public int countPlanes
+    {
+        get
+        {
+            return planes.Length - remainingCapacity;
+        }
+    }
+
     /// <summary>
     /// Used to initialize capital
     /// </summary>
     /// <param name="allegiance"></param>
     public void Initialize(Allegiance allegiance)
     {
-        remainingCapacity = 3;
+        remainingCapacity = 3;        
         planes = new Plane[3];
+
         ValidatePosition();
         GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
     }
@@ -49,14 +73,15 @@ public class Capital : MonoBehaviour {
     /// to destroy it's planes
     /// </summary>
     public void DestroyPlanes()
-    {        
-        for(int i = 0; i < planes.Length; i++)
+    {
+        for (int i = 0; i < planes.Length; i++)
         {
             if (planes[i])
             {
                 planes[i].DestroyVisually();
             }
         }
+        
         remainingCapacity = 3;
         planes = new Plane[3];
     }

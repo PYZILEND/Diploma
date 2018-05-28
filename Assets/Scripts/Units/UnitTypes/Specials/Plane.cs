@@ -9,18 +9,6 @@ using UnityEngine;
 public class Plane : Unit
 {
     /// <summary>
-    /// Plane can only attack or move
-    /// but not both in one turn
-    /// </summary>
-    public bool hasActed
-    {
-        get
-        {
-            return hasAttacked && (movePoints != 0);
-        }
-    }
-
-    /// <summary>
     /// Weather plane is on carrier or in a capital
     /// </summary>
     public bool isOnCarrier
@@ -35,17 +23,23 @@ public class Plane : Unit
         }
     }
 
-    /// <summary>
-    /// Method for creating a plane
-    /// </summary>
-    /// <param name="cell"></param>
-    /// <param name="allegiance"></param>
-    /// <returns></returns>
-    new public static Plane CreateUnit(Unit unitPrefab, LogicalMapCell cell, Allegiance allegiance)
+    public override void InitializeUnit(LogicalMapCell cell, Allegiance allegiance)
     {
-        Plane plane = (Plane) Unit.CreateUnit(unitPrefab, cell, allegiance);
+        GameMaster.units.Add(this);
 
-        return plane;
+        this.transform.SetParent(cell.transform, false);
+        this.cell = cell;
+
+        this.allegiance = allegiance;
+        this.healthPoints = this.type.maxHealth;
+        this.movePoints = 0;
+        this.hasAttacked = true;
+        this.isDestroyed = false;
+
+        this.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
+        this.ValidatePosition();
+
+        cell.country.capitalCity.TakeAboard(this);
     }
 
     /// <summary>
@@ -53,7 +47,7 @@ public class Plane : Unit
     /// and when moving it must adjust their capacity accordingly
     /// </summary>
     /// <param name="cell"></param>
-    new public void MoveToCell(LogicalMapCell cell)
+    public override void MoveToCell(LogicalMapCell cell)
     {
         if (isOnCarrier)
         {
@@ -68,32 +62,38 @@ public class Plane : Unit
         if (cell.country)
         {
             cell.country.capitalCity.TakeAboard(this);
+            transform.SetParent(cell.transform, false);
+            transform.localPosition = new Vector3(0, 0, 0);
         }
         else
         {
             Carrier carrier = (Carrier)cell.unit;
             carrier.TakeAboard(this);
+            transform.SetParent(carrier.transform, false);
+            transform.localPosition = new Vector3(0, 0, 0);
         }
 
         this.cell = cell;
         movePoints = 0;
+        hasAttacked = true;
+        ValidatePosition();
     }
 
     /// <summary>
     /// Removes unit from game
     /// </summary>
-    new public void DestroyLogically()
+    public override void DestroyLogically()
     {
-        GameMaster.units.Remove(this);
+        GameMaster.units.Remove(this);        
         Destroy(gameObject);
     }
 
     /// <summary>
     /// Changes unit's model to destroyed one and marks it for logical destraction
     /// </summary>
-    new public void DestroyVisually()
+    public override void DestroyVisually()
     {
         isDestroyed = true;
         GetComponentInChildren<MeshRenderer>().enabled = false;
-    }
+    }    
 }

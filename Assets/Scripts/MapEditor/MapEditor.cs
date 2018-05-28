@@ -17,9 +17,14 @@ public class MapEditor : MonoBehaviour
 
     //Country editing fields
     string countryName="t";
-    CountryType type=CountryType.poor;
+    Country countryPrefab;
     static Allegiance countryAllegiance;    
     
+    void Start()
+    {
+        countryPrefab = GameMaster.countryPrefabs[0];
+    }
+
     /// <summary>
     /// Applyes terrain and unit placement changes to specified cell
     /// </summary>
@@ -34,7 +39,8 @@ public class MapEditor : MonoBehaviour
 
         if (placeUnit)
         {
-            Unit.CreateUnit(GameMaster.unitPrefabs[3], cell, unitAllegiance);
+            Unit newUnit = Instantiate(GameMaster.unitPrefabs[3]);
+            newUnit.InitializeUnit(cell, unitAllegiance);
         }
     }
 
@@ -95,9 +101,9 @@ public class MapEditor : MonoBehaviour
     /// Takes country type
     /// </summary>
     /// <param name="value"></param>
-    public void GetCountryType(int value)
+    public void GetCountryPrefab(int value)
     {
-        type = CountryTypeExtentions.GetCountyType(value);
+        countryPrefab = GameMaster.countryPrefabs[value];
     }
 
     /// <summary>
@@ -109,8 +115,8 @@ public class MapEditor : MonoBehaviour
             (GameMaster.countries.Find(u => u.countryName == countryName)==null) &&
             (GameMaster.countries.Find(u => u.capital == MapInputs.selectedCell) == null))
         {
-            Country newCountry = Instantiate(GameMaster.countryPrefab);
-            newCountry.CreateCountry(countryName, type, countryAllegiance, MapInputs.selectedCell);
+            Country newCountry = Instantiate(countryPrefab);
+            newCountry.CreateCountry(countryName, countryAllegiance, MapInputs.selectedCell);
             GameMaster.countries.Add(newCountry);
         }
     }

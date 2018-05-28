@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4261222605907060}
   - component: {fileID: 114796946621879810}
   m_Layer: 0
-  m_Name: Country
+  m_Name: Rich Country
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -51,5 +51,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f53cf49dc9f663449e5c988e6dc65af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  countryName: 
-  area: []
+  type: {fileID: 11400000, guid: c2e5621f0c11e4c4c8465af5806836d4, type: 2}

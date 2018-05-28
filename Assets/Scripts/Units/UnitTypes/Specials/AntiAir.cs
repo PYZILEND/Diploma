@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class AntiAir : Unit
 {
-
+    /*
     /// <summary>
     /// When spawned starts protecting nearby cells
     /// </summary>
@@ -16,12 +16,11 @@ public class AntiAir : Unit
     /// <param name="cell"></param>
     /// <param name="allegiance"></param>
     /// <returns></returns>
-    new public static AntiAir CreateUnit(Unit unitPrefab, LogicalMapCell cell, Allegiance allegiance)
+    public override void InitializeUnit(LogicalMapCell cell, Allegiance allegiance)
     {
-        AntiAir unit = (AntiAir)Unit.CreateUnit(unitPrefab, cell, allegiance);
+        base.InitializeUnit(cell, allegiance);
 
-        unit.ProtectCell();
-        return unit;
+        this.ProtectCell();
     }
 
     /// <summary>
@@ -29,7 +28,7 @@ public class AntiAir : Unit
     /// and start protecting new ones
     /// </summary>
     /// <param name="destination"></param>
-    new public void MoveToCell(LogicalMapCell destination)
+    public override void MoveToCell(LogicalMapCell destination)
     {
         StopProtecting();
         base.MoveToCell(destination);
@@ -40,7 +39,7 @@ public class AntiAir : Unit
     /// Can't protect cells when embarked
     /// </summary>
     /// <param name="cell"></param>
-    new public void Embark(LogicalMapCell cell)
+    public override void Embark(LogicalMapCell cell)
     {
         base.Embark(cell);
         StopProtecting();
@@ -70,5 +69,5 @@ public class AntiAir : Unit
         {
             cell.GetNeighbor(i).isProtected = false;
         }
-    }
+    }*/
 }

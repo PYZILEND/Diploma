@@ -8,7 +8,7 @@ using UnityEngine;
 public enum Phase { Guerrila, Battle, Recruitment, SecretAllies }
 
 //This class should probably be reworked
-public class PhaseExtentions
+public static class PhaseExtentions
 {
     /// <summary>
     /// Checks current game state to verify next game phase
@@ -26,15 +26,20 @@ public class PhaseExtentions
 
 
             case Phase.Battle:
+                bool canBuyUnits = false;
                 //If can buy units go to recruitment phase
                 foreach(Country country in GameMaster.countries)
                 {
                     //Should find a better place for this
                     country.GetIncome();//Countryes must recieve income before they are checked
                     if (country.CanBuyUnits)
-                    {                        
-                        return Phase.Recruitment;
+                    {
+                        canBuyUnits = true;
                     }
+                }
+                if (canBuyUnits)
+                {
+                    return Phase.Recruitment;
                 }
                 //If can disclosure go to secret allies phase
                 foreach (Country country in GameMaster.countries)

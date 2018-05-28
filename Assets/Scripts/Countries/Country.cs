@@ -32,7 +32,10 @@ public class Country : MonoBehaviour {
     /// <summary>
     /// Capital city object
     /// </summary>
-    public Capital capitalCity;
+    public Capital capitalCity
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// How many turns country will give income
@@ -128,10 +131,7 @@ public class Country : MonoBehaviour {
     /// <summary>
     /// Country type - poor, average, rich
     /// </summary>
-    public CountryType type
-    {
-        get; private set;
-    }
+    public CountryType type;
 
     /// <summary>
     /// Checks if country is invaded by enemy units
@@ -206,7 +206,7 @@ public class Country : MonoBehaviour {
     /// <param name="type">Country type - poor, average, rich</param>
     /// <param name="allegiance"> Country allegiance - Guardians, Dominion, Neutral</param>
     /// <param name="startingCell">First cell of the country, becomes it's capital</param>
-    public void CreateCountry(string countryName, CountryType type, Allegiance allegiance,LogicalMapCell startingCell)
+    public void CreateCountry(string countryName, Allegiance allegiance,LogicalMapCell startingCell)
     {
         if (startingCell.country)
         {
@@ -222,16 +222,15 @@ public class Country : MonoBehaviour {
         capitalCity.Initialize(allegiance);
 
         this.countryName = countryName;
-        this.type = type;
         this.allegiance = Allegiance.Neutral;
         secretAllegiance = allegiance;
-        guerilla = CountryTypeExtentions.GetGuerilla(type);
+        guerilla = (byte) type.guerrilla;
         willSpawnGuerrilla = false;
         incomeTurnsLeft = GameMaster.incomeTurns;
         if (secretAllegiance != Allegiance.Neutral)
         {
-            secretArmy= CountryTypeExtentions.GetSecretArmy(type);
-            hasReparation = true;
+            secretArmy = (byte)type.secretArmy;
+            hasReparation = true;            
         }
         else
         {
@@ -244,13 +243,13 @@ public class Country : MonoBehaviour {
     {
         capitalCity.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
         allegiance = Allegiance.Neutral;
-        guerilla = CountryTypeExtentions.GetGuerilla(type);
+        guerilla = (byte) type.guerrilla;
         willSpawnGuerrilla = false;
         incomeTurnsLeft = GameMaster.incomeTurns;
         treasury = 0;
         if (secretAllegiance != Allegiance.Neutral)
         {
-            secretArmy = CountryTypeExtentions.GetSecretArmy(type);
+            secretArmy = (byte) type.secretArmy;
             hasReparation = true;
         }
         else
@@ -375,12 +374,22 @@ public class Country : MonoBehaviour {
     /// <summary>
     /// Buys unit using treasury money
     /// </summary>
-    public void BuyWithTresury(Unit unit, LogicalMapCell cell)
+    public void BuyWithTresury(Unit unitPrefab, LogicalMapCell cell)
     {
-        if (treasury >= unit.type.cost)
+        if (treasury >= unitPrefab.type.cost)
         {
-            treasury -= unit.type.cost;
-            CreateUnit(unit, cell);
+            treasury -= unitPrefab.type.cost;
+            Unit newUnit = Instantiate(unitPrefab);
+            newUnit.InitializeUnit(cell, GameMaster.allegianceTurn);
+            if (newUnit is Plane && capitalCity.remainingCapacity > 0)
+            {
+
+            }
+            else
+            {
+                cell.DisableHighlight();
+                cell.canPlaceUnit = false;
+            }
         }
         else
         {
@@ -396,11 +405,11 @@ public class Country : MonoBehaviour {
     public void GetIncome()
     {
         if (allegiance == GameMaster.allegianceTurn &&
-            incomeTurnsLeft != 0 &&
+            incomeTurnsLeft > 0 &&
             !isInvaded &&
             !willSpawnGuerrilla) 
         {
-            treasury += CountryTypeExtentions.GetIncome(type);
+            treasury += (byte) type.income;
             incomeTurnsLeft--;
         }
     }
@@ -408,12 +417,22 @@ public class Country : MonoBehaviour {
     /// <summary>
     /// Buys unit with guerrilla
     /// </summary>
-    public void BuyWithGuerrilla(Unit unit, LogicalMapCell cell)
+    public void BuyWithGuerrilla(Unit unitPrefab, LogicalMapCell cell)
     {
-        if (guerilla >= unit.type.cost)
+        if (guerilla >= unitPrefab.type.cost)
         {
-            guerilla -= unit.type.cost;
-            CreateUnit(unit, cell);
+            guerilla -= unitPrefab.type.cost;
+            Unit newUnit = Instantiate(unitPrefab);
+            newUnit.InitializeUnit(cell, GameMaster.allegianceTurn);
+            if (newUnit is Plane && capitalCity.remainingCapacity > 0)
+            {
+
+            }
+            else
+            {
+                cell.DisableHighlight();
+                cell.canPlaceUnit = false;
+            }
         }
         else
         {
@@ -422,7 +441,7 @@ public class Country : MonoBehaviour {
         if(guerilla == 0)
         {
             willSpawnGuerrilla = false;
-        }
+        }        
     }
 
     /// <summary>
@@ -433,8 +452,8 @@ public class Country : MonoBehaviour {
     {
         if (hasReparation)
         {
-            treasury += CountryTypeExtentions.GetReparations(type);
-            hasReparation = false;
+            treasury += (byte) type.reparations;
+            hasReparation = false;            
         }
     }
 
@@ -445,54 +464,32 @@ public class Country : MonoBehaviour {
         {
             allegiance = secretAllegiance;
             capitalCity.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(secretAllegiance);
-        }
+        }        
     }
 
     /// <summary>
     /// Substructs sum from treasury if possible
     /// </summary>
-    public void BuyWithSecretArmy(Unit unit, LogicalMapCell cell)
+    public void BuyWithSecretArmy(Unit unitPrefab, LogicalMapCell cell)
     {
-        if (secretArmy >= unit.type.cost)
+        if (secretArmy >= unitPrefab.type.cost)
         {
-            secretArmy -= unit.type.cost;
-            CreateUnit(unit, cell);
+            secretArmy -= unitPrefab.type.cost;
+            Unit newUnit = Instantiate(unitPrefab);
+            newUnit.InitializeUnit(cell, GameMaster.allegianceTurn);
+            if (newUnit is Plane && capitalCity.remainingCapacity > 0)
+            {
+
+            }
+            else
+            {
+                cell.DisableHighlight();
+                cell.canPlaceUnit = false;
+            }
         }
         else
         {
             Debug.Log("This unit is too expansive");
-        }
-    }
-
-    void CreateUnit(Unit unit, LogicalMapCell cell)
-    {
-        if (unit is AntiAir)
-        {
-            AntiAir.CreateUnit(unit, cell, GameMaster.allegianceTurn);
-        }
-        else if (unit is Carrier)
-        {
-            Carrier.CreateUnit(unit, cell, GameMaster.allegianceTurn);
-        }
-        else if (unit is Plane)
-        {
-            Plane.CreateUnit(unit, cell, GameMaster.allegianceTurn);
-        }
-        else if (unit is Platform)
-        {
-            Platform.CreateUnit(unit, cell, GameMaster.allegianceTurn);
-        }
-        else if (unit is SuperUnit)
-        {
-            SuperUnit.CreateUnit(unit, cell, GameMaster.allegianceTurn);
-        }
-        else if (unit is Transport)
-        {
-            Transport.CreateUnit(unit, cell, GameMaster.allegianceTurn);
-        }
-        else
-        {
-            Unit.CreateUnit(unit, cell, GameMaster.allegianceTurn);
         }
     }
 
@@ -578,18 +575,57 @@ public class Country : MonoBehaviour {
     /// <param name="unit"></param>
     public void ValidatePossibleUnitPlacements(Unit unit)
     {
-        foreach (LogicalMapCell cell in area)
-            if (TravelTypeExtentions.CanTravelOn(cell.terrain, unit.type.travelType) && 
-                cell.unit == null)
+        if (unit is Plane)
+        {
+            DropUnitPlacements();
+            if(!capital.unit || (capital.unit && capital.unit.allegiance == GameMaster.allegianceTurn))
+            capital.HighlightValidatedTerrain();
+            capital.canPlaceUnit = true;
+        }
+        else
+        {
+            foreach (LogicalMapCell cell in area)
             {
-                cell.HighlightValidatedTerrain();
-                cell.canPlaceUnit = true;
+                if (TravelTypeExtentions.CanTravelOn(cell.terrain, unit.type.travelType) &&
+                    cell.unit == null)
+                {
+                    cell.HighlightValidatedTerrain();
+                    cell.canPlaceUnit = true;
+                }
+                else
+                {
+                    cell.DisableHighlight();
+                    cell.canPlaceUnit = false;
+                }
+                
+                for (int i = (int)HexDirection.NE; i <= (int)HexDirection.NW; i++)
+                {
+                    LogicalMapCell neighbour;
+                    if (cell.GetNeighbor((HexDirection)i))
+                    {
+                        neighbour = cell.GetNeighbor((HexDirection) i);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    if (neighbour.terrain == TerrainType.Ocean)
+                    {
+                        if (TravelTypeExtentions.CanTravelOn(neighbour.terrain, unit.type.travelType) &&
+                    neighbour.unit == null)
+                        {
+                            neighbour.HighlightValidatedTerrain();
+                            neighbour.canPlaceUnit = true;
+                        }
+                        else
+                        {
+                            neighbour.DisableHighlight();
+                            neighbour.canPlaceUnit = false;
+                        }
+                    }
+                }
             }
-            else
-            {
-                cell.DisableHighlight();
-                cell.canPlaceUnit = false;
-            }
+        }
     }
 
     /// <summary>

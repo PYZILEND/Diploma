@@ -28,4 +28,6 @@ public class UnitType : ScriptableObject {
     //For special units
     public byte capacity;
     public byte secondAttackPower;
+
+    public float travelSpeed = 2f;
 }

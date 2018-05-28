@@ -20,18 +20,17 @@ public class Platform : Unit
     /// <param name="cell"></param>
     /// <param name="allegiance"></param>
     /// <returns></returns>
-    new public static Platform CreateUnit(Unit unitPrefab, LogicalMapCell cell, Allegiance allegiance)
+    public override void InitializeUnit(LogicalMapCell cell, Allegiance allegiance)
     {
-        Platform unit = (Platform)Unit.CreateUnit(unitPrefab, cell, allegiance);
-        unit.boardedUnit = null;
-        return unit;
+        base.InitializeUnit(cell, allegiance);
+        this.boardedUnit = null;
     }
 
     /// <summary>
     /// Also moves boarded unit with it
     /// </summary>
     /// <param name="destination"></param>
-    new public void MoveToCell(LogicalMapCell destination)
+    public override void MoveToCell(LogicalMapCell destination)
     {
         base.MoveToCell(destination);
         boardedUnit.cell = destination;
@@ -40,7 +39,7 @@ public class Platform : Unit
     /// <summary>
     /// If destroyed, boarded unit is also destroyed
     /// </summary>
-    new public void DestroyVisually()
+    public override void DestroyVisually()
     {
         base.DestroyVisually();
         boardedUnit.DestroyVisually();

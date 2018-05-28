@@ -27,7 +27,7 @@ public class CountryInfo : MonoBehaviour {
         countryGuerrilla.text = country.guerilla.ToString();
         countrySecretArmy.text = country.secretArmy.ToString();
         countryIncomeTurns.text = country.incomeTurnsLeft.ToString();
-        countryIncome.text = CountryTypeExtentions.GetIncome(country.type).ToString();
+        countryIncome.text = country.type.income.ToString();
     }
 
     /// <summary>

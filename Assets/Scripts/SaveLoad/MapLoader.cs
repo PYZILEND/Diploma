@@ -43,13 +43,27 @@ public class MapLoader : MonoBehaviour {
 
     static void LoadCountry(BinaryReader reader)
     {
-        Country country = Instantiate(GameMaster.countryPrefab);
+
         string countryName = reader.ReadString();
-        CountryType type = (CountryType)reader.ReadByte();
+
+        string typeName = reader.ReadString();
+        int prefabIndex;
+        for(prefabIndex = 0; prefabIndex < GameMaster.countryTypes.Length; prefabIndex++)
+        {
+            if (GameMaster.countryPrefabs[prefabIndex].type.name == typeName)
+            {
+                break;
+            }
+        }
+
         Allegiance allegiance = (Allegiance)reader.ReadByte();
         int areaSize = reader.ReadInt32();
+
         LogicalMapCell cell = GameMaster.logicalMap.cells[reader.ReadInt32()];
-        country.CreateCountry(countryName, type, allegiance, cell);
+
+        Country country = Instantiate(GameMaster.countryPrefabs[prefabIndex]);
+        country.CreateCountry(countryName, allegiance, cell);
+
         for (int i = 1; i < areaSize; i++)
         {            
             cell = GameMaster.logicalMap.cells[reader.ReadInt32()];

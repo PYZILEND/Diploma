@@ -22,3 +22,4 @@ MonoBehaviour:
   canGoOverUnits: 1
   capacity: 0
   secondAttackPower: 0
+  travelSpeed: 2

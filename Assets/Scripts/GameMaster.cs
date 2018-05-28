@@ -22,12 +22,16 @@ public class GameMaster : MonoBehaviour {
 
     //For instantiating (referances)
     public Unit[] unitPrefabsRef;
-    public Country countryPrefabRef;
+    public UnitType[] unitTypesRef;
+    public Country[] countryPrefabsRef;
+    public CountryType[] countryTypesRef;
     public Capital capitalPrefabRef;
 
     //For instantiating (statics)
     public static Unit[] unitPrefabs;
-    public static Country countryPrefab;
+    public static UnitType[] unitTypes;
+    public static Country[] countryPrefabs;
+    public static CountryType[] countryTypes;
     public static Capital capitalPrefab;
 
     //Match settings fields
@@ -62,12 +66,10 @@ public class GameMaster : MonoBehaviour {
     void Awake()
     {
         //Hooking static fields to usual ones
-        unitPrefabs = new Unit[unitPrefabsRef.Length];       
-        for(int i = 0; i< unitPrefabsRef.Length; i++)
-        {
-            unitPrefabs[i] = unitPrefabsRef[i];
-        }
-        countryPrefab = countryPrefabRef;
+        unitPrefabs = unitPrefabsRef;
+        unitTypes = unitTypesRef;
+        countryPrefabs = countryPrefabsRef;
+        countryTypes = countryTypesRef;
         capitalPrefab = capitalPrefabRef;
 
         countryInfo = countryInfoRef;
@@ -85,7 +87,7 @@ public class GameMaster : MonoBehaviour {
         units = new List<Unit>();
 
         //Initializing game start
-        CountryControls.selectedUnit = unitPrefabs[0];
+        CountryControls.selectedUnitPrefab = unitPrefabs[0];
         RestartGame();
        // MapSaver.SaveMap();
     }
@@ -101,8 +103,8 @@ public class GameMaster : MonoBehaviour {
     {
         //Stores weather current player has won the match
         //Will likely be replaced with context checks later on
-        bool victoryAchieved = false;
-        
+        bool victoryAchieved = false;        
+
         switch (turnPhase)
         {
             //If current phase is guerrila, then player must spend all guerrilla forces
@@ -154,7 +156,8 @@ public class GameMaster : MonoBehaviour {
         Debug.Log("Next phase is " + turnPhase.ToString());
         Debug.Log("Now is " + allegianceTurn.ToString() + " turn");
 
-        CountryControls.ChangePhase();
+        UnitControls.DropSelection();
+        CountryControls.ShowSelectable();
 
         //Maybe find better place for this
         foreach (Unit unit in units.ToArray())
@@ -185,7 +188,7 @@ public class GameMaster : MonoBehaviour {
         allegianceTurn = Allegiance.Dominion;
 
         //Showing possible disclosure options
-        CountryControls.ChangePhase();
+        CountryControls.ShowSelectable();
     }
 
     /// <summary>
@@ -193,8 +196,14 @@ public class GameMaster : MonoBehaviour {
     /// </summary>
     public static void DropMap()
     {
-        countries.Clear();
-        units.Clear();
+        foreach(Country country in countries.ToArray())
+        {
+            country.DeleteCountry();
+        }
+        foreach(Unit unit in units.ToArray())
+        {
+            unit.DestroyLogically();
+        }
         if (physicalMap)
         {
             Destroy(physicalMap.gameObject);

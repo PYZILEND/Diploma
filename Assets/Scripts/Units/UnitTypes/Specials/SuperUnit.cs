@@ -25,19 +25,17 @@ public class SuperUnit : Unit
     /// <param name="cell"></param>
     /// <param name="allegiance"></param>
     /// <returns></returns>
-    new public static SuperUnit CreateUnit(Unit unitPrefab, LogicalMapCell cell, Allegiance allegiance)
+    public override void InitializeUnit(LogicalMapCell cell, Allegiance allegiance)
     {
-        SuperUnit unit = (SuperUnit)Unit.CreateUnit(unitPrefab, cell, allegiance);
-
-        unit.primaryWeaponSelected = true;
-        unit.hasAttackedWithSecondaryWeapon = false;
-        return unit;
+        base.InitializeUnit(cell, allegiance);
+        this.primaryWeaponSelected = true;
+        this.hasAttackedWithSecondaryWeapon = false;
     }
 
     /// <summary>
     /// When reseted also resets unique values
     /// </summary>
-    new public void ResetUnit()
+    public override void ResetUnit()
     {
         base.ResetUnit();
         primaryWeaponSelected = true;
@@ -49,7 +47,7 @@ public class SuperUnit : Unit
     /// Must be refreshed before calling Destroy in ChangeTurn
     /// if unit is destroyed
     /// </summary>
-    new public void ChangeTurn()
+    public override void ChangeTurn()
     {
         primaryWeaponSelected = true;
         hasAttackedWithSecondaryWeapon = false;
@@ -60,7 +58,7 @@ public class SuperUnit : Unit
     /// Shoots based on what weapon is selected
     /// </summary>
     /// <param name="cell"></param>
-    new public void ShootAt(LogicalMapCell cell)
+    public override void ShootAt(LogicalMapCell cell)
     {
         if (primaryWeaponSelected)
         {

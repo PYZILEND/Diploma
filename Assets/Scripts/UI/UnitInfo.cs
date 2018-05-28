@@ -23,7 +23,7 @@ public class UnitInfo : MonoBehaviour {
     public void ShowUnitInfo(Unit unit)
     {
         this.gameObject.SetActive(true);
-        unitName.text = "Not implemented";
+        unitName.text = unit.type.unitName;
         unitHP.text = unit.healthPoints.ToString();
         unitMP.text = unit.movePoints.ToString();
         unitDamage.text = unit.type.attackPower.ToString();

@@ -10,6 +10,7 @@ using UnityEngine.EventSystems;
 public class MapInputs : MonoBehaviour {
 
     //Holds last clicked cell
+    //Needed in map editor
     public static LogicalMapCell selectedCell
     {
         get; private set;        
@@ -30,21 +31,19 @@ public class MapInputs : MonoBehaviour {
             //Editor controls only apply in edit mode
             if (editMode)
             {
-                if (Input.GetMouseButton(0))
+                if (Input.GetMouseButtonDown(0))
                 {
                     LogicalMapCell cell;
                     if (cell = GetCellUnderCoursor())
                     {
-                        if (cell != selectedCell)
-                        {
-                            if (selectedCell)
-                            {
-                                selectedCell.ValidateHighlightWithAllegiance();
-                            }
-                            selectedCell = cell;
-                            cell.highlight.color = Color.blue;
-                            MapEditor.ApplyChanges(cell);                            
+                        if (selectedCell)
+                        {//Returning previously selected cell's color
+                            selectedCell.ValidateHighlightWithAllegiance();
                         }
+                        selectedCell = cell;
+                        cell.highlight.color = Color.blue;
+                        MapEditor.ApplyChanges(cell);
+
                     }
                 }
             }
@@ -112,6 +111,17 @@ public class MapInputs : MonoBehaviour {
         {
             GameMaster.logicalMap.HighlightTerrain();
         }
+        //Can be used to highlight hex cooridnates
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            GameMaster.logicalMap.ShowAllCoordinates();
+        }
+        //Can be used to hide hex cooridnates
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            GameMaster.logicalMap.HideAllLabels();
+        }
+        //To drop unit selection
         if (Input.GetMouseButton(1) && GameMaster.turnPhase == Phase.Battle)
         {
             UnitControls.DropSelection();
