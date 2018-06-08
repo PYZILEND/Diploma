@@ -19,7 +19,7 @@ public class LogicalMapCell : MonoBehaviour {
 
     //Array for storing 6 or less neighbors of cell
     [SerializeField]
-    LogicalMapCell[] neighbors;
+    public LogicalMapCell[] neighbors;
 
     //Cell's pathfinding related fields
     public bool inShootingRange;
@@ -192,6 +192,17 @@ public class LogicalMapCell : MonoBehaviour {
         highlight.transform.localRotation = Quaternion.Euler(hit.normal);
     }
 
+    public Vector3 GetUIPosition()
+    {
+        RaycastHit hit;
+        Physics.Raycast(transform.position, new Vector3(0f, -1f, 0f), out hit);
+
+        Vector3 position = hit.point;
+        position.y += 0.5f;
+
+        return position;
+    }
+
     public Vector3 GetRelativePhysicalPosition()
     {
         RaycastHit hit;
@@ -261,4 +272,66 @@ public class LogicalMapCell : MonoBehaviour {
             highlight.color = Color.white;
         }
     }
+
+    public void AddForest()
+    {
+        // if (terrain != TerrainType.Forest) return;
+        int[] forestation = new int[] { -1, -1, -1, -1, -1, -1 };
+        int j = -1;
+        int ind = coordinates.ToIndex();
+        for (int i = 0; i < 6; i++)
+        {
+            if (PropertiesKeeper.logicalMap.cells[ind].neighbors[i] != null && PropertiesKeeper.logicalMap.cells[ind].neighbors[i].terrain != TerrainType.Forest
+                && PropertiesKeeper.logicalMap.cells[ind].neighbors[i].terrain != TerrainType.Impassable
+                && PropertiesKeeper.logicalMap.cells[ind].neighbors[i].terrain != TerrainType.Ocean)
+            {
+                j = Random.Range(1, 4);
+                break;
+            }
+        }
+        if (j == -1)
+        {
+            j = Random.Range(4, 7);
+        }
+        do
+        {
+            int k = Random.Range(0, 6);
+            if (forestation[k] == -1)
+            {
+                forestation[k] = 1;
+                j--;
+            }
+        } while (j != 0);
+        for (int i = 0; i < forestation.Length; i++)
+        {
+            if (forestation[i] == -1) continue;
+            AddTree(((HexMetrics.corners[i] + HexMetrics.corners[i + 1] + CreateHexMap.OffsetVector((int)coordinates.ToOffset().x, (int)coordinates.ToOffset().y) * 3) / 3),
+                (float)ind / PropertiesKeeper.logicalMap.cells.Length, (float)i / forestation.Length);
+        }
+    }
+
+    void AddTree(Vector3 offset, float x, float y)
+    {
+        if (PropertiesKeeper.physicalMap.transform.Find("forestContainer") == null)
+        {
+            GameObject forestContainer = new GameObject("forestContainer");
+            forestContainer.transform.SetParent(PropertiesKeeper.physicalMap.transform);
+        }
+        Transform instance = Instantiate(PropertiesKeeper.treePrefab[Random.Range(0, PropertiesKeeper.treePrefab.Length)]);
+        instance.localPosition = offset;
+        instance.SetParent(PropertiesKeeper.physicalMap.transform.Find("forestContainer"), false);
+        instance.localRotation = Quaternion.Euler(0f, 360f * Mathf.PerlinNoise(x, y), 0f);
+    }
+
+    /*void DestroyForest()
+    {
+        if (terrain != TerrainType.Forest) return;
+        for (int i = 0; i < PropertiesKeeper.treePrefab.Length; i++)
+        {
+            while (transform.Find("tree" + i + "(Clone)") != null)
+            {
+                Destroy(transform.Find("tree" + i + "(Clone)"));
+            }
+        }
+    }*/
 }

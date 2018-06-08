@@ -100,6 +100,44 @@ public struct HexCoordinates
     /// <returns></returns>
     public int ToIndex()
     {
-        return X + Z * GameMaster.mapWidth + (Z / 2);
+        return X + Z * PropertiesKeeper.mapWidth + (Z / 2);
+    }
+
+    public static int ToIndex(Vector3 position)
+    {
+        HexCoordinates coord = fromPosition(position);
+        return coord.X + coord.Z * PropertiesKeeper.mapWidth + (coord.Z / 2);
+    }
+
+    public static int ToIndex(int x, int z)
+    {
+        HexCoordinates coord = fromOffsetCoordinates(x, z);
+        return coord.X + coord.Z * PropertiesKeeper.mapWidth + (coord.Z / 2);
+    }
+
+    public static Vector2 FromIndex(int ind)
+    {
+        return new Vector2(ind % PropertiesKeeper.mapWidth, (int)ind / PropertiesKeeper.mapWidth);
+    }
+
+    public Vector2 ToOffset()
+    {
+        return new Vector2(X + Z / 2, Z);
+
+    }
+
+    public static int ToIndex(HexCoordinates coordinates)
+    {
+        int z = coordinates.Z;
+        if (z < 0 || z >= PropertiesKeeper.mapHeight)
+        {
+            return -1;
+        }
+        int x = coordinates.X + z / 2;
+        if (x < 0 || x >= PropertiesKeeper.mapWidth)
+        {
+            return -1;
+        }
+        return coordinates.ToIndex();
     }
 }

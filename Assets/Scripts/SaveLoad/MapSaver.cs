@@ -15,19 +15,87 @@ public class MapSaver : MonoBehaviour {
         using (
         BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
         {
-            writer.Write(GameMaster.mapHeight);
-            writer.Write(GameMaster.mapWidth);
+            writer.Write(PropertiesKeeper.mapHeight);
+            writer.Write(PropertiesKeeper.mapWidth);
 
-            for(int i = 0; i < (GameMaster.mapHeight*GameMaster.mapWidth); i++)
+            for(int i = 0; i < (PropertiesKeeper.mapHeight* PropertiesKeeper.mapWidth); i++)
             {
-                SaveCell(writer, GameMaster.logicalMap.cells[i]);
+                SaveCell(writer, PropertiesKeeper.logicalMap.cells[i]);
             }
 
-            int countryCount = GameMaster.countries.Count;
+            int countryCount =  PropertiesKeeper.countries.Count;
             writer.Write(countryCount);
             for(int i = 0; i < countryCount; i++)
             {
-                SaveCountry(writer, GameMaster.countries[i]);
+                SaveCountry(writer,  PropertiesKeeper.countries[i]);
+            }
+        }
+    }
+
+    public static void SaveMapCreator(string mapName)
+    {
+        string path = Application.dataPath.ToString() +
+            Path.AltDirectorySeparatorChar +
+            "Maps" +
+            Path.AltDirectorySeparatorChar + mapName + ".map";
+
+
+        using (
+        BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
+        {
+            writer.Write(PropertiesKeeper.mapHeight);
+            writer.Write(PropertiesKeeper.mapWidth);
+
+            for (int i = 0; i < (PropertiesKeeper.mapHeight * PropertiesKeeper.mapWidth); i++)
+            {
+                SaveCell(writer,  PropertiesKeeper.logicalMap.cells[i]);
+            }
+
+            int countryCount = PropertiesKeeper.countries.Count;
+            writer.Write(countryCount);
+            for (int i = 0; i < countryCount; i++)
+            {
+                SaveCountry(writer, PropertiesKeeper.countries[i]);
+            }
+        }
+    }
+
+    public static void SaveMapCreator(string mapName, string folderName)
+    {
+        string path = Application.dataPath.ToString() +
+            Path.AltDirectorySeparatorChar +
+            "Maps" +
+            Path.AltDirectorySeparatorChar + folderName +
+            Path.AltDirectorySeparatorChar + mapName + ".map";
+
+        if (!Directory.Exists(Application.dataPath.ToString() +
+           Path.AltDirectorySeparatorChar +
+           "Maps" +
+           Path.AltDirectorySeparatorChar + folderName +
+           Path.AltDirectorySeparatorChar))
+        {
+            Directory.CreateDirectory(Application.dataPath.ToString() +
+           Path.AltDirectorySeparatorChar +
+           "Maps" +
+           Path.AltDirectorySeparatorChar + folderName +
+           Path.AltDirectorySeparatorChar);
+        }
+        using (
+    BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
+        {
+            writer.Write(PropertiesKeeper.mapHeight);
+            writer.Write(PropertiesKeeper.mapWidth);
+
+            for (int i = 0; i < (PropertiesKeeper.mapHeight * PropertiesKeeper.mapWidth); i++)
+            {
+                SaveCell(writer,  PropertiesKeeper.logicalMap.cells[i]);
+            }
+
+            int countryCount = PropertiesKeeper.countries.Count;
+            writer.Write(countryCount);
+            for (int i = 0; i < countryCount; i++)
+            {
+                SaveCountry(writer, PropertiesKeeper.countries[i]);
             }
         }
     }

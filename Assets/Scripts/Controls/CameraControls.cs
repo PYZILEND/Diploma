@@ -10,10 +10,11 @@ public class CameraControls : MonoBehaviour {
     Transform swivel, stick;
 
     //Zoom parameters
-    float zoom = 1f;
+    public static float zoom = 1f;
     public float zoomMax, zoomMin;
     public float minZoomAngle, maxZoomAngle;
     public float moveSpeedMinZoom, moveSpeedMaxZoom;
+    public static bool fixedCamera;
 
     //Rotation parameters
     public float rotationSpeed;
@@ -25,13 +26,25 @@ public class CameraControls : MonoBehaviour {
     {
         swivel = transform.GetChild(0);
         stick = swivel.GetChild(0);
+        fixedCamera = false;
+        CameraOver();
     }
 
+    public void CameraOver()
+    {
+        transform.localPosition = new Vector3(PropertiesKeeper.mapWidth * HexMetrics.innerRadius, 0, PropertiesKeeper.mapHeight * HexMetrics.outerRadius / 1.5f);
+        Transform swivel = transform.GetChild(0);
+        swivel.rotation = Quaternion.Euler(90, 0, 0);
+        Transform stick = swivel.transform.GetChild(0);
+        stick.localPosition = new Vector3(0, 0, -250);
+        CameraControls.zoom = 0f;
+    }
     /// <summary>
     /// Checking for input.
     /// </summary>
     void Update()
     {
+        if (fixedCamera) return;
         float zoomDelta = Input.GetAxis("Mouse ScrollWheel");
         if(zoomDelta != 0)
         {
@@ -50,6 +63,11 @@ public class CameraControls : MonoBehaviour {
         {
             AdjustRotation(deltaTurn);
         }        
+    }
+
+    public static void fixCamera(bool fix)
+    {
+        fixedCamera = fix;
     }
 
     /// <summary>
@@ -97,10 +115,10 @@ public class CameraControls : MonoBehaviour {
     /// </summary>
     Vector3 ClampPosition(Vector3 position)
     {       
-        float maxX = (GameMaster.mapWidth - 0.5f) * (HexMetrics.innerRadius * 2f);
+        float maxX = (PropertiesKeeper.mapWidth - 0.5f) * (HexMetrics.innerRadius * 2f);
         position.x = Mathf.Clamp(position.x, 0f, maxX);
 
-        float maxZ = (GameMaster.mapHeight - 1f) * (HexMetrics.outerRadius * 1.5f);
+        float maxZ = (PropertiesKeeper.mapHeight - 1f) * (HexMetrics.outerRadius * 1.5f);
         position.z = Mathf.Clamp(position.z, 0f, maxZ);
 
         return position;

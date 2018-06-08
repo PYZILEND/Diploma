@@ -38,11 +38,12 @@ public class MultipleSelection : MonoBehaviour {
         this.unit = unit;
         units = new Unit[unit.type.capacity];
 
+        selections[0].GetComponentInChildren<Text>().text = unit.type.unitName;
         if (unit is Transport)
         {
             Transport transport = (Transport)unit;
-            
-            for(int i = 0; i < transport.embarkedUnits.Length; i++)
+
+            for (int i = 0; i < transport.embarkedUnits.Length; i++)
             {
                 if (transport.embarkedUnits[i])
                 {
@@ -74,6 +75,7 @@ public class MultipleSelection : MonoBehaviour {
                 }
             }
         }
+        ButtonsText();
     }
 
     public void ShowForCapital(Vector3 position, LogicalMapCell cell)
@@ -84,6 +86,7 @@ public class MultipleSelection : MonoBehaviour {
             GetComponent<RectTransform>().transform.position = position;
             GetComponent<RectTransform>().sizeDelta = new Vector2(10 + 60 * (cell.capital.planes.Length + 1), 60);
             unit = cell.unit;
+            selections[0].GetComponentInChildren<Text>().text = unit.type.unitName;
             for (int i = 0; i <= cell.capital.planes.Length; i++)
             {
                 selections[i].gameObject.SetActive(true);
@@ -105,6 +108,31 @@ public class MultipleSelection : MonoBehaviour {
         {
             units[i] = cell.capital.planes[i];
         }
+        ButtonsText();
+    }
+
+    public void ButtonsText()
+    {
+        int i = 1;
+        if (unit)
+        {
+            selections[0].GetComponentInChildren<Text>().text = unit.type.unitName;
+           // i++;
+        }
+        for (int j=0; j < units.Length; j++,i++)
+        {
+            if (units[j])
+            {
+                //selections[i].gameObject.SetActive(true);
+                selections[i].GetComponentInChildren<Text>().text = units[j].type.unitName;
+            }
+            else
+            {
+                selections[i].gameObject.SetActive(false);
+            }
+        }
+        
+
     }
 
     public void ShowForSuperUnit(Vector3 position, Unit unit, Unit otherUnit)
@@ -119,6 +147,8 @@ public class MultipleSelection : MonoBehaviour {
         this.unit = unit;
         units = new Unit[1];
         units[0] = otherUnit;
+        selections[0].GetComponentInChildren<Text>().text = "attack 1";
+        selections[1].GetComponentInChildren<Text>().text = "attack 2";
     }
 
     public void Hide()
@@ -129,6 +159,8 @@ public class MultipleSelection : MonoBehaviour {
             selections[i].gameObject.SetActive(false);
             selections[i].GetComponent<RectTransform>().transform.localPosition = new Vector2(5 + 60 * i, -5);
         }
+        unit = null;
+        units = new Unit[0];
     }
 
     public void Select(int index)

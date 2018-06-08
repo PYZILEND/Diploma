@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Super unit has two weapons to attack with
@@ -51,7 +52,8 @@ public class SuperUnit : Unit
     {
         primaryWeaponSelected = true;
         hasAttackedWithSecondaryWeapon = false;
-        base.ChangeTurn();        
+        base.ChangeTurn();
+        DisplayAP();
     }
 
     /// <summary>
@@ -68,10 +70,27 @@ public class SuperUnit : Unit
         {
             hasAttackedWithSecondaryWeapon = true;
             cell.unit.healthPoints -= type.secondAttackPower;
+            cell.unit.DisplayHealth();
             if (cell.unit.healthPoints <= 0)
             {
                 cell.unit.DestroyVisually();
             }
+            DisplayAP();
+        }
+    }
+
+    void DisplayAP()
+    {
+        if (transform.childCount < 2) return;
+        if (hasAttackedWithSecondaryWeapon)
+        {
+            transform.Find("UnitCanvas(Clone)").Find("Icon5").GetComponent<RawImage>().color = Color.gray;
+            transform.Find("UnitCanvas(Clone)").Find("Icon5").GetComponentInChildren<Text>().color = Color.gray;
+        }
+        else
+        {
+            transform.Find("UnitCanvas(Clone)").Find("Icon5").GetComponent<RawImage>().color = AllegianceExtentions.AllegianceToColor(allegiance);
+            transform.Find("UnitCanvas(Clone)").Find("Icon5").GetComponentInChildren<Text>().color = AllegianceExtentions.AllegianceToColor(allegiance);
         }
     }
 }

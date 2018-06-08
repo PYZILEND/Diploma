@@ -5,15 +5,16 @@ using UnityEngine;
 public class UnitControls : MonoBehaviour {
 
     static Unit selectedUnit;
-
     /// <summary>
     /// Nullifies selected unit and clears
     /// </summary>
+    /// 
     public static void DropSelection()
     {
+        DestroyRadius();
         selectedUnit = null;
         //Add clearing shit with pathfinder
-        GameMaster.logicalMap.HideAllHighlights();
+        PropertiesKeeper.logicalMap.HideAllHighlights();
         GameMaster.multipleSelectionPanel.Hide();
     }
 
@@ -96,23 +97,58 @@ public class UnitControls : MonoBehaviour {
         {
             GameMaster.multipleSelectionPanel.ShowForTransport(Input.mousePosition, cell.unit);
         }
+
+        DestroyRadius();
+
         selectedUnit = cell.unit;
+
+        ShowRadius();
         ValidateRanges();
     }
 
+    static void ShowRadius()
+    {
+        if (selectedUnit.type.attackRange > 0 && !selectedUnit.isEmbarked)
+        {
+            GameObject projector = Instantiate(PropertiesKeeper.projectorObject, selectedUnit.transform, false);
+            float radius = 1.2f;
+            switch (selectedUnit.type.attackRange)
+            {
+                case 2: radius = 2.1f; break;
+                case 3: radius = 3f; break;
+                case 4: radius = 3.9f; break;
+                case 5: radius = 4.6f; break;
+                case 6: radius = 5.5f; break;
+            }
+            projector.GetComponent<Projector>().material.SetFloat("_Radius", radius);
+        }
+    }
+
+    static void DestroyRadius()
+    {
+        if (selectedUnit && selectedUnit.transform.childCount > 1 && selectedUnit.transform.Find("Projector(Clone)")!=null) Destroy(selectedUnit.transform.Find("Projector(Clone)").gameObject);
+    }
     static void ShowCapitalSelection(LogicalMapCell cell)
     {
         GameMaster.multipleSelectionPanel.ShowForCapital(Input.mousePosition, cell);
         if (cell.unit)
         {
+            DestroyRadius();
             selectedUnit = cell.unit;
+
+            ShowRadius();
+
             ValidateRanges();
         }
     }
 
     public static void SelectUnit(Unit unit)
     {
+        DestroyRadius();
         selectedUnit = unit;
+
+        ShowRadius();
+
         ValidateRanges();
     }
 
@@ -183,8 +219,8 @@ public class UnitControls : MonoBehaviour {
         else
         {
             Pathfinder.SearchPossiblePaths(selectedUnit);
-        }        
-        GameMaster.logicalMap.HideAllHighlights();
-        GameMaster.logicalMap.HighlightReachableRange();
+        }
+        PropertiesKeeper.logicalMap.HideAllHighlights();
+        PropertiesKeeper.logicalMap.HighlightReachableRange();
     }
 }

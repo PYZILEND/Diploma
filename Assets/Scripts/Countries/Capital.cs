@@ -68,6 +68,20 @@ public class Capital : MonoBehaviour {
         transform.localRotation = Quaternion.Euler(hit.normal);
     }
 
+    public Vector3 GUIPosition()
+    {
+        RaycastHit hit;
+        Physics.Raycast(transform.position, new Vector3(0f, -1f, 0f), out hit);
+
+        Vector3 position = hit.point;
+        position.y += 0.5f;
+
+        //transform.position = position;
+        // transform.localRotation = Quaternion.Euler(hit.normal);
+        return position;
+    }
+
+
     /// <summary>
     /// When capital is captured, this must be called
     /// to destroy it's planes

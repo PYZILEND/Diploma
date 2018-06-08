@@ -54,6 +54,7 @@ public class CountryControls : MonoBehaviour {
         selectedCountry.DropUnitPlacements();
         ValidateSelectableCountry(selectedCountry);
         selectedCountry = null;       
+        
     }
 
     /// <summary>
@@ -89,6 +90,7 @@ public class CountryControls : MonoBehaviour {
                 selectedCountry.BuyWithSecretArmy(selectedUnitPrefab, cell);
                 break;
         }
+        selectedCountry.ShowMoneyText(GameMaster.turnPhase);
     }
 
     /// <summary>
@@ -107,6 +109,7 @@ public class CountryControls : MonoBehaviour {
                 else
                 {
                     country.MakeUnselectable();
+                    country.DontShowMoney();
                 }                
                 break;
 
@@ -118,6 +121,7 @@ public class CountryControls : MonoBehaviour {
                 else
                 {
                     country.MakeUnselectable();
+                    country.DontShowMoney();
                 }                
                 break;
 
@@ -129,11 +133,13 @@ public class CountryControls : MonoBehaviour {
                 else
                 {
                     country.MakeUnselectable();
+                    country.DontShowMoney();
                 }                
                 break;
 
             case Phase.Battle:
                 country.MakeUnselectable();
+                country.DontShowMoney();
                 break;
         }
     }
@@ -144,7 +150,7 @@ public class CountryControls : MonoBehaviour {
     /// <param name="allegiance"></param>
     public static void ValidateSelectableCountryes()
     {
-        foreach (Country country in GameMaster.countries)
+        foreach (Country country in  PropertiesKeeper.countries)
         {
             ValidateSelectableCountry(country);
         }
@@ -155,7 +161,7 @@ public class CountryControls : MonoBehaviour {
     /// </summary>
     static void MakeAllUnselectable()
     {
-        foreach (Country country in GameMaster.countries)
+        foreach (Country country in  PropertiesKeeper.countries)
         {
             country.MakeUnselectable();
         }
@@ -167,7 +173,7 @@ public class CountryControls : MonoBehaviour {
     /// <param name="value"></param>
     public void GetSelectedUnit(int value)
     {
-        selectedUnitPrefab = GameMaster.unitPrefabs[value];
+        selectedUnitPrefab = PropertiesKeeper.unitPrefabs[value];
         if (selectedCountry)
         {
             selectedCountry.ValidatePossibleUnitPlacements(selectedUnitPrefab);

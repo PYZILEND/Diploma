@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 114544995254195222}
   m_Layer: 0
   m_Name: Rich Capital
-  m_TagString: Untagged
+  m_TagString: Capital
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

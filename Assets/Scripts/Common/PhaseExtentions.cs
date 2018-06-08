@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Possible game phases
@@ -22,13 +23,15 @@ public static class PhaseExtentions
         switch (phase)
         {
             case Phase.Guerrila:
-                return Phase.Battle; //You always go to battle phase after guerrilla
+                {
+                    return Phase.Battle; //You always go to battle phase after guerrilla
+                }
 
 
             case Phase.Battle:
                 bool canBuyUnits = false;
                 //If can buy units go to recruitment phase
-                foreach(Country country in GameMaster.countries)
+                foreach(Country country in PropertiesKeeper.countries)
                 {
                     //Should find a better place for this
                     country.GetIncome();//Countryes must recieve income before they are checked
@@ -42,7 +45,7 @@ public static class PhaseExtentions
                     return Phase.Recruitment;
                 }
                 //If can disclosure go to secret allies phase
-                foreach (Country country in GameMaster.countries)
+                foreach (Country country in  PropertiesKeeper.countries)
                 {
                     if (country.CanBeDisclosured)
                     {
@@ -55,7 +58,7 @@ public static class PhaseExtentions
 
             case Phase.Recruitment:
                 //If can disclosure go to secret allies phase
-                foreach (Country country in GameMaster.countries)
+                foreach (Country country in  PropertiesKeeper.countries)
                 {
                     if (country.CanBeDisclosured)
                     {
@@ -85,7 +88,20 @@ public static class PhaseExtentions
         opponentLost = false;
         //Change turn and check if enemy has guerrilla
         GameMaster.allegianceTurn = AllegianceExtentions.Opposite(GameMaster.allegianceTurn);
-        foreach (Country country in GameMaster.countries)
+       
+
+        if (GameMaster.allegianceTurn == Allegiance.Dominion)
+        {
+            PropertiesKeeper.turnNum++;
+            GameMaster.phaseInfo.GetComponentInChildren<RawImage>().texture = PropertiesKeeper.logoDominion;
+        }
+        else
+        {
+            GameMaster.phaseInfo.GetComponentInChildren<RawImage>().texture = PropertiesKeeper.logoSentinels;
+
+        }
+        GameMaster.phaseInfo.GetComponentsInChildren <Text>()[0].text = "Turn " + PropertiesKeeper.turnNum;
+        foreach (Country country in  PropertiesKeeper.countries)
         {
             if (country.willSpawnGuerrilla)
             {
@@ -101,7 +117,7 @@ public static class PhaseExtentions
             }
         }
         //If enemy can purchase any units
-        foreach (Country country in GameMaster.countries)
+        foreach (Country country in  PropertiesKeeper.countries)
         {
             //Should find a better place for this
             country.GetIncome(); //Countryes must recieve income before they are checked
@@ -111,7 +127,7 @@ public static class PhaseExtentions
             }
         }
         //If enemy has secret allyes
-        foreach (Country country in GameMaster.countries)
+        foreach (Country country in  PropertiesKeeper.countries)
         {
             if (country.CanBeDisclosured)
             {
@@ -123,5 +139,38 @@ public static class PhaseExtentions
         opponentLost = true;
         GameMaster.allegianceTurn = AllegianceExtentions.Opposite(GameMaster.allegianceTurn);
         return Phase.Battle;
+    }
+
+    public static void UnitsCanvas(Phase phase)
+    {
+        if (phase == Phase.Battle)
+        {
+            foreach (Unit unit in GameMaster.units)
+            {
+                if (unit.allegiance != GameMaster.allegianceTurn)
+                {
+                    unit.HideCanvas();
+                }
+                else
+                {
+                    unit.ShowCanvas();
+                }
+            }
+        }
+        else
+        {
+            HideUnitsCanvas();
+        }
+       
+    }
+
+    public static void HideUnitsCanvas()
+    {
+        foreach (Unit unit in GameMaster.units)
+        {
+
+            unit.HideCanvas();
+           
+        }
     }
 }

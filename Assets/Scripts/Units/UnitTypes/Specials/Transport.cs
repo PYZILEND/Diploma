@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Transport can take other units aboard and move them
@@ -58,7 +59,23 @@ public class Transport : Unit
 
         foreach (Unit unit in embarkedUnits)
         {
-            unit.isDestroyed = true;
+            if (unit) unit.isDestroyed = true;
+        }
+    }
+
+    void DisplayEP()
+    {
+        if (transform.childCount < 2) return;
+        transform.Find("UnitCanvas(Clone)").Find("Icon4").GetComponentInChildren<Text>().text = remainingCapacity.ToString();
+        if (remainingCapacity == 0)
+        {
+            transform.Find("UnitCanvas(Clone)").Find("Icon4").GetComponent<RawImage>().color = Color.gray;
+            transform.Find("UnitCanvas(Clone)").Find("Icon4").GetComponentInChildren<Text>().color = Color.gray;
+        }
+        else
+        {
+            transform.Find("UnitCanvas(Clone)").Find("Icon4").GetComponent<RawImage>().color = AllegianceExtentions.AllegianceToColor(allegiance);
+            transform.Find("UnitCanvas(Clone)").Find("Icon4").GetComponentInChildren<Text>().color = AllegianceExtentions.AllegianceToColor(allegiance);
         }
     }
 
@@ -70,6 +87,7 @@ public class Transport : Unit
     {
         remainingCapacity--;
         embarkedUnits[FindFreeSpace()] = unit;
+        DisplayEP();
     }
 
     /// <summary>
@@ -80,6 +98,7 @@ public class Transport : Unit
     {
         remainingCapacity++;
         embarkedUnits[FindUnitIndex(unit)] = null;
+        DisplayEP();
     }
 
     /// <summary>

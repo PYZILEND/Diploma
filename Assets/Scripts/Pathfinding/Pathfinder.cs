@@ -47,7 +47,7 @@ public static class Pathfinder
 
     public static void SearchPossiblePlaneLanding(Unit plane)
     {
-        foreach(Country country in GameMaster.countries)
+        foreach(Country country in  PropertiesKeeper.countries)
         {
             if (country.allegiance == GameMaster.allegianceTurn &&
                 DistanceTo(plane.cell.coordinates, country.capital.coordinates) <= plane.movePoints &&
@@ -323,11 +323,11 @@ public static class Pathfinder
     /// <param name="map"></param>
     static void ResetCells()
     {
-        for (int i = 0; i < GameMaster.logicalMap.cells.Length; i++)
+        for (int i = 0; i < PropertiesKeeper.logicalMap.cells.Length; i++)
         {
-            GameMaster.logicalMap.cells[i].inShootingRange = false;
-            GameMaster.logicalMap.cells[i].isReachable = false;
-            GameMaster.logicalMap.cells[i].distance = int.MaxValue;
+            PropertiesKeeper.logicalMap.cells[i].inShootingRange = false;
+            PropertiesKeeper.logicalMap.cells[i].isReachable = false;
+            PropertiesKeeper.logicalMap.cells[i].distance = int.MaxValue;
         }
     }
 }

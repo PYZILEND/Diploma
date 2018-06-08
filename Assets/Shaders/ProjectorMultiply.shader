@@ -5,6 +5,8 @@ Shader "Projector/Multiply2" {
 	Properties {
 		_Color("Main Color", Color) = (1,1,1,1)
 		_ShadowTex ("Cookie", 2D) = "gray" {}
+		_Border("Border", Range(0.01, 1)) = 0.05
+		_Radius("Radius", Range(0.5, 50)) = 1.5
 	}
 	Subshader {
 		Tags {"Queue"="Transparent"}
@@ -27,6 +29,8 @@ Shader "Projector/Multiply2" {
 			
 			float4x4 unity_Projector;
 			float4x4 unity_ProjectorClip;
+			float _Radius;
+			float _Border;
 			
 			v2f vert (float4 vertex : POSITION)
 			{
@@ -41,11 +45,17 @@ Shader "Projector/Multiply2" {
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				fixed4 texS = tex2Dproj (_ShadowTex, UNITY_PROJ_COORD(i.uvShadow));
-			texS.rgb *= _Color.rgb;
-				texS.a = 1.0-texS.a;
+				//return _Color;
+				float dx = 0.5 - i.uvShadow.x;
+				float dy = 0.5 - i.uvShadow.y;
+				float dist = sqrt(dx*dx + dy*dy);
+				//float dist2 = ((dx - _Border)*(dx - _Border)
+				//+ (dy - _Border)*(dy - _Border));
 
-				return texS;
+				if ( (dist>_Radius) && (dist < (_Radius + _Border)))
+					return float4(_Color);
+				else
+					return float4(0, 0, 0, 1);
 			}
 			ENDCG
 		}

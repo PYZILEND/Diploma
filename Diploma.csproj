@@ -237,9 +237,13 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Common\AllegianceExtentions.cs" />
     <Compile Include="Assets\Scripts\Common\PhaseExtentions.cs" />
+    <Compile Include="Assets\Scripts\Common\PropertiesKeeper.cs" />
     <Compile Include="Assets\Scripts\Controls\CameraControls.cs" />
     <Compile Include="Assets\Scripts\Controls\DebugControls.cs" />
+    <Compile Include="Assets\Scripts\Controls\MainMenuControls.cs" />
     <Compile Include="Assets\Scripts\Controls\MapInputs.cs" />
+    <Compile Include="Assets\Scripts\Controls\PauseControls.cs" />
+    <Compile Include="Assets\Scripts\Controls\TurnToCamera.cs" />
     <Compile Include="Assets\Scripts\Countries\Capital.cs" />
     <Compile Include="Assets\Scripts\Countries\Country.cs" />
     <Compile Include="Assets\Scripts\Countries\CountryControls.cs" />
@@ -252,6 +256,10 @@
     <Compile Include="Assets\Scripts\Hex Properties\TerrainType.cs" />
     <Compile Include="Assets\Scripts\Logical Map\LogicalMap.cs" />
     <Compile Include="Assets\Scripts\Logical Map\LogicalMapCell.cs" />
+    <Compile Include="Assets\Scripts\MapCreator\CreateHexMap.cs" />
+    <Compile Include="Assets\Scripts\MapCreator\MapCreator.cs" />
+    <Compile Include="Assets\Scripts\MapCreator\UIControls.cs" />
+    <Compile Include="Assets\Scripts\MapCreator\WaterGeneration.cs" />
     <Compile Include="Assets\Scripts\MapEditor\MapEditor.cs" />
     <Compile Include="Assets\Scripts\Pathfinding\Pathfinder.cs" />
     <Compile Include="Assets\Scripts\Physical Map\PhysicalMap.cs" />
@@ -259,6 +267,7 @@
     <Compile Include="Assets\Scripts\SaveLoad\GameSaver.cs" />
     <Compile Include="Assets\Scripts\SaveLoad\MapLoader.cs" />
     <Compile Include="Assets\Scripts\SaveLoad\MapSaver.cs" />
+    <Compile Include="Assets\Scripts\SaveLoad\MeshSaver.cs" />
     <Compile Include="Assets\Scripts\UI\CountryInfo.cs" />
     <Compile Include="Assets\Scripts\UI\MultipleSelection.cs" />
     <Compile Include="Assets\Scripts\UI\UnitInfo.cs" />
@@ -275,7 +284,14 @@
     <Compile Include="Assets\Scripts\Units\UnitTypes\UnitTypeOld.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\NewUnlitShader.shader" />
+    <None Include="Assets\Shaders\BasicLowPolyShader.shader" />
+    <None Include="Assets\Shaders\BasicShader.shader" />
+    <None Include="Assets\Shaders\BasicWaterShader.shader" />
+    <None Include="Assets\Shaders\BorderShader.shader" />
     <None Include="Assets\Shaders\CircleShader.shader" />
+    <None Include="Assets\Shaders\HighlightShader.shader" />
+    <None Include="Assets\Shaders\MapShader.shader" />
     <None Include="Assets\Shaders\ProjectorMultiply.shader" />
     <None Include="Assets\Shaders\RadiusShader.shader" />
     <None Include="Assets\Shaders\projector.shader" />

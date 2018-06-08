@@ -1,13 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
+//using UnityEditor;
 using System;
 
 /// <summary>
 /// Used to create objects that represent unit types
 /// </summary>
-[CreateAssetMenu(fileName = "unit", menuName = "UnitType")]
+//[CreateAssetMenu(fileName = "unit", menuName = "UnitType")]
 public class UnitType : ScriptableObject {
 
     public string unitName;

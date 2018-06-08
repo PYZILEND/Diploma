@@ -226,4 +226,13 @@ public class LogicalMap : MonoBehaviour {
             cells[i].ValidateHighlightWithAllegiance();
         }
     }
+
+    public void AddForest()
+    {
+        foreach (LogicalMapCell cell in cells)
+        {
+            if (cell.terrain != TerrainType.Forest) continue;
+            cell.AddForest();
+        }
+    }
 }

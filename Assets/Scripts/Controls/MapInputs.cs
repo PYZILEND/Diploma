@@ -17,6 +17,8 @@ public class MapInputs : MonoBehaviour {
     } 
     LogicalMapCell hoveredCell; //Holds last hovered cell
 
+    Unit hoveredUnit;
+
     bool editMode;//Flag of map editing mode
 
     /// <summary>
@@ -104,22 +106,22 @@ public class MapInputs : MonoBehaviour {
         //Can be used to highlight countryes and their allegiances
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            GameMaster.logicalMap.HighlightAllegiance();
+            PropertiesKeeper.logicalMap.HighlightAllegiance();
         }
         //Can be used to highlight terrain
         if (Input.GetKeyDown(KeyCode.X))
         {
-            GameMaster.logicalMap.HighlightTerrain();
+            PropertiesKeeper.logicalMap.HighlightTerrain();
         }
         //Can be used to highlight hex cooridnates
         if (Input.GetKeyDown(KeyCode.C))
         {
-            GameMaster.logicalMap.ShowAllCoordinates();
+            PropertiesKeeper.logicalMap.ShowAllCoordinates();
         }
         //Can be used to hide hex cooridnates
         if (Input.GetKeyDown(KeyCode.V))
         {
-            GameMaster.logicalMap.HideAllLabels();
+            PropertiesKeeper.logicalMap.HideAllLabels();
         }
         //To drop unit selection
         if (Input.GetMouseButton(1) && GameMaster.turnPhase == Phase.Battle)
@@ -142,7 +144,22 @@ public class MapInputs : MonoBehaviour {
         if(Physics.Raycast(ray, out hit))
         {
             HexCoordinates coordinates = HexCoordinates.fromPosition(hit.point);
-            return GameMaster.logicalMap.cells[coordinates.ToIndex()];
+            if (coordinates.ToIndex() < 0 || coordinates.ToIndex() > PropertiesKeeper.logicalMap.cells.Length) return null;
+            if (PropertiesKeeper.logicalMap.cells[coordinates.ToIndex()].unit == null && hoveredUnit != null)
+            {
+                hoveredUnit.HideCanvas();
+                hoveredUnit = null;
+            }
+            if (PropertiesKeeper.logicalMap.cells[coordinates.ToIndex()].unit != null && 
+                PropertiesKeeper.logicalMap.cells[coordinates.ToIndex()].unit.allegiance !=GameMaster.allegianceTurn && 
+                PropertiesKeeper.logicalMap.cells[coordinates.ToIndex()].unit != hoveredUnit)
+            {
+                if (hoveredUnit != null && hoveredUnit.allegiance == GameMaster.allegianceTurn) hoveredUnit = null;
+                if (hoveredUnit !=null) hoveredUnit.HideCanvas();
+                hoveredUnit = PropertiesKeeper.logicalMap.cells[coordinates.ToIndex()].unit;
+                hoveredUnit.ShowCanvas();
+            }
+            return PropertiesKeeper.logicalMap.cells[coordinates.ToIndex()];
         }
         return null;
     }
@@ -155,4 +172,5 @@ public class MapInputs : MonoBehaviour {
     {
         editMode = value;
     }
+
 }

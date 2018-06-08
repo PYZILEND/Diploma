@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Country : MonoBehaviour {
 
@@ -112,7 +113,7 @@ public class Country : MonoBehaviour {
 
     /// <summary>
     /// County's allegiance
-    /// Guardians, Dominion, Neutral
+    /// Sentinels, Dominion, Neutral
     /// </summary>
     public Allegiance allegiance
     {
@@ -204,7 +205,7 @@ public class Country : MonoBehaviour {
     /// </summary>
     /// <param name="countryName">Name of the country</param>
     /// <param name="type">Country type - poor, average, rich</param>
-    /// <param name="allegiance"> Country allegiance - Guardians, Dominion, Neutral</param>
+    /// <param name="allegiance"> Country allegiance - Sentinels, Dominion, Neutral</param>
     /// <param name="startingCell">First cell of the country, becomes it's capital</param>
     public void CreateCountry(string countryName, Allegiance allegiance,LogicalMapCell startingCell)
     {
@@ -218,15 +219,18 @@ public class Country : MonoBehaviour {
         startingCell.country = this;
 
         capital = startingCell;
-        capitalCity = Instantiate(GameMaster.capitalPrefab, capital.transform, false);
+        capitalCity = Instantiate(PropertiesKeeper.capitalPrefab, capital.transform, false);
         capitalCity.Initialize(allegiance);
+        GameObject capitalCanvas = Instantiate(PropertiesKeeper.capitalCanvas, capital.transform, false);
+        capitalCanvas.transform.position = capital.GetUIPosition() + new Vector3(0, 3f, 0);
+        capitalCanvas.transform.GetChild(0).gameObject.SetActive(false);
 
         this.countryName = countryName;
         this.allegiance = Allegiance.Neutral;
         secretAllegiance = allegiance;
         guerilla = (byte) type.guerrilla;
         willSpawnGuerrilla = false;
-        incomeTurnsLeft = GameMaster.incomeTurns;
+        incomeTurnsLeft = PropertiesKeeper.incomeTurns;
         if (secretAllegiance != Allegiance.Neutral)
         {
             secretArmy = (byte)type.secretArmy;
@@ -245,7 +249,7 @@ public class Country : MonoBehaviour {
         allegiance = Allegiance.Neutral;
         guerilla = (byte) type.guerrilla;
         willSpawnGuerrilla = false;
-        incomeTurnsLeft = GameMaster.incomeTurns;
+        incomeTurnsLeft = PropertiesKeeper.incomeTurns;
         treasury = 0;
         if (secretAllegiance != Allegiance.Neutral)
         {
@@ -357,7 +361,7 @@ public class Country : MonoBehaviour {
             cell.ValidateHighlightWithTerrain();
             cell.country = null;
         }
-        GameMaster.countries.Remove(this);
+         PropertiesKeeper.countries.Remove(this);
         Destroy(capitalCity.gameObject);
         Destroy(this.gameObject);
     }
@@ -381,6 +385,7 @@ public class Country : MonoBehaviour {
             treasury -= unitPrefab.type.cost;
             Unit newUnit = Instantiate(unitPrefab);
             newUnit.InitializeUnit(cell, GameMaster.allegianceTurn);
+            
             if (newUnit is Plane && capitalCity.remainingCapacity > 0)
             {
 
@@ -393,9 +398,13 @@ public class Country : MonoBehaviour {
         }
         else
         {
-            Debug.Log("This unit is too expansive");
+            PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = "This unit is too expensive";
+            PropertiesKeeper.popUp.SetActive(true);
+            CameraControls.fixCamera(true);
+            //Debug.Log("This unit is too expansive");
         }
     }
+
 
     /// <summary>
     /// Adds turn income to treasury
@@ -436,7 +445,10 @@ public class Country : MonoBehaviour {
         }
         else
         {
-            Debug.Log("This unit is too expansive");
+            PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = "This unit is too expensive";
+            PropertiesKeeper.popUp.SetActive(true);
+            CameraControls.fixCamera(true);
+            //Debug.Log("This unit is too expensive");
         }
         if(guerilla == 0)
         {
@@ -459,7 +471,20 @@ public class Country : MonoBehaviour {
 
     public void Disclosure()
     {
-        Debug.Log(countryName + " has been disclosured as " + secretAllegiance.ToString() + " secret ally");
+        transform.GetComponentInChildren<Renderer>().material = new Material(Shader.Find("Custom/BorderShader"));
+        if (secretAllegiance == Allegiance.Dominion)
+        {
+            transform.GetComponentInChildren<Renderer>().material.SetFloat("_ModeDominion", 1);
+        }
+        else
+        {
+            transform.GetComponentInChildren<Renderer>().material.SetFloat("_ModeSentinels", 1);
+        }
+
+        PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = countryName + " has been disclosured as " + secretAllegiance.ToString() + " secret ally";
+        PropertiesKeeper.popUp.SetActive(true);
+        CameraControls.fixCamera(true);
+       // Debug.Log(countryName + " has been disclosured as " + secretAllegiance.ToString() + " secret ally");
         if (allegiance == Allegiance.Neutral)
         {
             allegiance = secretAllegiance;
@@ -489,7 +514,10 @@ public class Country : MonoBehaviour {
         }
         else
         {
-            Debug.Log("This unit is too expansive");
+            PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = "This unit is too expensive";
+            PropertiesKeeper.popUp.SetActive(true);
+            CameraControls.fixCamera(true);
+           // Debug.Log("This unit is too expansive");
         }
     }
 
@@ -515,14 +543,32 @@ public class Country : MonoBehaviour {
     /// used in case a neutral country is invaded</param>
     public void TriggerInvasion(Allegiance invaderAllegiance)
     {
-        Debug.Log(countryName + " is invaded");
-        if(allegiance == Allegiance.Neutral)
+        PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = countryName + " is invaded";
+        PropertiesKeeper.popUp.SetActive(true);
+        CameraControls.fixCamera(true);
+       // Debug.Log(countryName + " is invaded");
+        transform.GetComponentInChildren<Renderer>().material = new Material(Shader.Find("Custom/BorderShader"));
+        if (allegiance == Allegiance.Dominion)
+        {
+            transform.GetComponentInChildren<Renderer>().material.SetFloat("_ModeDominion", 1);
+            transform.GetComponentInChildren<Renderer>().material.SetFloat("_ModeSentinels", 1);
+        }
+        else
+        {
+            transform.GetComponentInChildren<Renderer>().material.SetFloat("_ModeDominion", 1);
+            transform.GetComponentInChildren<Renderer>().material.SetFloat("_ModeSentinels", 1);
+            transform.GetComponentInChildren<Renderer>().material.SetFloat("_OppositeColors", 1);
+        }
+        if (allegiance == Allegiance.Neutral)
         {
             SwitchAllegiance(AllegianceExtentions.Opposite(invaderAllegiance));
         }
         if (hasGuerilla)
         {
-            Debug.Log(countryName + " will spawn guerrila");
+            PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = countryName + " will spawn guerrila";
+            PropertiesKeeper.popUp.SetActive(true);
+            CameraControls.fixCamera(true);
+            //Debug.Log(countryName + " will spawn guerrila");
             willSpawnGuerrilla = true;
         }
     }
@@ -532,15 +578,34 @@ public class Country : MonoBehaviour {
     /// </summary>
     public void TriggerLiberation()
     {
-        Debug.Log(countryName + " is libirated");
+        transform.GetComponentInChildren<Renderer>().material = new Material(Shader.Find("Custom/BorderShader"));
+        if (allegiance == Allegiance.Dominion)
+        {
+            transform.GetComponentInChildren<Renderer>().material.SetFloat("_ModeDominion", 1);
+        }
+        else
+        {
+            transform.GetComponentInChildren<Renderer>().material.SetFloat("_ModeSentinels", 1);
+        }
+
+        PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = countryName + " is libirated";
+        PropertiesKeeper.popUp.SetActive(true);
+        CameraControls.fixCamera(true);
+        //Debug.Log(countryName + " is libirated");
         if(hasReparation && secretAllegiance != allegiance)
         {
             if (hasSecretArmy)
             {
-                Debug.Log(countryName + " was a " + secretAllegiance.ToString() + " secret ally");
+                PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = countryName + " was a " + secretAllegiance.ToString() + " secret ally";
+                PropertiesKeeper.popUp.SetActive(true);
+                CameraControls.fixCamera(true);
+                //Debug.Log(countryName + " was a " + secretAllegiance.ToString() + " secret ally");
                 secretArmy = 0;
             }
-            Debug.Log(countryName + " gives reparations");
+            PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = countryName + " gives reparations";
+            PropertiesKeeper.popUp.SetActive(true);
+            CameraControls.fixCamera(true);
+            //Debug.Log(countryName + " gives reparations");
             GetReparations();
         }
     }
@@ -554,6 +619,8 @@ public class Country : MonoBehaviour {
         {
             cell.EnableHighlight(AllegianceExtentions.AllegianceToColor(GameMaster.allegianceTurn));
             cell.isSelectable = true;
+            ShowMoneyText(GameMaster.turnPhase);
+            
         }
     }
 
@@ -569,6 +636,27 @@ public class Country : MonoBehaviour {
         }
     }
 
+    public void DontShowMoney()
+    {
+        capital.transform.GetChild(1).GetChild(0).gameObject.SetActive(false);
+    }
+
+    public void ShowMoneyText(Phase phase)
+    {
+        capital.transform.GetChild(1).GetChild(0).gameObject.SetActive(true);
+        switch (phase)
+        {
+            case Phase.Guerrila:
+                capital.transform.GetChild(1).GetChild(0).GetComponentsInChildren<Text>()[0].text = "$ " + guerilla;
+                break;
+            case Phase.SecretAllies:
+                capital.transform.GetChild(1).GetChild(0).GetComponentsInChildren<Text>()[0].text = "$ " + secretArmy;
+                break;
+            case Phase.Recruitment:
+                capital.transform.GetChild(1).GetChild(0).GetComponentsInChildren<Text>()[0].text = "$ " + treasury;
+                break;
+        }
+    }
     /// <summary>
     /// Marks cells where a unit can be placed based on it's travel type and cell's terrain type
     /// </summary>

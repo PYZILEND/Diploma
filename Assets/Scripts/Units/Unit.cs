@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Unit : MonoBehaviour {
 
@@ -77,7 +78,7 @@ public class Unit : MonoBehaviour {
         this.allegiance = allegiance;
         this.healthPoints = this.type.maxHealth;
         this.movePoints = 0;
-        this.hasAttacked = true;
+        this.hasAttacked = false;
         this.isDestroyed = false;
 
         this.GetComponentInChildren<MeshRenderer>().material.color = AllegianceExtentions.AllegianceToColor(allegiance);
@@ -88,6 +89,136 @@ public class Unit : MonoBehaviour {
             !cell.unit)
         {
             cell.country.SwitchAllegiance(allegiance);
+        }
+        MakeUnitCanvas();
+    }
+
+    void MakeUnitCanvas()
+    {
+        if (this is Plane) return;
+        GameObject unitCanvas = Instantiate(PropertiesKeeper.unitCanvas, transform, false);
+        unitCanvas.transform.position = transform.position;
+
+        Color color = AllegianceExtentions.AllegianceToColor(allegiance);
+        unitCanvas.transform.GetChild(0).GetChild(0).GetComponent<Image>().color = color;
+        unitCanvas.transform.GetChild(2).GetComponentInChildren<Text>().text = (type.maxMovePoints/10).ToString();
+
+        for (int i = 1; i < unitCanvas.transform.childCount; i++)
+        {
+            unitCanvas.transform.GetChild(i).GetComponent<RawImage>().color = color;
+            unitCanvas.transform.GetChild(i).GetComponentInChildren<Text>().color = color;
+        }
+
+        if (this is SuperUnit)
+        {
+            unitCanvas.transform.GetChild(5).gameObject.SetActive(true);
+        }
+        else
+        {
+            //removing icons for second attack
+            Destroy(unitCanvas.transform.GetChild(5).gameObject);
+        }
+
+        if (this is AntiAir)
+        {
+            //removing icons for attack, range and embark
+            Destroy(unitCanvas.transform.GetChild(1).gameObject);
+            Destroy(unitCanvas.transform.GetChild(3).gameObject);
+            Destroy(unitCanvas.transform.GetChild(4).gameObject);
+            return;
+        }
+        if (type.attackPower == 0)
+        {
+            //removing icons for attack, range
+            Destroy(unitCanvas.transform.GetChild(1).gameObject);
+            Destroy(unitCanvas.transform.GetChild(3).gameObject);
+
+            Vector3 pos = unitCanvas.transform.Find("Icon2").localPosition;
+            pos.x = 2.19f;
+            unitCanvas.transform.Find("Icon2").localPosition = pos;
+            unitCanvas.transform.Find("Icon4").GetComponentInChildren<Text>().text = type.capacity.ToString();
+            return;
+        }
+        //removing icons for embark
+        Destroy(unitCanvas.transform.GetChild(4).gameObject);
+        unitCanvas.transform.Find("Icon1").GetComponentInChildren<Text>().text = type.attackPower.ToString();
+        unitCanvas.transform.Find("Icon3").GetComponentInChildren<Text>().text = type.attackRange.ToString();
+    }
+
+    public void HideCanvas()
+    {
+        if (transform.childCount < 2) return;
+        Transform unitCanvas = transform.Find("UnitCanvas(Clone)");
+        if (unitCanvas == null) return;
+        for (int i = 1; i < unitCanvas.childCount; i++)
+        {
+            unitCanvas.GetChild(i).gameObject.SetActive(false);            
+        }
+
+    }
+
+    public void ShowCanvas()
+    {
+        if (transform.childCount < 2) return;
+        Transform unitCanvas = transform.Find("UnitCanvas(Clone)");
+        if (unitCanvas == null) return;
+        unitCanvas.gameObject.SetActive(true);
+        if (isEmbarked)
+        {
+            unitCanvas.gameObject.SetActive(false);
+        }
+        if (this is AntiAir)
+        {
+            unitCanvas.Find("Icon2").gameObject.SetActive(true);
+            return;
+        }
+
+        for (int i = 1; i < unitCanvas.childCount; i++)
+        {
+            if ((unitCanvas.GetChild(i).name == "Icon2" || unitCanvas.GetChild(i).name == "Icon4") && isOnPlatform) continue;
+            unitCanvas.GetChild(i).gameObject.SetActive(true);            
+        }
+    }
+
+    public void DisplayHealth()
+    {
+        if (this is Plane) return;
+        if (transform.childCount < 2) return;
+       transform.Find("UnitCanvas(Clone)").Find("HealthBar").Find("HealthBarFill").GetComponent<Image>().fillAmount = (float) healthPoints/ type.maxHealth;
+    }
+
+    void DisplayMP()
+    {
+        if (transform.childCount < 2) return;
+        if (this is Plane) return;
+        if (type.maxMovePoints == 0) return;
+        transform.Find("UnitCanvas(Clone)").Find("Icon2").GetComponentInChildren<Text>().text = (movePoints/10).ToString();
+        if (movePoints == 0)
+        {
+            transform.Find("UnitCanvas(Clone)").Find("Icon2").GetComponent<RawImage>().color = Color.gray;
+            transform.Find("UnitCanvas(Clone)").Find("Icon2").GetComponentInChildren<Text>().color = Color.gray;
+        }
+        else
+        {
+            transform.Find("UnitCanvas(Clone)").Find("Icon2").GetComponent<RawImage>().color = AllegianceExtentions.AllegianceToColor(allegiance);
+            transform.Find("UnitCanvas(Clone)").Find("Icon2").GetComponentInChildren<Text>().color = AllegianceExtentions.AllegianceToColor(allegiance);
+        }
+    }
+
+    void DisplayAP()
+    {
+        if (transform.childCount < 2) return;
+        if (this is Plane) return;
+        if (type.attackPower == 0) return;
+        if (hasAttacked)
+        {
+            transform.Find("UnitCanvas(Clone)").Find("Icon1").GetComponent<RawImage>().color = Color.gray;
+            transform.Find("UnitCanvas(Clone)").Find("Icon1").GetComponentInChildren<Text>().color = Color.gray;
+        }
+        else
+        {
+            transform.Find("UnitCanvas(Clone)").Find("Icon1").GetComponent<RawImage>().color = AllegianceExtentions.AllegianceToColor(allegiance);
+            transform.Find("UnitCanvas(Clone)").Find("Icon1").GetComponentInChildren<Text>().color = AllegianceExtentions.AllegianceToColor(allegiance);
         }
     }
 
@@ -109,6 +240,8 @@ public class Unit : MonoBehaviour {
     public virtual void ChangeTurn()
     {
         movePoints = type.maxMovePoints;
+        DisplayMP();
+        DisplayAP();
         hasAttacked = false;
         if (isDestroyed)
         {
@@ -130,6 +263,7 @@ public class Unit : MonoBehaviour {
         destination.unit = this;
         cell = destination;
 
+        DisplayMP();
         StopAllCoroutines();
         StartCoroutine(Travel(path));        
     }
@@ -183,6 +317,7 @@ public class Unit : MonoBehaviour {
             transform.SetParent(platform.transform, false);
             transform.localPosition = new Vector3(0, 0, 0);
             ValidatePosition();
+            
         }
     }
 
@@ -234,6 +369,14 @@ public class Unit : MonoBehaviour {
                         if (destination.country.isInvaded)
                         {
                             destination.country.TriggerInvasion(allegiance);
+                            if (destUnit)
+                            {
+                                destination.unit = destUnit;
+                            }
+                            else
+                            {
+                                destination.unit = null;
+                            }
                         }
                     }
                 }
@@ -286,11 +429,14 @@ public class Unit : MonoBehaviour {
     {
         hasAttacked = true;
         cell.unit.healthPoints -= type.attackPower;
+        cell.unit.DisplayHealth();
         if (cell.unit.healthPoints <= 0)
         {
             cell.unit.DestroyVisually();
         }
         movePoints = 0;
+        DisplayMP();
+        DisplayAP();
     }
 
     /// <summary>
@@ -349,7 +495,7 @@ public class Unit : MonoBehaviour {
         movePoints -= cell.distance;
         this.cell.unit = null;
         this.cell = cell;
-
+        ShowEmbarkCanvas();
         StopAllCoroutines();
         StartCoroutine(Travel(path));
 
@@ -369,12 +515,66 @@ public class Unit : MonoBehaviour {
         this.cell = cell;
         cell.unit = this;
 
+        ShowDisembarkCanvas();
+
         GetComponentInChildren<MeshRenderer>().enabled = true;
         StopAllCoroutines();
-        StartCoroutine(Travel(path));               
-
+        StartCoroutine(Travel(path));       
         transport.RemoveFromTransport(this);
         transport = null;
+    }
+    void ShowEmbarkCanvas()
+    {
+        if (!platform)
+        {
+            transform.GetChild(1).gameObject.SetActive(false);
+        }
+        else
+        {
+            HideCanvas();
+
+            if (type.attackPower > 0)
+            {
+                transform.Find("UnitCanvas(Clone)").Find("Icon1").gameObject.SetActive(true);
+
+                Vector3 pos2 = transform.Find("UnitCanvas(Clone)").Find("Icon3").localPosition;
+                pos2.x = 6.65f;
+                transform.Find("UnitCanvas(Clone)").Find("Icon3").localPosition = pos2;
+
+                Vector3 pos = transform.Find("UnitCanvas(Clone)").Find("Icon1").localPosition;
+                pos.x = -6.42f;
+                transform.Find("UnitCanvas(Clone)").Find("Icon1").localPosition = pos;
+
+                transform.Find("UnitCanvas(Clone)").Find("Icon3").gameObject.SetActive(true);
+
+                if (this is SuperUnit) transform.GetChild(1).Find("Icon5").gameObject.SetActive(true);
+            }
+        }
+
+    }
+
+    void ShowDisembarkCanvas()
+    {
+        DisplayMP();
+        if (!platform)
+        {
+            transform.GetChild(1).gameObject.SetActive(true);
+        }
+        else
+        {
+            ShowCanvas();
+            if (type.attackPower > 0)
+            {
+                Vector3 pos = transform.Find("UnitCanvas(Clone)").Find("Icon1").localPosition;
+                pos.x = -5.74f;
+                transform.Find("UnitCanvas(Clone)").Find("Icon1").localPosition = pos;
+
+                Vector3 pos2 = transform.Find("UnitCanvas(Clone)").Find("Icon3").localPosition;
+                pos2.x = 3.74f;
+                transform.Find("UnitCanvas(Clone)").Find("Icon3").localPosition = pos2;
+            }
+        }
+
     }
 
     /// <summary>
@@ -385,7 +585,7 @@ public class Unit : MonoBehaviour {
     {
         platform = (Platform)cell.unit;
         platform.boardedUnit = this;
-
+        platform.DisplayEP();
         List<LogicalMapCell> path = Pathfinder.SearchPath(this.cell, cell);
         AffectCountryes(path);
 
@@ -395,8 +595,11 @@ public class Unit : MonoBehaviour {
 
         StopAllCoroutines();
         StartCoroutine(Travel(path));
-        
+
+        ShowEmbarkCanvas();
     }
+
+
 
     /// <summary>
     /// Method for leaving platform
@@ -404,15 +607,17 @@ public class Unit : MonoBehaviour {
     /// <param name="cell"></param>
     public void LeavePlatform(LogicalMapCell cell)
     {
+        movePoints -= cell.distance;
+        ShowDisembarkCanvas();
         platform.boardedUnit = null;
+        platform.DisplayEP();
         platform = null;
 
         List<LogicalMapCell> path = Pathfinder.SearchPath(this.cell, cell);
         AffectCountryes(path);
-
-        movePoints -= cell.distance;
         this.cell = cell;
         cell.unit = this;
+
 
         StopAllCoroutines();
         StartCoroutine(Travel(path));

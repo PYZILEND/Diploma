@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Possible Allegiances
 /// </summary>
-public enum Allegiance { Guardians, Dominion, Neutral}
+public enum Allegiance { Sentinels, Dominion, Neutral}
 
 public static class AllegianceExtentions
 {
@@ -17,9 +17,9 @@ public static class AllegianceExtentions
     /// <returns></returns>
     public static Allegiance Opposite(Allegiance allegiance)
     {
-        if(allegiance == Allegiance.Dominion)
+        if (allegiance == Allegiance.Dominion)
         {
-            return Allegiance.Guardians;
+            return Allegiance.Sentinels;
         }
         else
         {
@@ -37,7 +37,7 @@ public static class AllegianceExtentions
         switch (allegiance)
         {
             case Allegiance.Dominion: return Color.red;
-            case Allegiance.Guardians: return Color.green;
+            case Allegiance.Sentinels: return Color.blue;
             case Allegiance.Neutral: return Color.grey;
         }
         return Color.white;
