@@ -8,7 +8,7 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: BasicLowPolyMaterial
   m_Shader: {fileID: 4800000, guid: 19ddcd83a5ef3324bbf7d9dc450edfaa, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: WATER_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -40,11 +40,15 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 5, y: 5}
+        m_Scale: {x: 100, y: 100}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NoiseTex:
+        m_Texture: {fileID: 2800000, guid: 3789be88aa2183640be7a39b3431bb8f, type: 3}
+        m_Scale: {x: 50, y: 500}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
@@ -63,8 +67,11 @@ Material:
     - _CheckerValue: 4
     - _CheckerZoom: 1.5
     - _Cutoff: 0.5
+    - _DepthValue: 0.1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _FoamSpread: 0.157
+    - _FoamValue: 0.24
     - _FullRim: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
@@ -86,6 +93,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
+    - _WaterOn: 1
     - _WaterSpec: 0
     - _WaveHeight: 2
     - _WaveLength: 1
@@ -95,7 +103,9 @@ Material:
     m_Colors:
     - _CheckerColor: {r: 1, g: 0, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DepthColor: {r: 0.17068554, g: 0.5661765, b: 0.5498113, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecCol: {r: 1, g: 1, b: 1, a: 1}
-    - _Tint: {r: 0.37254903, g: 0.5686275, b: 0.84705883, a: 1}
+    - _Tint: {r: 0.23615915, g: 0.62908953, b: 0.8235294, a: 1}

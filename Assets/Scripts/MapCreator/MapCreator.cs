@@ -9,22 +9,23 @@ public class MapCreator : MonoBehaviour {
     public WaterGeneration water;
     public CreateHexMap hexMap;
 
- /*   public static List<Country> countries;
+    public static CreateHexMap saveHexMap;
+    /*   public static List<Country> countries;
 
-    //For instantiating (referances)
-    public LogicalMap newMapPrefab;
-    public Country countryPrefabRef;
-    public Capital capitalPrefabRef;
+       //For instantiating (referances)
+       public LogicalMap newMapPrefab;
+       public Country countryPrefabRef;
+       public Capital capitalPrefabRef;
 
-    //For instantiating (statics)
-    public static LogicalMap newMap;
-    public static Country countryPrefab;
-    public static Capital capitalPrefab;*/
+       //For instantiating (statics)
+       public static LogicalMap newMap;
+       public static Country countryPrefab;
+       public static Capital capitalPrefab;*/
 
     public TerrainType currentType = TerrainType.Plain;
 
     // Use this for initialization
-    void Awake () {
+    void Start () {
         // water = Instantiate(water);
         //water = GetComponentInChildren<WaterGeneration>();
         //water.CreateWater(mapWidth, mapHeight, HexMetrics.outerRadius * 2f, seaHeight);
@@ -42,6 +43,8 @@ public class MapCreator : MonoBehaviour {
         {
             PropertiesKeeper.countries = new List<Country>();
         }
+        PropertiesKeeper.lockedMap = false;
+        saveHexMap = hexMap;
     }
 
     public void GetSeaHeight(float value)

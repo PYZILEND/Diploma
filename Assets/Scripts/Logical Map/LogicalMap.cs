@@ -235,4 +235,12 @@ public class LogicalMap : MonoBehaviour {
             cell.AddForest();
         }
     }
+
+    public void ValidateUIPosition()
+    {
+        foreach(LogicalMapCell cell in cells)
+        {
+            cell.ValidateUIPosition();
+        }
+    }
 }

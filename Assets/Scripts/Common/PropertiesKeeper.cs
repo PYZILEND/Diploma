@@ -13,6 +13,8 @@ public class PropertiesKeeper : MonoBehaviour {
 
     public static bool defaultGameMode=true;
 
+    public static bool lockedMap = false;
+
     //1-low -25%
     //2-medium - 50%
     //3-high - 75%

@@ -201,4 +201,28 @@ public class MapEditor : MonoBehaviour
             }
         }
     }
+
+    public void ChangeAllegiance()
+    {
+        if ((selectedCell != null))
+        {
+            Country selectedCountry = selectedCell.country;
+            if (selectedCountry != null && selectedCountry.secretAllegiance != countryAllegiance)
+            {
+                selectedCountry.ChangeAllegiance(countryAllegiance);
+            }
+        }
+    }
+
+    public void ChangeType()
+    {
+        if ((selectedCell != null))
+        {
+            Country selectedCountry = selectedCell.country;
+            if (selectedCountry != null && selectedCountry.type != countryPrefab.type)
+            {
+                selectedCountry.ChangeAllegiance(countryAllegiance);
+            }
+        }
+    }
 }

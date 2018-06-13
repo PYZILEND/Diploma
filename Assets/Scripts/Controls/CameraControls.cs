@@ -37,7 +37,7 @@ public class CameraControls : MonoBehaviour {
         swivel.rotation = Quaternion.Euler(90, 0, 0);
         Transform stick = swivel.transform.GetChild(0);
         stick.localPosition = new Vector3(0, 0, -250);
-        CameraControls.zoom = 0f;
+        zoom = 0f;
     }
     /// <summary>
     /// Checking for input.

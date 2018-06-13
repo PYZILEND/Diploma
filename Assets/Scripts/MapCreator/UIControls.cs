@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.IO;
+//using UnityEditor;
 
 public class UIControls : MonoBehaviour {
 
@@ -25,13 +27,17 @@ public class UIControls : MonoBehaviour {
 
     public MapCreator mapCreator;
 
+    public InputField saveText;
+
     LogicalMapCell selectedCell;
 
     int brushSize = 1;
 
     string mapName;
-    
-    void Awake()
+    List<string> mapNames;
+    public Dropdown list;
+
+    void Start()
     {
         panel = GameObject.Find("ButtonPanel");
         pos = panel.transform.position;
@@ -44,6 +50,8 @@ public class UIControls : MonoBehaviour {
         selectedCell = null;
         Toggle button = GameObject.Find("StartButton").GetComponent<Toggle>();
         button.isOn = !button.isOn;
+
+        PopulateList();
     }
 
     public void ClickButton()
@@ -75,7 +83,7 @@ public class UIControls : MonoBehaviour {
             pos.x = 123f;
             panel.transform.position = pos;
             choosenMode = 0;
-             PropertiesKeeper.logicalMap.HighlightTerrain();
+            PropertiesKeeper.logicalMap.HighlightTerrain();
             CameraOver();
         }
     }
@@ -184,13 +192,37 @@ public class UIControls : MonoBehaviour {
             //warningTextValue.text = "Warning: no countries created";
             return;
         }
+        if (mapNames.Contains(mapName))
+        {
+            PropertiesKeeper.popUp.transform.GetChild(1).GetComponent<Text>().text = "Warning: map name already exists, overwrite?";
+            PropertiesKeeper.popUp.SetActive(true);
+            PropertiesKeeper.popUp.transform.GetChild(2).gameObject.SetActive(true);
+            return;
+        }
         MapSaver.SaveMapCreator(mapName,mapName);
         //mapCreator.SaveWater(mapName);
         mapCreator.SaveMap(mapName);
+
+        PopulateList();
+    }
+
+    public void SaveSameName()
+    {
+        MapSaver.SaveMapCreator(mapName, mapName);
+        mapCreator.SaveMap(mapName);
+
+        PopulateList();
     }
 
     void Update()
     {
+        /*if (Input.GetKeyDown(KeyCode.F12))
+        {
+            AssetDatabase.CreateAsset(CreateHexMap.mesh, "Assets/Models/MainMenuMap.asset");
+            AssetDatabase.SaveAssets();
+            return;
+        }*/
+
         if (!EventSystem.current.IsPointerOverGameObject())
         {
             if (Input.GetMouseButton(0))
@@ -306,13 +338,25 @@ public class UIControls : MonoBehaviour {
 
     public void RedoBorders()
     {
-        mapCreator.hexMap.CreateBorders(PropertiesKeeper.mapHeight, PropertiesKeeper.mapWidth);
+        mapCreator.hexMap.CreateBorders();
     }
 
     public void ClosePopUp()
     {
         PropertiesKeeper.popUp.SetActive(false);
         CameraControls.fixCamera(false);
+        if (PropertiesKeeper.popUp.transform.GetChild(2).gameObject.activeSelf)
+        {
+            PropertiesKeeper.popUp.transform.GetChild(2).gameObject.SetActive(false);
+            SaveSameName();
+        }
+    }
+
+    public void CancelPopUp()
+    {
+        PropertiesKeeper.popUp.SetActive(false);
+        CameraControls.fixCamera(false);
+        PropertiesKeeper.popUp.transform.GetChild(2).gameObject.SetActive(false);
     }
 
     public void ResetCountries()
@@ -322,5 +366,54 @@ public class UIControls : MonoBehaviour {
             country.DeleteCountry();
         }
         PropertiesKeeper.logicalMap.HighlightAllegiance();
+    }
+
+    public void GetLockMap(bool value)
+    {
+        PropertiesKeeper.lockedMap = value;
+        PopulateList();
+    }
+
+    public void PopulateList()
+    {
+        string targetDirectory = Application.dataPath.ToString() + Path.AltDirectorySeparatorChar + "Maps/";
+        string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory);
+        mapNames = new List<string>();
+        list.ClearOptions();
+        for (int i = 0; i < subdirectoryEntries.Length; i++)
+        {
+            mapNames.Add(subdirectoryEntries[i].Substring(targetDirectory.Length));
+            if (!PropertiesKeeper.lockedMap && File.Exists(subdirectoryEntries[i]+ "/"+ mapNames[mapNames.Count-1]+ ".mapasset"))
+            {
+                mapNames.RemoveAt(mapNames.Count - 1);
+            }                
+        }
+        list.AddOptions(mapNames);
+    }
+
+    public void LoadEditMap()
+    {
+        MapLoader.LoadMap(mapNames[list.value], mapNames[list.value]);
+        switch (choosenMode)
+        {
+            case -1:
+                PropertiesKeeper.logicalMap.HideAllHighlights();
+                break;
+            case 0:
+                PropertiesKeeper.logicalMap.HighlightTerrain();
+                break;
+            case 1:
+                PropertiesKeeper.logicalMap.HighlightTerrain();
+                break;
+            case 2:
+                PropertiesKeeper.logicalMap.HighlightAllegiance();
+                break;
+            case 3:
+                PropertiesKeeper.logicalMap.HighlightAllegiance();
+                break;
+        }
+        MapCreator.saveHexMap.CreateBorders();
+        mapName = mapNames[list.value];
+        saveText.text = mapNames[list.value]+" copy";
     }
 }

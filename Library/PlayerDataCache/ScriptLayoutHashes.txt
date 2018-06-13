@@ -1,6 +1,6 @@
 WindowsStandalone
 PlayerPath?
-D:/Файлы/Unity/Новая папка (6)/test/test.exe
+D:/GitHub/TestBuild/testBuild.exe
 SceneListBegin?
 Assets/Scenes/MainMenu.unity
 Assets/Scenes/Default scene.unity
@@ -20,7 +20,7 @@ ff05dcdf90651c3d98a9cad3df5e471e UnityEngine.Timeline.dll:UnityEngine.Timeline.C
 92d7a83ea3c7404e484f3b2eed421855 UnityEngine.Timeline.dll:UnityEngine.Timeline.PlayableTrack
 df374c01140c2d578bf70cbd60073d1d UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
 da000b7ee96df18855de1227cb748f0d Assembly-CSharp.dll:.WaterGeneration
-f1a4c93ddeca0fd585271bf6a7fecb9e Assembly-CSharp.dll:.UIControls
+5364a66ebd41bdaa0b38216f2dd4292e Assembly-CSharp.dll:.UIControls
 a35dc9cca2faebc5f5f1aeb9e8e47bbe UnityEngine.UI.dll:UnityEngine.UI.AspectRatioFitter
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.UI.dll:UnityEngine.EventSystems.BaseInput
 49cd62a578efc0a599b810a2b66cd49c UnityEngine.UI.dll:UnityEngine.UI.Button
@@ -85,6 +85,7 @@ c63db43c730fa2cbb8ca07de15898cb6 UnityEngine.UI.dll:UnityEngine.UI.Toggle
 f61c0793411f10cf5fbfa1473fef5ef2 UnityEngine.UI.dll:UnityEngine.UI.ToggleGroup
 86d36c43c53541d667100dc90b89cfba UnityEngine.UI.dll:UnityEngine.EventSystems.TouchInputModule
 1b8c02d0aa82fbf036a2b9b2d713eec3 UnityEngine.UI.dll:UnityEngine.UI.VerticalLayoutGroup
+3ecea0c2e43f5d97a17c441bfcf59a7d Assembly-CSharp.dll:UnityEngine.PostProcessing.PostProcessingBehaviour
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.MapLoader
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationPlayableAsset
 4b12dd839b2293f8457cd67cc3610b85 UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationTrack
@@ -130,12 +131,14 @@ c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.Spa
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.MapSaver
 eb5acf2ea967e700cf16215115350053 Assembly-CSharp.dll:.MainMenuControls
 68857b537598d4d1da50557e2d902094 Assembly-CSharp.dll:.CountryInfo
+205965134a5874db410d674ebdf33ba7 Assembly-CSharp.dll:.ExampleWheelController
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Advertisements.dll:UnityEngine.Advertisements.CallbackExecutor
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Advertisements.dll:UnityEngine.Advertisements.Editor.Placeholder
 95867c61a4d1261014a0cee94e68961e Assembly-CSharp.dll:.CameraControls
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.GameLoader
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.DebugControls
-177f7cd0e27578d38a382ddfc94aa42c Assembly-CSharp.dll:.PropertiesKeeper
+6bd00167fd969710097821b32d87fc85 Assembly-CSharp.dll:.PropertiesKeeper
+05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.TurnOnDepthTexture
 c609ed1acf30690e6fea2dc3f146202c Assembly-CSharp.dll:.UnitType
 bd404d3042af6f118ef28e265f949a55 Assembly-CSharp.dll:.Country
 fc1e0f4d8439d9928083474691511a13 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator
@@ -175,6 +178,7 @@ bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.Audi
 463516d5b5fe8e67a0a24c48f2095b04 UnityEngine.HoloLens.dll:UnityEngine.EventSystems.HoloLensInputModule
 c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
+f671a42aea5f34fec6a4450a3668c615 Assembly-CSharp.dll:UnityEngine.PostProcessing.PostProcessingProfile
 9de3a22eca9aefadba2d10d5987cefe3 UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.MapEditor
 1696ed62367e415996a715601ee3ebcd Assembly-CSharp.dll:.GameMaster
@@ -185,4 +189,4 @@ a2fdb2433c3b9acfbab721853ba2898b Assembly-CSharp.dll:.Unit
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.CountryControls
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.MeshSaver
 a2fdb2433c3b9acfbab721853ba2898b Assembly-CSharp.dll:.AntiAir
-22696096ebc14d658a5bd4c9fa132ff3 Assembly-CSharp.dll:.CreateHexMap
+8de47a42808dfbc7716bb3e4a9bf2b22 Assembly-CSharp.dll:.CreateHexMap

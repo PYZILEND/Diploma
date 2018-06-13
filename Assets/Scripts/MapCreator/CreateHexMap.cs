@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class CreateHexMap : MonoBehaviour
 {
-    static Mesh mesh;
+    public static Mesh mesh;
     static Mesh meshColl;
     MeshCollider meshCollider;
 
@@ -218,18 +218,18 @@ public class CreateHexMap : MonoBehaviour
         {
             AddQuad(HexMetrics.GetFirstSolidCorner(i) + offset + HexMetrics.GetBridge(i),
                 HexMetrics.GetSecondSolidCorner(i) + HexMetrics.GetBridge(i) + offset,
-               HexMetrics.GetFirstSolidCorner(i) + HexMetrics.GetBridge(i) + offset + new Vector3(0, -5f, 0),
-                HexMetrics.GetSecondSolidCorner(i) + HexMetrics.GetBridge(i) + offset + new Vector3(0, -5f, 0), color);
+               HexMetrics.GetFirstSolidCorner(i) + HexMetrics.GetBridge(i) + offset + new Vector3(0, -15f, 0),
+                HexMetrics.GetSecondSolidCorner(i) + HexMetrics.GetBridge(i) + offset + new Vector3(0, -15f, 0), color);
 
             AddQuad(HexMetrics.corners[(int)i] + offset,
                 HexMetrics.GetFirstSolidCorner(i) + offset + HexMetrics.GetBridge(i),
-                HexMetrics.corners[(int)i] + offset + new Vector3(0, -5f, 0),
-                HexMetrics.GetFirstSolidCorner(i) + offset + HexMetrics.GetBridge(i) + new Vector3(0, -5f, 0),
+                HexMetrics.corners[(int)i] + offset + new Vector3(0, -15f, 0),
+                HexMetrics.GetFirstSolidCorner(i) + offset + HexMetrics.GetBridge(i) + new Vector3(0, -15f, 0),
                 color);
             AddQuad(HexMetrics.GetSecondSolidCorner(i) + offset + HexMetrics.GetBridge(i),
                 HexMetrics.corners[(int)i + 1] + offset,
-                HexMetrics.GetSecondSolidCorner(i) + offset + HexMetrics.GetBridge(i) + new Vector3(0, -5f, 0),
-                HexMetrics.corners[(int)i + 1] + offset + new Vector3(0, -5f, 0),
+                HexMetrics.GetSecondSolidCorner(i) + offset + HexMetrics.GetBridge(i) + new Vector3(0, -15f, 0),
+                HexMetrics.corners[(int)i + 1] + offset + new Vector3(0, -15f, 0),
                 color);
         }
     }
@@ -543,7 +543,7 @@ public class CreateHexMap : MonoBehaviour
         }
     }
 
-    public void CreateBorders(int height, int width)
+    public void CreateBorders()
     {
         ClearBorders();
 

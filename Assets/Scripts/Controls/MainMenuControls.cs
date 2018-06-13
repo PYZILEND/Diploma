@@ -11,10 +11,13 @@ public class MainMenuControls : MonoBehaviour {
     bool gameMode=true;
     public Dropdown list;
     List<string> mapNames;
+    int alliesCount = 1;
+
     public void StartButtonClick()
     {
-       PropertiesKeeper.mapName = mapNames[mapIndex];
+        PropertiesKeeper.mapName = mapNames[mapIndex];
         PropertiesKeeper.defaultGameMode = gameMode;
+        PropertiesKeeper.secretAlliesNum = (byte) alliesCount;
         SceneManager.LoadScene(1);
     }
 
@@ -36,6 +39,11 @@ public class MainMenuControls : MonoBehaviour {
     public void GetMapIndex(int value)
     {
         mapIndex = value;
+    }
+
+    public void GetAlliesCount(int value)
+    {
+        alliesCount = value + 1;
     }
 
     void Awake()

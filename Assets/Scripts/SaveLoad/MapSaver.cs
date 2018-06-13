@@ -83,6 +83,10 @@ public class MapSaver : MonoBehaviour {
         using (
     BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
         {
+            if (PropertiesKeeper.lockedMap)
+            {
+                File.Create(path+"asset").Dispose();
+            }
             writer.Write(PropertiesKeeper.mapHeight);
             writer.Write(PropertiesKeeper.mapWidth);
 

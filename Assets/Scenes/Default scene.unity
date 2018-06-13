@@ -415,6 +415,11 @@ Prefab:
       propertyPath: rotationSpeed
       value: 180
       objectReference: {fileID: 0}
+    - target: {fileID: 20543612785340684, guid: c3d25a90194c97f4385515b9d49ba6c2,
+        type: 2}
+      propertyPath: m_RenderingPath
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c3d25a90194c97f4385515b9d49ba6c2, type: 2}
   m_IsPrefabParent: 0
@@ -6365,7 +6370,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 5, y: -75}
+  m_AnchoredPosition: {x: 5, y: -107.4}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1031937817
@@ -7442,7 +7447,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Load map
+  m_Text: 'Reload map
 
 '
 --- !u!222 &1230388080
@@ -8033,7 +8038,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1309841186
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10717,6 +10722,8 @@ GameObject:
   - component: {fileID: 1853067785}
   - component: {fileID: 1853067784}
   - component: {fileID: 1853067783}
+  - component: {fileID: 1853067787}
+  - component: {fileID: 1853067788}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -10766,7 +10773,7 @@ Camera:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_RenderingPath: -1
+  m_RenderingPath: 3
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
@@ -10791,6 +10798,29 @@ Transform:
   m_Father: {fileID: 1518609825}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1853067787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1853067782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: 58f65abbfecf2dc4db12561bde612dd2, type: 2}
+--- !u!114 &1853067788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1853067782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 545ce898036a93e4385e4c60a9c07078, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1857981797
 GameObject:
   m_ObjectHideFlags: 0
@@ -11317,7 +11347,7 @@ GameObject:
   - component: {fileID: 1950902112}
   - component: {fileID: 1950902111}
   m_Layer: 5
-  m_Name: LoadMapButton
+  m_Name: ReloadMapButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11606,6 +11636,16 @@ Prefab:
     - target: {fileID: 1998829751402120, guid: c5688b49ed7f63040a52ce2784e8558b, type: 2}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114089769690696312, guid: c5688b49ed7f63040a52ce2784e8558b,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1488717594}
+    - target: {fileID: 114089769690696312, guid: c5688b49ed7f63040a52ce2784e8558b,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ClosePopUp
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c5688b49ed7f63040a52ce2784e8558b, type: 2}

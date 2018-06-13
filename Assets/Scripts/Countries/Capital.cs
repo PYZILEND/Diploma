@@ -158,4 +158,9 @@ public class Capital : MonoBehaviour {
         }
         return i;
     }
+
+    public void ChangeAllegiance(Color color)
+    {
+        GetComponentInChildren<MeshRenderer>().material.color = color;
+    }
 }

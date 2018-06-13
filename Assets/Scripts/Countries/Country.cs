@@ -321,6 +321,11 @@ public class Country : MonoBehaviour {
         areaCell.ValidateHighlightWithTerrain();
     }
 
+    public void ChangeAllegiance(Allegiance allegiance)
+    {
+        this.secretAllegiance = allegiance;
+        capitalCity.ChangeAllegiance(AllegianceExtentions.AllegianceToColor(allegiance));
+    }
     /// <summary>
     /// Changes capital of country
     /// Checks if cell's not already capital
@@ -373,6 +378,11 @@ public class Country : MonoBehaviour {
     public void ChangeName(string newName)
     {
         countryName = newName;
+    }
+
+    public void ChangeType(CountryType type)
+    {
+        this.type = type;
     }
 
     /// <summary>

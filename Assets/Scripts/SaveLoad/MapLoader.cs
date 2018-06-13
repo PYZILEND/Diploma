@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public class MapLoader : MonoBehaviour {
         
@@ -57,23 +58,57 @@ public class MapLoader : MonoBehaviour {
         BinaryReader reader = new BinaryReader(File.Open((path + mapName + ".map"), FileMode.Open)))
         {
             //Delete current map
-            GameMaster.DropMap();
 
             PropertiesKeeper.mapHeight = reader.ReadInt32();
             PropertiesKeeper.mapWidth = reader.ReadInt32();
-
-            if (File.Exists(path + mapName + "_mesh.asset"))
+            if (SceneManager.GetActiveScene() != SceneManager.GetSceneByName("MapCreator"))
             {
-                GameMaster.BuildMap(mapName, folderName);
+                GameMaster.DropMap();
+                if (File.Exists(path + mapName + "_mesh.asset"))
+                {
+                    GameMaster.BuildMap(mapName, folderName);
+                }
+                else
+                {
+                    GameMaster.BuildMap();
+                }
             }
             else
             {
-                GameMaster.BuildMap();
+                foreach (Country country in PropertiesKeeper.countries.ToArray())
+                {
+                    country.DeleteCountry();
+                }
+
+                if (PropertiesKeeper.physicalMap)
+                {
+                    Destroy(PropertiesKeeper.physicalMap.gameObject);
+                }
+
+                if (PropertiesKeeper.logicalMap)
+                {
+                    Destroy(PropertiesKeeper.logicalMap.gameObject);
+                }
+
+                PropertiesKeeper.physicalMap = Instantiate(PropertiesKeeper.physicalMapPrefab);
+                PropertiesKeeper.physicalMap.CreateMap(PropertiesKeeper.mapWidth, PropertiesKeeper.mapHeight);
+
+                PropertiesKeeper.logicalMap = Instantiate(PropertiesKeeper.logicalMapPrefab);
+                PropertiesKeeper.logicalMap.CreateMap(PropertiesKeeper.mapWidth, PropertiesKeeper.mapHeight);
+
+                Destroy(PropertiesKeeper.physicalMap.gameObject);
             }
 
             for (int i = 0; i < (PropertiesKeeper.mapHeight * PropertiesKeeper.mapWidth); i++)
             {
                 LoadCell(reader, PropertiesKeeper.logicalMap.cells[i]);
+            }
+
+            if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("MapCreator"))
+            {
+                MapCreator.saveHexMap.RedoMapMesh(PropertiesKeeper.mapHeight, PropertiesKeeper.mapWidth);
+                PropertiesKeeper.logicalMap.ValidateUIPosition();
+
             }
 
             if (PropertiesKeeper.physicalMap.transform.Find("forestContainer") != null)
@@ -85,24 +120,25 @@ public class MapLoader : MonoBehaviour {
             PropertiesKeeper.logicalMap.AddForest();
 
             int countryCount = reader.ReadInt32();
-           
-            if (PropertiesKeeper.defaultGameMode)
+            
+                if (PropertiesKeeper.defaultGameMode&& SceneManager.GetActiveScene() != SceneManager.GetSceneByName("MapCreator"))
             {
-                Allegiance[] allegiance = GenerateAllegiance(countryCount);
-                for (int i = 0; i < countryCount; i++)
-                {
-                    LoadCountry(reader,allegiance[i]);
+                    Allegiance[] allegiance = GenerateAllegiance(countryCount);
+                    for (int i = 0; i < countryCount; i++)
+                    {
+                        LoadCountry(reader, allegiance[i]);
+                    }
                 }
-            }
-            else
-            {
-                for (int i = 0; i < countryCount; i++)
+                else
                 {
-                    LoadCountry(reader);
+                    for (int i = 0; i < countryCount; i++)
+                    {
+                        LoadCountry(reader);
+                    }
                 }
-            }
+            
 
-            if (File.Exists(path + mapName + "_border0.asset"))
+            if (SceneManager.GetActiveScene()!=SceneManager.GetSceneByName("MapCreator")&&File.Exists(path + mapName + "_border0.asset"))
             {
                 for (int i = 0; i < countryCount; i++)
                 {
@@ -212,28 +248,36 @@ public class MapLoader : MonoBehaviour {
             return result;
         }
 
-        int allies =Mathf.CeilToInt(countryCount * PropertiesKeeper.secretAlliesNum);
+        int allies =Mathf.CeilToInt(countryCount * 0.25f*PropertiesKeeper.secretAlliesNum);
+        
         if (allies == 1) allies++;
-        if (allies % 2 != 0) allies--;
+        if (allies % 2 != 0) {
+            if (allies + 1 < countryCount) allies++;
+            else allies--;
+        }
 
         int dAllies = allies / 2;
         int sAllies = dAllies;
 
         do
         {
-            int i = Random.Range(0, countryCount);
-            int j = Random.Range(0, countryCount);
-            if (result[i] != Allegiance.Sentinels && result[i] != Allegiance.Sentinels)
+            int k = Random.Range(0, countryCount);
+            if (result[k] == Allegiance.Neutral)
             {
-                result[i] = Allegiance.Dominion;
+                result[k] = Allegiance.Dominion;
                 dAllies--;
             }
-            if (i !=j && result[j] != Allegiance.Sentinels && result[j] != Allegiance.Sentinels)
+        } while (dAllies != 0);
+
+        do
+        {
+            int j = Random.Range(0, countryCount);
+            if (result[j] == Allegiance.Neutral)
             {
                 result[j] = Allegiance.Sentinels;
                 sAllies--;
             }
-        } while (dAllies > 0 && sAllies>0);
+        } while (sAllies != 0);
 
         return result;
     }
